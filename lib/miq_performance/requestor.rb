@@ -16,9 +16,10 @@ module MiqPerformance
     attr_accessor :uri, :session, :headers
 
     def initialize(options={})
-      @uri     = URI.parse(options[:host] || "http://localhost:3000")
-      @headers = DEFAULT_HEADERS.merge(options[:headers] || {})
-      @logger  = options[:logger] || Logger.new(STDOUT)
+      @uri         = URI.parse(options[:host] || "http://localhost:3000")
+      @headers     = DEFAULT_HEADERS.merge(options[:headers] || {})
+      @logger      = options[:logger] || Logger.new(STDOUT)
+      @ignore_cert = options[:ignore_ssl] || false
 
       login
     end
@@ -50,7 +51,8 @@ module MiqPerformance
 
     def http
       @http ||= Net::HTTP.new(uri.host, uri.port).tap {|http|
-                  http.use_ssl = true if uri.port == 443
+                  http.use_ssl = true if using_ssl?
+                  http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ignore_ssl_cert?
                 }
     end
 
@@ -105,6 +107,14 @@ module MiqPerformance
 
     def log(msg)
       @logger.debug msg
+    end
+
+    def using_ssl?
+      uri.port == 443
+    end
+
+    def ignore_ssl_cert?
+      using_ssl? && ignore_cert?
     end
   end
 end
