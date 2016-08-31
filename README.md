@@ -116,9 +116,9 @@ More info can be found on the [github page](https://github.com/tmm1/stackprof)
 
 `miq_performance` comes with 3 rake tasks:
 
-* `rake miq_peformance:build_request_file`
-* `rake miq_peformance:benchmark`
-* `rake miq_peformance:benchmark_url["<REQUEST_PATH>"]`
+* `rake miq_performance:build_request_file`
+* `rake miq_performance:benchmark`
+* `rake miq_performance:benchmark_url["<REQUEST_PATH>"]`
 
 
 #### `build_request_file`
@@ -168,7 +168,7 @@ TODO
 * Add Profiling around MiqQueue
 * Better Requestfile generation
 * Handle CSRF Token better in `Requestor`
-* Include support for headless browser requests through Phantom.js/Poltergiest
+* Include support for headless browser requests through Phantom.js/Poltergeist
 * Add more middleware components (`statsd`, `rake-mini-profiler`, etc.)
 * Human readable report generation
 * Tooling around data analysis and debugging
