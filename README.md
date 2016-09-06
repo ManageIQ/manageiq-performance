@@ -55,12 +55,13 @@ Usage
 The middleware included in this gem is a modular middleware, and will add
 components based on if the gem required by the component is present.
 
-The two middleware components currently available are:
+The three middleware components currently available are:
 
 * `activesupport_timers`
+* `activerecord_queries`
 * `stackprof`
 
-Both will write their data to a directory that is configured on application
+Each will write their data to a directory that is configured on application
 boot, something like `tmp/miq_performance/run_123456789`, where `123456789` is
 a timestamp of when the application was booted.
 
@@ -77,9 +78,11 @@ tmp/
 │   └── run_1472612126
 │       ├── root
 │       │   ├── request_1472612151930416.info
+│       │   ├── request_1472612151930416.queries
 │       │   └── request_1472612151930416.stackprof
 │       └── vm_infra-explorer
 │           ├── request_1472612151930416.info
+│           ├── request_1472612151930416.queries
 │           └── request_1472612151930416.stackprof
 ```
 
@@ -91,6 +94,21 @@ is implemented in a similar fashion to [this blog
 post](https://signalvnoise.com/posts/3091-pssst-your-rails-application-has-a-secret-to-tell-you)
 by Basecamp.  This will write an `.info` file that will include the controller,
 action, path, status, and timers (total, views, and db) of the request.
+
+
+#### `ActiveRecordQueries`
+
+Also making use of `ActiveSupport::Notifications`, these currently log the
+following specifics in regards to the queries made by your application on a
+request:
+
+* Total number of sql queries made in during the request
+* Data about each query fired, which includes the following:
+  - SQL generated for the query
+  - Time taken for the query to be executed in the DB
+  - `params` passed into the query
+* Total number of rows returned
+* Number of rows returned per class
 
 
 #### `Stackprof`
