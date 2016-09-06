@@ -24,13 +24,9 @@ module MiqPerformance
       def activesupport_timers_finish(env); end
 
       def activesupport_timers_save event, datas
-        filename = activesupport_timers_filename event
-        filepath = File.join(miq_performance_session_dir, filename)
-        FileUtils.mkdir_p(File.dirname filepath)
-        File.open(filepath, 'wb') do |f|
+        save_report activesupport_timers_filename(event) do |f|
           f.write datas.to_yaml
         end
-        filename
       end
 
       def activesupport_timers_filename event

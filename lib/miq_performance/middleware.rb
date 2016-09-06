@@ -66,6 +66,15 @@ module MiqPerformance
       @miq_performance_session_dir = suite_dir
     end
 
+    def save_report filename
+      filepath = File.join(miq_performance_session_dir, filename)
+      FileUtils.mkdir_p(File.dirname filepath)
+      File.open(filepath, 'wb') do |file_object|
+        yield file_object
+      end
+      filename
+    end
+
     def format_path_for_filename path
       request_path = path.to_s.gsub("/", "-")[1..-1]
       request_path = "root" if request_path == ""

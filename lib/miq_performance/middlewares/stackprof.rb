@@ -28,17 +28,10 @@ begin
         def stackprof_finish env
           StackProf.stop
 
-          stackprof_save stackprof_report_filename(env)
-        end
-
-        def stackprof_save filename
           if results = StackProf.results
-            filepath = File.join(miq_performance_session_dir, filename)
-            FileUtils.mkdir_p(File.dirname filepath)
-            File.open(filepath, 'wb') do |f|
+            save_report stackprof_report_filename(env) do |f|
               f.write Marshal.dump(results)
             end
-            filename
           end
         end
 
