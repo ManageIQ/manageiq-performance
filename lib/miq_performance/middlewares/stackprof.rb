@@ -29,17 +29,10 @@ begin
           StackProf.stop
 
           if results = StackProf.results
-            save_report stackprof_report_filename(env) do |f|
+            save_report generic_report_filename(env, :stackprof) do |f|
               f.write Marshal.dump(results)
             end
           end
-        end
-
-        def stackprof_report_filename env
-          request_path = format_path_for_filename env['REQUEST_PATH']
-          timestamp    = request_timestamp env
-
-          "#{request_path}/request_#{timestamp}.stackprof"
         end
 
         def stackprof_raw(env)
