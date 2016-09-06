@@ -2,7 +2,7 @@ module MiqPerformance
   module Middlewares
     module ActiveSupportTimers
 
-      NOTIFIER = "process_action.action_controller".freeze
+      PROCESS_ACTION_NOTIFIER = "process_action.action_controller".freeze
 
       def self.included(klass)
         klass.performance_middleware << "activesupport_timers"
@@ -11,7 +11,7 @@ module MiqPerformance
       private
 
       def activesupport_timers_initialize
-        ActiveSupport::Notifications.subscribe NOTIFIER do |*args|
+        ActiveSupport::Notifications.subscribe PROCESS_ACTION_NOTIFIER do |*args|
           event = ActiveSupport::Notifications::Event.new(*args)
           if event.payload[:headers].env[performance_header]
             activesupport_timers_save event, parsed_data(event)
