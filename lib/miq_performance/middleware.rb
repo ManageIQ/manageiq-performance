@@ -53,7 +53,7 @@ module MiqPerformance
     end
 
     def performance_middleware_finish env
-      performance_middleware.each do |middleware|
+      performance_middleware.reverse.each do |middleware|
         send "#{middleware}_finish", env
       end
     end
