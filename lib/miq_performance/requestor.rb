@@ -52,6 +52,7 @@ module MiqPerformance
     def http
       @http ||= Net::HTTP.new(uri.host, uri.port).tap {|http|
                   http.use_ssl = true if using_ssl?
+                  http.read_timeout = 300 # we have some big requests...
                   http.verify_mode = OpenSSL::SSL::VERIFY_NONE if ignore_ssl_cert?
                 }
     end
