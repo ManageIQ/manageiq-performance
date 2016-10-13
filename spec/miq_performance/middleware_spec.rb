@@ -63,6 +63,6 @@ describe MiqPerformance::Middleware do
   context "with no configuration set (default)" do
     subject { described_class.new(Proc.new {}) }
     include_examples "middleware functionality for",
-                     [:stackprof, :activesupport_timers, :activerecord_queries]
+                     [:stackprof, :active_support_timers, :active_record_queries]
   end
 end

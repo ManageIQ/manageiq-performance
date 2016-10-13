@@ -3,26 +3,26 @@ module MiqPerformance
     module ActiveRecordQueries
 
       def self.included(klass)
-        klass.performance_middleware << "activerecord_queries"
+        klass.performance_middleware << "active_record_queries"
       end
 
       private
 
-      def activerecord_queries_initialize
+      def active_record_queries_initialize
         logger = ::MiqPerformance::Middlewares::ActiveRecordQueries::Logger.new
         %w(sql.active_record instantiation.active_record).each do |event|
           ActiveSupport::Notifications.subscribe(event, logger)
         end
       end
 
-      def activerecord_queries_start env
+      def active_record_queries_start env
         Thread.current[:miq_perf_sql_query_data] = {
           :queries => [],
           :rows_by_class => {}
         }
       end
 
-      def activerecord_queries_finish env
+      def active_record_queries_finish env
         save_report generic_report_filename(env, :queries) do |f|
           f.write Thread.current[:miq_perf_sql_query_data].to_yaml
         end
@@ -96,7 +96,7 @@ module MiqPerformance
         end
 
         def generate_sql_filter_regexp
-          @skip_rexp = /#{Rails.application.config.filter_parameters.join('|')}/
+          @skip_rexp = /#{Rails.application.config.filter_parameters.join("|")}/
         end
 
         def should_measure?

@@ -57,8 +57,8 @@ components based on if the gem required by the component is present.
 
 The three middleware components currently available are:
 
-* `activesupport_timers`
-* `activerecord_queries`
+* `active_support_timers`
+* `active_record_queries`
 * `stackprof`
 
 Each will write their data to a directory that is configured on application

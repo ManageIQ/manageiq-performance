@@ -97,8 +97,8 @@ module MiqPerformance
   # TODO:  Automate the loading of this a bit better... also make it
   # configurable so you are able to exclude and add custom ones.
   require 'miq_performance/middlewares/stackprof'
-  require 'miq_performance/middlewares/activesupport_timers'
-  require 'miq_performance/middlewares/activerecord_queries'
+  require 'miq_performance/middlewares/active_support_timers'
+  require 'miq_performance/middlewares/active_record_queries'
 
   Middleware.send :include, Middlewares::Stackprof            if defined?(Middlewares::Stackprof)
   Middleware.send :include, Middlewares::ActiveSupportTimers  if defined?(Middlewares::ActiveSupportTimers)
