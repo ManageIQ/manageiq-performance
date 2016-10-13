@@ -1,4 +1,5 @@
-require 'fileutils'
+require "fileutils"
+require "miq_performance/configuration"
 
 # This is a wrapper middleware for the specific performance utility middlewares
 # found in `lib/miq_performance/middlewares/`
