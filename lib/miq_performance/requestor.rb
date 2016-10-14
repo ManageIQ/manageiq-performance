@@ -92,14 +92,12 @@ module MiqPerformance
                           'user_password' => password
     end
 
-    # TODO: set from config
     def username
-      "admin"
+      MiqPerformance.config.requestor.username
     end
 
-    # TODO: set from config
     def password
-      "smartvm"
+      MiqPerformance.config.requestor.password
     end
 
     def poltergeist_enabled?
