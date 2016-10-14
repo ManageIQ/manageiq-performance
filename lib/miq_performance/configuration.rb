@@ -16,7 +16,7 @@ module MiqPerformance
       ]
     }.freeze
 
-    attr_reader :requestor
+    attr_reader :requestor, :middleware
 
     def self.load_config
       new load_config_file
@@ -38,8 +38,9 @@ module MiqPerformance
     end
 
     def initialize(config={})
-      @config    = config
-      @requestor = requestor_config config.fetch("requestor", {})
+      @config     = config
+      @requestor  = requestor_config config.fetch("requestor", {})
+      @middleware = config["middleware"] || DEFAULTS["middleware"]
     end
 
     def [](key)

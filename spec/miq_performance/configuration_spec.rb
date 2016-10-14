@@ -95,6 +95,12 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config.requestor.password).to eq("smartvm")
       expect(MiqPerformance.config["requestor"]["password"]).to eq("smartvm")
     end
+
+    it "defines MiqPerformance.config.middleware" do
+      middleware = %w[stackprof active_support_timers active_record_queries]
+      expect(MiqPerformance.config.middleware).to match_array(middleware)
+      expect(MiqPerformance.config["middleware"]).to match_array(middleware)
+    end
   end
 
   describe "loading from a yaml file" do
@@ -104,6 +110,10 @@ describe MiqPerformance::Configuration do
         requestor:
           username: foobar
           password: p@ssw0rd
+        middleware:
+          - active_support_timers
+          - stackprof
+          - active_record_queries
       YAML
     }
     before(:each) do
@@ -122,6 +132,12 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.requestor.password" do
       expect(MiqPerformance.config.requestor.password).to eq("p@ssw0rd")
       expect(MiqPerformance.config["requestor"]["password"]).to eq("p@ssw0rd")
+    end
+
+    it "defines MiqPerformance.config.middleware" do
+      middleware = %w[active_support_timers stackprof active_record_queries]
+      expect(MiqPerformance.config.middleware).to match_array(middleware)
+      expect(MiqPerformance.config["middleware"]).to match_array(middleware)
     end
   end
 end
