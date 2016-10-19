@@ -2,10 +2,6 @@ module MiqPerformance
   module Middlewares
     module ActiveRecordQueries
 
-      def self.included(klass)
-        klass.performance_middleware << "active_record_queries"
-      end
-
       private
 
       def active_record_queries_initialize

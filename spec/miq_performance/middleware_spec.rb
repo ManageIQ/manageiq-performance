@@ -12,12 +12,23 @@ class Rails
   end
 end
 
+middleware_defaults = MiqPerformance::Configuration::DEFAULTS["middleware"]
+
 shared_examples "middleware functionality for" do |middleware_order|
   middleware_order.each do |name|
     it "loads #{name} middleware" do
       expect(subject.private_methods.include? "#{name}_start".to_sym).to  be true
       expect(subject.private_methods.include? "#{name}_finish".to_sym).to be true
       expect(subject.private_methods.include? "#{name}_initialize".to_sym).to be true
+    end
+  end
+
+  (middleware_defaults - middleware_order.map(&:to_s)).each do |name|
+    it "does not load #{name} middleware" do
+      my_subject = described_class.new(Proc.new {})
+      expect(my_subject.private_methods.include? "#{name}_start".to_sym).to  be false
+      expect(my_subject.private_methods.include? "#{name}_finish".to_sym).to be false
+      expect(my_subject.private_methods.include? "#{name}_initialize".to_sym).to be false
     end
   end
 
@@ -59,10 +70,23 @@ shared_examples "middleware functionality for" do |middleware_order|
 end
 
 describe MiqPerformance::Middleware do
-
   context "with no configuration set (default)" do
     subject { described_class.new(Proc.new {}) }
     include_examples "middleware functionality for",
                      [:stackprof, :active_support_timers, :active_record_queries]
+  end
+
+  context "with only stackprof and active_record_queries middlewares" do
+    subject { described_class.new(Proc.new {}) }
+    before do
+      MiqPerformance.config.instance_variable_set :@middleware, %w[stackprof active_record_queries]
+    end
+
+    include_examples "middleware functionality for",
+                     [:stackprof, :active_record_queries]
+  end
+
+  after(:each) do
+    MiqPerformance.instance_variable_set :@config, nil
   end
 end

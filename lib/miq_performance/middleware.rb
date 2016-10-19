@@ -5,16 +5,13 @@ require "miq_performance/configuration"
 # found in `lib/miq_performance/middlewares/`
 module MiqPerformance
   class Middleware
-    attr_reader :miq_performance_session_dir
+    attr_reader :performance_middleware, :miq_performance_session_dir
 
     PERFORMANCE_HEADER = "HTTP_WITH_PERFORMANCE_MONITORING".freeze
 
-    def self.performance_middleware
-      @performance_middleware ||= []
-    end
-
     def initialize app
       @app = app
+      @performance_middleware = []
 
       mk_suite_dir
       initialize_performance_middleware
@@ -37,11 +34,20 @@ module MiqPerformance
       ::MiqPerformance::Middleware::PERFORMANCE_HEADER
     end
 
-    def performance_middleware
-      self.class.performance_middleware
-    end
-
     def initialize_performance_middleware
+      MiqPerformance.config.middleware.each do |name|
+        begin
+          require "miq_performance/middlewares/#{name}"
+
+          module_name = name.split("_").map(&:capitalize).join
+          middleware  = Object.const_get "MiqPerformance::Middlewares::#{module_name}"
+
+          extend middleware
+          @performance_middleware << name
+        rescue NameError
+        end
+      end
+
       performance_middleware.each do |middleware|
         send "#{middleware}_initialize"
       end
@@ -93,14 +99,4 @@ module MiqPerformance
       env['HTTP_MIQ_PERF_TIMESTAMP'] || Time.now.to_i
     end
   end
-
-  # TODO:  Automate the loading of this a bit better... also make it
-  # configurable so you are able to exclude and add custom ones.
-  require 'miq_performance/middlewares/stackprof'
-  require 'miq_performance/middlewares/active_support_timers'
-  require 'miq_performance/middlewares/active_record_queries'
-
-  Middleware.send :include, Middlewares::Stackprof            if defined?(Middlewares::Stackprof)
-  Middleware.send :include, Middlewares::ActiveSupportTimers  if defined?(Middlewares::ActiveSupportTimers)
-  Middleware.send :include, Middlewares::ActiveRecordQueries  if defined?(Middlewares::ActiveRecordQueries)
 end

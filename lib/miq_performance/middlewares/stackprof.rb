@@ -5,10 +5,6 @@ begin
     module Middlewares
       module Stackprof
 
-        def self.included(klass)
-          klass.performance_middleware << "stackprof"
-        end
-
         private
 
         def stackprof_initialize

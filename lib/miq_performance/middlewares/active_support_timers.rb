@@ -4,10 +4,6 @@ module MiqPerformance
 
       PROCESS_ACTION_NOTIFIER = "process_action.action_controller".freeze
 
-      def self.included(klass)
-        klass.performance_middleware << "active_support_timers"
-      end
-
       private
 
       def active_support_timers_initialize
