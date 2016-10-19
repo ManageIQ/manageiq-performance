@@ -96,6 +96,21 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["requestor"]["password"]).to eq("smartvm")
     end
 
+    it "defines MiqPerformance.config.requestor.host" do
+      expect(MiqPerformance.config.requestor.host).to eq("http://localhost:3000")
+      expect(MiqPerformance.config["requestor"]["host"]).to eq("http://localhost:3000")
+    end
+
+    it "defines MiqPerformance.config.requestor.read_timeout" do
+      expect(MiqPerformance.config.requestor.read_timeout).to eq(300)
+      expect(MiqPerformance.config["requestor"]["read_timeout"]).to eq(300)
+    end
+
+    it "defines MiqPerformance.config.requestor.ignore_ssl" do
+      expect(MiqPerformance.config.requestor.ignore_ssl).to eq(false)
+      expect(MiqPerformance.config["requestor"]["ignore_ssl"]).to eq(false)
+    end
+
     it "defines MiqPerformance.config.middleware" do
       middleware = %w[stackprof active_support_timers active_record_queries]
       expect(MiqPerformance.config.middleware).to match_array(middleware)
@@ -110,6 +125,9 @@ describe MiqPerformance::Configuration do
         requestor:
           username: foobar
           password: p@ssw0rd
+          host: http://123.45.67.89
+          read_timeout: 400
+          ignore_ssl: true
         middleware:
           - active_support_timers
           - stackprof
@@ -132,6 +150,21 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.requestor.password" do
       expect(MiqPerformance.config.requestor.password).to eq("p@ssw0rd")
       expect(MiqPerformance.config["requestor"]["password"]).to eq("p@ssw0rd")
+    end
+
+    it "defines MiqPerformance.config.requestor.host" do
+      expect(MiqPerformance.config.requestor.host).to eq("http://123.45.67.89")
+      expect(MiqPerformance.config["requestor"]["host"]).to eq("http://123.45.67.89")
+    end
+
+    it "defines MiqPerformance.config.requestor.read_timeout" do
+      expect(MiqPerformance.config.requestor.read_timeout).to eq(400)
+      expect(MiqPerformance.config["requestor"]["read_timeout"]).to eq(400)
+    end
+
+    it "defines MiqPerformance.config.requestor.ignore_ssl" do
+      expect(MiqPerformance.config.requestor.ignore_ssl).to eq(true)
+      expect(MiqPerformance.config["requestor"]["ignore_ssl"]).to eq(true)
     end
 
     it "defines MiqPerformance.config.middleware" do

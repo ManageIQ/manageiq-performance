@@ -2,12 +2,19 @@ require "yaml"
 
 module MiqPerformance
   class Configuration
-    REQUESTOR_CONFIG = Struct.new(:username, :password)
+    REQUESTOR_CONFIG = Struct.new :username,
+                                  :password,
+                                  :host,
+                                  :read_timeout,
+                                  :ignore_ssl
 
     DEFAULTS = {
       "requestor" => {
-        "username" => "admin",
-        "password" => "smartvm"
+        "username"     => "admin",
+        "password"     => "smartvm",
+        "host"         => "http://localhost:3000",
+        "read_timeout" => 300,
+        "ignore_ssl"   => false
       },
       "middleware" => %w[
         stackprof
@@ -64,8 +71,11 @@ module MiqPerformance
     def requestor_config(opts={})
       defaults = DEFAULTS["requestor"]
       REQUESTOR_CONFIG.new(
-        (opts["username"] || defaults["username"]),
-        (opts["password"] || defaults["password"])
+        (opts["username"]     || defaults["username"]),
+        (opts["password"]     || defaults["password"]),
+        (opts["host"]         || defaults["host"]),
+        (opts["read_timeout"] || defaults["read_timeout"]),
+        (opts["ignore_ssl"]   || defaults["ignore_ssl"])
       )
     end
   end
