@@ -1,6 +1,7 @@
-require 'fileutils'
+require "fileutils"
 
-require 'miq_performance/reporting/param_builder/id'
+require "miq_performance/configuration"
+require "miq_performance/reporting/param_builder/id"
 
 module MiqPerformance
   module Reporting
@@ -62,7 +63,9 @@ module MiqPerformance
       end
 
       def self.filepath
-        ::Rails.root.join("tmp", "miq_performance")
+        path = MiqPerformance.config.requestor.requestfile_dir ||
+                 MiqPerformance.config.default_dir
+        path.start_with?("/") ? path : File.join(Dir.pwd, path)
       end
 
       def self.filename
