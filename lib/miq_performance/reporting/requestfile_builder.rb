@@ -4,7 +4,7 @@ require 'miq_performance/reporting/param_builder/id'
 
 module MiqPerformance
   module Reporting
-    class RequestFileBuilder
+    class RequestfileBuilder
 
       include ParamBuilder::Id
 

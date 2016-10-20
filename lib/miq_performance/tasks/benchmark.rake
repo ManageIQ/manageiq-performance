@@ -1,7 +1,7 @@
 require "optparse"
 
 require "miq_performance/requestor"
-require "miq_performance/reporting/request_file_builder"
+require "miq_performance/reporting/requestfile_builder"
 
 namespace :miq_performance do
   desc "Benchmark the application"
@@ -11,7 +11,7 @@ namespace :miq_performance do
     options[:ignore_ssl] = ENV['DISABLE_SSL_VERIFY']
     request_file         = ENV['REQUESTFILE'] || ENV['REQUEST_FILE']
 
-    requests  = MiqPerformance::Reporting::RequestFileBuilder.load request_file
+    requests  = MiqPerformance::Reporting::RequestfileBuilder.load request_file
     requestor = MiqPerformance::Requestor.new options
 
     requests.each do |request|
@@ -30,6 +30,6 @@ namespace :miq_performance do
 
   desc "Build a RequestFile for benchmarking"
   task :build_request_file => :environment do
-    MiqPerformance::Reporting::RequestFileBuilder.new
+    MiqPerformance::Reporting::RequestfileBuilder.new
   end
 end
