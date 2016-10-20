@@ -85,8 +85,4 @@ describe MiqPerformance::Middleware do
     include_examples "middleware functionality for",
                      [:stackprof, :active_record_queries]
   end
-
-  after(:each) do
-    MiqPerformance.instance_variable_set :@config, nil
-  end
 end

@@ -82,10 +82,6 @@ describe MiqPerformance::Configuration do
   end
 
   describe "default config" do
-    after(:each) do
-      MiqPerformance.instance_variable_set :@config, nil
-    end
-
     it "defines MiqPerformance.config.default_dir" do
       expect(MiqPerformance.config.default_dir).to eq("tmp/miq_performance")
       expect(MiqPerformance.config["default_dir"]).to eq("tmp/miq_performance")
@@ -148,10 +144,6 @@ describe MiqPerformance::Configuration do
     }
     before(:each) do
       File.write "#{home_dir}/.miq_performance", config
-    end
-
-    after(:each) do
-      MiqPerformance.instance_variable_set :@config, nil
     end
 
     it "defines MiqPerformance.config.default_dir" do
