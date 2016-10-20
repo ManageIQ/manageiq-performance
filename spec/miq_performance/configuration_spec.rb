@@ -86,6 +86,11 @@ describe MiqPerformance::Configuration do
       MiqPerformance.instance_variable_set :@config, nil
     end
 
+    it "defines MiqPerformance.config.default_dir" do
+      expect(MiqPerformance.config.default_dir).to eq("tmp/miq_performance")
+      expect(MiqPerformance.config["default_dir"]).to eq("tmp/miq_performance")
+    end
+
     it "defines MiqPerformance.config.requestor.username" do
       expect(MiqPerformance.config.requestor.username).to eq("admin")
       expect(MiqPerformance.config["requestor"]["username"]).to eq("admin")
@@ -122,6 +127,7 @@ describe MiqPerformance::Configuration do
     let(:config) {
       <<-YAML.gsub(/^\s{8}/, "")
         ---
+        default_dir: /tmp/miq_perf
         requestor:
           username: foobar
           password: p@ssw0rd
@@ -140,6 +146,11 @@ describe MiqPerformance::Configuration do
 
     after(:each) do
       MiqPerformance.instance_variable_set :@config, nil
+    end
+
+    it "defines MiqPerformance.config.default_dir" do
+      expect(MiqPerformance.config.default_dir).to eq("/tmp/miq_perf")
+      expect(MiqPerformance.config["default_dir"]).to eq("/tmp/miq_perf")
     end
 
     it "defines MiqPerformance.config.requestor.username" do

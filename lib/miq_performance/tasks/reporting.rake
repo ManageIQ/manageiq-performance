@@ -9,13 +9,13 @@ namespace :miq_performance do
   end
 
   task :report_on_first do
-    dir = Dir["tmp/miq_performance/run_*"].sort.first
+    dir = Dir["#{MiqPerformance.config.default_dir}/run_*"].sort.first
     Rake::Task["miq_performance:report"].invoke dir
   end
   task :first_report => :report_on_first
 
   task :report_on_last do
-    dir = Dir["tmp/miq_performance/run_*"].sort.last
+    dir = Dir["#{MiqPerformance.config.default_dir}/run_*"].sort.last
     Rake::Task["miq_performance:report"].invoke dir
   end
   task :last_report => :report_on_last

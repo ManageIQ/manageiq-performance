@@ -66,8 +66,8 @@ module MiqPerformance
     end
 
     def mk_suite_dir
-      suite_dir = "tmp/miq_performance"
-      suite_dir = File.join(suite_dir, "run_#{Time.now.to_i}")
+      base_dir = MiqPerformance.config.default_dir
+      suite_dir = File.join(base_dir, "run_#{Time.now.to_i}")
       FileUtils.mkdir_p(suite_dir)
 
       @miq_performance_session_dir = suite_dir

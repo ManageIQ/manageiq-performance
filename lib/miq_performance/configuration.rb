@@ -2,13 +2,14 @@ require "yaml"
 
 module MiqPerformance
   class Configuration
-    REQUESTOR_CONFIG = Struct.new :username,
-                                  :password,
-                                  :host,
-                                  :read_timeout,
-                                  :ignore_ssl
+    REQUESTOR_CONFIG  = Struct.new :username,
+                                   :password,
+                                   :host,
+                                   :read_timeout,
+                                   :ignore_ssl
 
     DEFAULTS = {
+      "default_dir" => "tmp/miq_performance",
       "requestor" => {
         "username"     => "admin",
         "password"     => "smartvm",
@@ -23,7 +24,7 @@ module MiqPerformance
       ]
     }.freeze
 
-    attr_reader :requestor, :middleware
+    attr_reader :default_dir, :requestor, :middleware
 
     def self.load_config
       new load_config_file
@@ -45,9 +46,10 @@ module MiqPerformance
     end
 
     def initialize(config={})
-      @config     = config
-      @requestor  = requestor_config config.fetch("requestor", {})
-      @middleware = config["middleware"] || DEFAULTS["middleware"]
+      @config      = config
+      @default_dir = config["default_dir"] || DEFAULTS["default_dir"]
+      @requestor   = requestor_config config.fetch("requestor", {})
+      @middleware  = config["middleware"] || DEFAULTS["middleware"]
     end
 
     def [](key)
