@@ -116,6 +116,11 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["requestor"]["ignore_ssl"]).to eq(false)
     end
 
+    it "does not define MiqPerformance.config.requestor.requestfile_dir" do
+      expect(MiqPerformance.config.requestor.requestfile_dir).to eq(nil)
+      expect(MiqPerformance.config["requestor"]["requestfile_dir"]).to eq(nil)
+    end
+
     it "defines MiqPerformance.config.middleware" do
       middleware = %w[stackprof active_support_timers active_record_queries]
       expect(MiqPerformance.config.middleware).to match_array(middleware)
@@ -134,6 +139,7 @@ describe MiqPerformance::Configuration do
           host: http://123.45.67.89
           read_timeout: 400
           ignore_ssl: true
+          requestfile_dir: config
         middleware:
           - active_support_timers
           - stackprof
@@ -176,6 +182,11 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.requestor.ignore_ssl" do
       expect(MiqPerformance.config.requestor.ignore_ssl).to eq(true)
       expect(MiqPerformance.config["requestor"]["ignore_ssl"]).to eq(true)
+    end
+
+    it "defines MiqPerformance.config.requestor.requestfile_dir" do
+      expect(MiqPerformance.config.requestor.requestfile_dir).to eq("config")
+      expect(MiqPerformance.config["requestor"]["requestfile_dir"]).to eq("config")
     end
 
     it "defines MiqPerformance.config.middleware" do

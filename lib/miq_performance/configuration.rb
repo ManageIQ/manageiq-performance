@@ -6,7 +6,8 @@ module MiqPerformance
                                    :password,
                                    :host,
                                    :read_timeout,
-                                   :ignore_ssl
+                                   :ignore_ssl,
+                                   :requestfile_dir
 
     DEFAULTS = {
       "default_dir" => "tmp/miq_performance",
@@ -77,7 +78,8 @@ module MiqPerformance
         (opts["password"]     || defaults["password"]),
         (opts["host"]         || defaults["host"]),
         (opts["read_timeout"] || defaults["read_timeout"]),
-        (opts["ignore_ssl"]   || defaults["ignore_ssl"])
+        (opts["ignore_ssl"]   || defaults["ignore_ssl"]),
+        (opts["requestfile_dir"])
       )
     end
   end
