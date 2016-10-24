@@ -106,12 +106,12 @@ module MiqPerformance
         # ORACLE and PG query types
         # both use nil for schema queries and non schema queries
         SCHEMA_QUERY_TYPES = ["Sequence", "Primary Key", "Primary Key Trigger", "SCHEMA"].freeze
+        IGNORED_PAYLOAD    = %w[EXPLAIN CACHE].freeze
 
-        IGNORED_PAYLOAD=%w(EXPLAIN CACHE)
         def ignore_payload?(payload)
           payload[:exception] ||
           (skip_schema_queries? and SCHEMA_QUERY_TYPES.include?(payload[:name])) ||
-          %w(EXPLAIN CACHE).include?(payload[:name])
+          IGNORED_PAYLOAD.include?(payload[:name])
         end
       end
 
