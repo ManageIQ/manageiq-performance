@@ -11,6 +11,7 @@ module MiqPerformance
 
     DEFAULTS = {
       "default_dir" => "tmp/miq_performance",
+      "skip_schema_queries" => true,
       "requestor" => {
         "username"     => "admin",
         "password"     => "smartvm",
@@ -54,7 +55,11 @@ module MiqPerformance
     end
 
     def [](key)
-      @config[key] || DEFAULTS[key]
+      @config.fetch key, DEFAULTS[key]
+    end
+
+    def skip_schema_queries?
+      self["skip_schema_queries"]
     end
 
     private

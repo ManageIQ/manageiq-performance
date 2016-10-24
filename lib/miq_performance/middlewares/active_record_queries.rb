@@ -100,7 +100,7 @@ module MiqPerformance
         end
 
         def skip_schema_queries?
-          true
+          @skip_schema_queries ||= MiqPerformance.config.skip_schema_queries?
         end
 
         # ORACLE and PG query types

@@ -87,6 +87,11 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["default_dir"]).to eq("tmp/miq_performance")
     end
 
+    it "defines MiqPerformance.config.skip_schema_queries?" do
+      expect(MiqPerformance.config.skip_schema_queries?).to eq(true)
+      expect(MiqPerformance.config["skip_schema_queries"]).to eq(true)
+    end
+
     it "defines MiqPerformance.config.requestor.username" do
       expect(MiqPerformance.config.requestor.username).to eq("admin")
       expect(MiqPerformance.config["requestor"]["username"]).to eq("admin")
@@ -129,6 +134,7 @@ describe MiqPerformance::Configuration do
       <<-YAML.gsub(/^\s{8}/, "")
         ---
         default_dir: /tmp/miq_perf
+        skip_schema_queries: false
         requestor:
           username: foobar
           password: p@ssw0rd
@@ -149,6 +155,11 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.default_dir" do
       expect(MiqPerformance.config.default_dir).to eq("/tmp/miq_perf")
       expect(MiqPerformance.config["default_dir"]).to eq("/tmp/miq_perf")
+    end
+
+    it "defines MiqPerformance.config.skip_schema_queries?" do
+      expect(MiqPerformance.config.skip_schema_queries?).to eq(false)
+      expect(MiqPerformance.config["skip_schema_queries"]).to eq(false)
     end
 
     it "defines MiqPerformance.config.requestor.username" do
