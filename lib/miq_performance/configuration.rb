@@ -10,16 +10,17 @@ module MiqPerformance
                                    :requestfile_dir
 
     DEFAULTS = {
-      "default_dir" => "tmp/miq_performance",
-      "skip_schema_queries" => true,
-      "requestor" => {
+      "default_dir"          => "tmp/miq_performance",
+      "skip_schema_queries"  => true,
+      "include_stack_traces" => false,
+      "requestor"            => {
         "username"     => "admin",
         "password"     => "smartvm",
         "host"         => "http://localhost:3000",
         "read_timeout" => 300,
         "ignore_ssl"   => false
       },
-      "middleware" => %w[
+      "middleware"           => %w[
         stackprof
         active_support_timers
         active_record_queries
@@ -60,6 +61,10 @@ module MiqPerformance
 
     def skip_schema_queries?
       self["skip_schema_queries"]
+    end
+
+    def include_stack_traces?
+      self["include_stack_traces"]
     end
 
     private

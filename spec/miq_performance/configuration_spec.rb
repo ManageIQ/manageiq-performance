@@ -92,6 +92,11 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["skip_schema_queries"]).to eq(true)
     end
 
+    it "defines MiqPerformance.config.include_stack_traces?" do
+      expect(MiqPerformance.config.include_stack_traces?).to eq(false)
+      expect(MiqPerformance.config["include_stack_traces"]).to eq(false)
+    end
+
     it "defines MiqPerformance.config.requestor.username" do
       expect(MiqPerformance.config.requestor.username).to eq("admin")
       expect(MiqPerformance.config["requestor"]["username"]).to eq("admin")
@@ -135,6 +140,7 @@ describe MiqPerformance::Configuration do
         ---
         default_dir: /tmp/miq_perf
         skip_schema_queries: false
+        include_stack_traces: true
         requestor:
           username: foobar
           password: p@ssw0rd
@@ -160,6 +166,11 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.skip_schema_queries?" do
       expect(MiqPerformance.config.skip_schema_queries?).to eq(false)
       expect(MiqPerformance.config["skip_schema_queries"]).to eq(false)
+    end
+
+    it "defines MiqPerformance.config.include_stack_traces?" do
+      expect(MiqPerformance.config.include_stack_traces?).to eq(true)
+      expect(MiqPerformance.config["include_stack_traces"]).to eq(true)
     end
 
     it "defines MiqPerformance.config.requestor.username" do
