@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+sub_cmd = ARGV.shift
+sub_cmd_lib = File.expand_path File.join('..', 'lib', 'miq_performance', 'commands'),
+                               File.dirname(__FILE__)
+
+case sub_cmd
+when "benchmark"
+when "clean"
+when "report"
+else
+  require "#{sub_cmd_lib}/help"
+
+  MiqPerformance::Commands.help
+end
