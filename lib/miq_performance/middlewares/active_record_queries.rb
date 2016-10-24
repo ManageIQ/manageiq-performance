@@ -69,11 +69,14 @@ module MiqPerformance
 
         def record_sql_query sql, elapsed_time, params
           query_data[:total_queries] = query_data[:total_queries].to_i + 1
-          query_data[:queries] << {
+          query_record = {
             :sql          => sql,
             :elapsed_time => elapsed_time,
             :params       => params
           }
+          query_record[:stacktrace] = sql_stacktrace if include_trace?
+
+          query_data[:queries] << query_record
         end
 
         def record_instantiation elapsed_time, record_count, class_name
@@ -91,12 +94,22 @@ module MiqPerformance
           params.map { |(n,v)| n =~ @skip_rexp ? [n, nil] : [n, v] }
         end
 
+        def sql_stacktrace
+          app_root = "#{Rails.root.to_s}/"
+          Kernel.caller[2..-1].select { |line| line.include? app_root }
+                              .map    { |line| line.sub app_root, '' }
+        end
+
         def generate_sql_filter_regexp
           @skip_rexp = /#{Rails.application.config.filter_parameters.join("|")}/
         end
 
         def should_measure?
           Thread.current[:miq_perf_sql_query_data]
+        end
+
+        def include_trace?
+          @include_trace ||= MiqPerformance.config.include_stack_traces?
         end
 
         def skip_schema_queries?
