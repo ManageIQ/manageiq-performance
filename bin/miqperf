@@ -14,6 +14,9 @@ when "clean"
 
   MiqPerformance::Commands::Clean.run ARGV
 when "report"
+  require "#{sub_cmd_lib}/report"
+
+  MiqPerformance::Commands::Report.run ARGV
 else
   require "#{sub_cmd_lib}/help"
 
