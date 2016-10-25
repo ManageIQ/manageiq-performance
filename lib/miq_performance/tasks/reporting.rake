@@ -1,23 +1,21 @@
-require 'fileutils'
-require 'miq_performance/reporter'
-
 namespace :miq_performance do
   desc "Display general metrics for a given run"
   task :report, [:run_dir] do |t, args|
-    dir = args[:run_dir]
-    MiqPerformance::Reporter.build dir
+    # Prevents the `help` from the Report command from being show with all
+    # of the CLI args that wouldn't work for this task.
+    fail "Error:  URL required" unless args[:run_dir]
+
+    require "miq_performance/commands/report"
+    MiqPerformance::Commands::Report.run([args[:run_dir]])
   end
 
   task :report_on_first do
-    dir = Dir["#{MiqPerformance.config.default_dir}/run_*"].sort.first
-    Rake::Task["miq_performance:report"].invoke dir
+    Rake::Task["miq_performance:report"].invoke "--first"
   end
   task :first_report => :report_on_first
 
   task :report_on_last do
-    dir = Dir["#{MiqPerformance.config.default_dir}/run_*"].sort.last
-    Rake::Task["miq_performance:report"].invoke dir
+    Rake::Task["miq_performance:report"].invoke "--last"
   end
   task :last_report => :report_on_last
 end
-
