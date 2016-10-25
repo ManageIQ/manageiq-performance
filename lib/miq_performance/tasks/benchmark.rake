@@ -1,31 +1,18 @@
-require "optparse"
-
-require "miq_performance/requestor"
-require "miq_performance/reporting/requestfile_builder"
-
 namespace :miq_performance do
   desc "Benchmark the application"
   task :benchmark => :environment do
-    options              = {}
-    options[:host]       = ENV['MIQ_HOST'] || ENV['CFME_HOST']
-    options[:ignore_ssl] = ENV['DISABLE_SSL_VERIFY']
-    request_file         = ENV['REQUESTFILE'] || ENV['REQUEST_FILE']
-
-    requests  = MiqPerformance::Reporting::RequestfileBuilder.load request_file
-    requestor = MiqPerformance::Requestor.new options
-
-    requests.each do |request|
-      requestor.public_send request[:method].downcase, request[:path]
-    end
+    require "miq_performance/commands/benchmark"
+    MiqPerformance::Commands::Benchmark.run(["--requestfile"])
   end
 
   desc "Perform a benchmark on a specified URL"
   task :benchmark_url, [:url] do |t, args|
-    options              = {}
-    options[:host]       = ENV['MIQ_HOST'] || ENV['CFME_HOST']
-    options[:ignore_ssl] = ENV['DISABLE_SSL_VERIFY']
+    # Prevents the `help` from the Benchmark command from being show with all
+    # of the CLI args that wouldn't work for this task.
+    fail "Error:  URL required" unless args[:url]
 
-    MiqPerformance::Requestor.new(options).get args[:url]
+    require "miq_performance/commands/benchmark"
+    MiqPerformance::Commands::Benchmark.run([args[:url]])
   end
 
   desc "Build a RequestFile for benchmarking"
