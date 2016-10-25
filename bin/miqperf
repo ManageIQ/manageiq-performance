@@ -5,6 +5,10 @@ sub_cmd_lib = File.expand_path File.join('..', 'lib', 'miq_performance', 'comman
                                File.dirname(__FILE__)
 
 case sub_cmd
+when "analyze"
+  require "#{sub_cmd_lib}/analyze"
+
+  MiqPerformance::Commands::Analyze.run ARGV
 when "benchmark"
   require "#{sub_cmd_lib}/benchmark"
 
