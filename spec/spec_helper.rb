@@ -30,8 +30,12 @@ RSpec.configure do |config|
 
   Kernel.srand config.seed
 
-  # Always reset the config after each test
-  config.after(:each) do
+  # Always reset the config before each test
+  config.before(:each) do
     MiqPerformance.instance_variable_set :@config, nil
+
+    if defined? MiqPerformance::Configuration
+      MiqPerformance::Configuration.instance_variable_set :@config_file_location, nil
+    end
   end
 end
