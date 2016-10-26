@@ -13,6 +13,7 @@ module MiqPerformance
       "default_dir"          => "tmp/miq_performance",
       "skip_schema_queries"  => true,
       "include_stack_traces" => false,
+      "stacktrace_cleaner"   => "simple",
       "requestor"            => {
         "username"     => "admin",
         "password"     => "smartvm",
@@ -65,6 +66,19 @@ module MiqPerformance
 
     def include_stack_traces?
       self["include_stack_traces"]
+    end
+
+    def stacktrace_cleaner
+      @stacktrace_cleaner ||=
+        begin
+          cleaner = self["stacktrace_cleaner"]
+
+          require "miq_performance/stacktrace_cleaners/#{cleaner}"
+          MiqPerformance::StacktraceCleaners.const_get(cleaner.capitalize)
+        rescue LoadError
+          require "miq_performance/stacktrace_cleaners/simple"
+          MiqPerformance::StacktraceCleaners::Simple
+        end
     end
 
     private

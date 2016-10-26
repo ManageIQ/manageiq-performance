@@ -1,4 +1,5 @@
 require "miq_performance/configuration"
+require "miq_performance/stacktrace_cleaners/simple"
 require "fileutils"
 
 describe MiqPerformance::Configuration do
@@ -97,6 +98,11 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["include_stack_traces"]).to eq(false)
     end
 
+    it "defines MiqPerformance.config.stacktrace_cleaner" do
+      expect(MiqPerformance.config.stacktrace_cleaner).to eq(MiqPerformance::StacktraceCleaners::Simple)
+      expect(MiqPerformance.config["stacktrace_cleaner"]).to eq("simple")
+    end
+
     it "defines MiqPerformance.config.requestor.username" do
       expect(MiqPerformance.config.requestor.username).to eq("admin")
       expect(MiqPerformance.config["requestor"]["username"]).to eq("admin")
@@ -141,6 +147,7 @@ describe MiqPerformance::Configuration do
         default_dir: /tmp/miq_perf
         skip_schema_queries: false
         include_stack_traces: true
+        stacktrace_cleaner: rails
         requestor:
           username: foobar
           password: p@ssw0rd
@@ -171,6 +178,11 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.include_stack_traces?" do
       expect(MiqPerformance.config.include_stack_traces?).to eq(true)
       expect(MiqPerformance.config["include_stack_traces"]).to eq(true)
+    end
+
+    it "defines MiqPerformance.config.stacktrace_cleaner" do
+      expect(MiqPerformance.config.stacktrace_cleaner).to eq(MiqPerformance::StacktraceCleaners::Rails)
+      expect(MiqPerformance.config["stacktrace_cleaner"]).to eq("rails")
     end
 
     it "defines MiqPerformance.config.requestor.username" do
@@ -207,6 +219,23 @@ describe MiqPerformance::Configuration do
       middleware = %w[active_support_timers stackprof active_record_queries]
       expect(MiqPerformance.config.middleware).to match_array(middleware)
       expect(MiqPerformance.config["middleware"]).to match_array(middleware)
+    end
+  end
+
+  describe "loading from a poorly configured yaml file" do
+    let(:config) {
+      <<-YAML.gsub(/^\s{8}/, "")
+        ---
+        stacktrace_cleaner: foobar
+      YAML
+    }
+    before(:each) do
+      File.write "#{home_dir}/.miq_performance", config
+    end
+
+    it "uses the simple StacktraceCleaner by default" do
+      expect(MiqPerformance.config.stacktrace_cleaner).to eq(MiqPerformance::StacktraceCleaners::Simple)
+      expect(MiqPerformance.config["stacktrace_cleaner"]).to eq("foobar")
     end
   end
 end
