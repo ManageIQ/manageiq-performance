@@ -49,9 +49,9 @@ module MiqPerformance
 
     def initialize(config={})
       @config      = config
-      @default_dir = config["default_dir"] || DEFAULTS["default_dir"]
+      @default_dir = self["default_dir"]
       @requestor   = requestor_config config.fetch("requestor", {})
-      @middleware  = config["middleware"] || DEFAULTS["middleware"]
+      @middleware  = self["middleware"]
     end
 
     def [](key)
