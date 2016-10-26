@@ -39,3 +39,10 @@ RSpec.configure do |config|
     end
   end
 end
+
+# Stub Rails root
+module Rails
+  def self.root
+    File.expand_path File.join(".."), File.dirname(__FILE__)
+  end
+end
