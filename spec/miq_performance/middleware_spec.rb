@@ -3,7 +3,7 @@ require "active_record"
 require "miq_performance/middleware"
 
 # Stub rails
-class Rails
+module Rails
   Application = Struct.new :config
   Config      = Struct.new :filter_parameters
 
