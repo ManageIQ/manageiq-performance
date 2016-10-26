@@ -32,6 +32,7 @@ module MiqPerformance
 
         def initialize
           generate_sql_filter_regexp
+          set_stacktrace_cleaner
         end
 
         def call(name, start_time, finish_time, id, payload)
@@ -95,13 +96,15 @@ module MiqPerformance
         end
 
         def sql_stacktrace
-          app_root = "#{Rails.root.to_s}/"
-          Kernel.caller[2..-1].select { |line| line.include? app_root }
-                              .map    { |line| line.sub app_root, '' }
+          @stacktrace_cleaner.call Kernel.caller[2..-1]
         end
 
         def generate_sql_filter_regexp
           @skip_rexp = /#{Rails.application.config.filter_parameters.join("|")}/
+        end
+
+        def set_stacktrace_cleaner
+          @stacktrace_cleaner = MiqPerformance.config.stacktrace_cleaner.new
         end
 
         def should_measure?
