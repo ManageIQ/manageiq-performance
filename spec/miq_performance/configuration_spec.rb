@@ -138,6 +138,12 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config.middleware).to match_array(middleware)
       expect(MiqPerformance.config["middleware"]).to match_array(middleware)
     end
+
+    it "defines MiqPerformance.config.middleware" do
+      middleware_storage = %w[file]
+      expect(MiqPerformance.config.middleware_storage).to match_array(middleware_storage)
+      expect(MiqPerformance.config["middleware_storage"]).to match_array(middleware_storage)
+    end
   end
 
   describe "loading from a yaml file" do
@@ -159,6 +165,9 @@ describe MiqPerformance::Configuration do
           - active_support_timers
           - stackprof
           - active_record_queries
+        middleware_storage:
+          - file
+          - log
       YAML
     }
     before(:each) do
@@ -219,6 +228,12 @@ describe MiqPerformance::Configuration do
       middleware = %w[active_support_timers stackprof active_record_queries]
       expect(MiqPerformance.config.middleware).to match_array(middleware)
       expect(MiqPerformance.config["middleware"]).to match_array(middleware)
+    end
+
+    it "defines MiqPerformance.config.middleware" do
+      middleware_storage = %w[file log]
+      expect(MiqPerformance.config.middleware_storage).to match_array(middleware_storage)
+      expect(MiqPerformance.config["middleware_storage"]).to match_array(middleware_storage)
     end
   end
 

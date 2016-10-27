@@ -25,10 +25,11 @@ module MiqPerformance
         stackprof
         active_support_timers
         active_record_queries
-      ]
+      ],
+      "middleware_storage"   => %w[file]
     }.freeze
 
-    attr_reader :default_dir, :requestor, :middleware
+    attr_reader :default_dir, :requestor, :middleware, :middleware_storage
 
     def self.load_config
       new load_config_file
@@ -50,10 +51,11 @@ module MiqPerformance
     end
 
     def initialize(config={})
-      @config      = config
-      @default_dir = self["default_dir"]
-      @requestor   = requestor_config config.fetch("requestor", {})
-      @middleware  = self["middleware"]
+      @config             = config
+      @default_dir        = self["default_dir"]
+      @requestor          = requestor_config config.fetch("requestor", {})
+      @middleware         = self["middleware"]
+      @middleware_storage = self["middleware_storage"]
     end
 
     def [](key)
