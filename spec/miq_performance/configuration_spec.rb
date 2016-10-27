@@ -88,6 +88,11 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config["default_dir"]).to eq("tmp/miq_performance")
     end
 
+    it "defines MiqPerformance.config.log_dir" do
+      expect(MiqPerformance.config.log_dir).to eq("log")
+      expect(MiqPerformance.config["log_dir"]).to eq("log")
+    end
+
     it "defines MiqPerformance.config.skip_schema_queries?" do
       expect(MiqPerformance.config.skip_schema_queries?).to eq(true)
       expect(MiqPerformance.config["skip_schema_queries"]).to eq(true)
@@ -151,6 +156,7 @@ describe MiqPerformance::Configuration do
       <<-YAML.gsub(/^\s{8}/, "")
         ---
         default_dir: /tmp/miq_perf
+        log_dir: tmp/my_log_dir
         skip_schema_queries: false
         include_stack_traces: true
         stacktrace_cleaner: rails
@@ -177,6 +183,11 @@ describe MiqPerformance::Configuration do
     it "defines MiqPerformance.config.default_dir" do
       expect(MiqPerformance.config.default_dir).to eq("/tmp/miq_perf")
       expect(MiqPerformance.config["default_dir"]).to eq("/tmp/miq_perf")
+    end
+
+    it "defines MiqPerformance.config.log_dir" do
+      expect(MiqPerformance.config.log_dir).to eq("tmp/my_log_dir")
+      expect(MiqPerformance.config["log_dir"]).to eq("tmp/my_log_dir")
     end
 
     it "defines MiqPerformance.config.skip_schema_queries?" do

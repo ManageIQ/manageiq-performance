@@ -11,6 +11,7 @@ module MiqPerformance
 
     DEFAULTS = {
       "default_dir"          => "tmp/miq_performance",
+      "log_dir"              => "log",
       "skip_schema_queries"  => true,
       "include_stack_traces" => false,
       "stacktrace_cleaner"   => "simple",
@@ -29,7 +30,7 @@ module MiqPerformance
       "middleware_storage"   => %w[file]
     }.freeze
 
-    attr_reader :default_dir, :requestor, :middleware, :middleware_storage
+    attr_reader :default_dir, :log_dir, :requestor, :middleware, :middleware_storage
 
     def self.load_config
       new load_config_file
@@ -53,6 +54,7 @@ module MiqPerformance
     def initialize(config={})
       @config             = config
       @default_dir        = self["default_dir"]
+      @log_dir            = self["log_dir"]
       @requestor          = requestor_config config.fetch("requestor", {})
       @middleware         = self["middleware"]
       @middleware_storage = self["middleware_storage"]
