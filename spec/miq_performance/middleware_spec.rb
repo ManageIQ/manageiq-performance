@@ -67,6 +67,10 @@ shared_examples "middleware functionality for" do |middleware_order|
       subject.call({ MiqPerformance::Middleware::PERFORMANCE_HEADER => true})
     end
   end
+
+  after do
+    FileUtils.rm_r MiqPerformance.config.default_dir
+  end
 end
 
 describe MiqPerformance::Middleware do
