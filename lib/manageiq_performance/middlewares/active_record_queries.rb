@@ -18,7 +18,7 @@ module ManageIQPerformance
       end
 
       def active_record_queries_start env
-        Thread.current[:miq_perf_sql_query_data] = {
+        ActiveRecordQueries.query_data = {
           :queries => [],
           :rows_by_class => {}
         }
@@ -29,18 +29,26 @@ module ManageIQPerformance
                     active_record_queries_short_form_data,
                     active_record_queries_long_form_data
       ensure
-        Thread.current[:miq_perf_sql_query_data] = nil
+        ActiveRecordQueries.query_data = nil
+      end
+
+      def self.query_data
+        Thread.current[:miq_perf_sql_query_data]
+      end
+
+      def self.query_data=(value)
+        Thread.current[:miq_perf_sql_query_data] = value
       end
 
       def active_record_queries_long_form_data
-        proc { Thread.current[:miq_perf_sql_query_data] }
+        proc { ActiveRecordQueries.query_data }
       end
 
       def active_record_queries_short_form_data
         proc do
           {
-            "queries" => Thread.current[:miq_perf_sql_query_data][:total_queries],
-            "rows"    => Thread.current[:miq_perf_sql_query_data][:total_rows]
+            "queries" => ActiveRecordQueries.query_data[:total_queries],
+            "rows"    => ActiveRecordQueries.query_data[:total_rows]
           }
         end
       end
@@ -83,12 +91,8 @@ module ManageIQPerformance
 
         private
 
-        def query_data
-          Thread.current[:miq_perf_sql_query_data]
-        end
-
         def record_sql_query sql, elapsed_time, params
-          query_data[:total_queries] = query_data[:total_queries].to_i + 1
+          ActiveRecordQueries.query_data[:total_queries] = ActiveRecordQueries.query_data[:total_queries].to_i + 1
           query_record = {
             :sql          => sql,
             :elapsed_time => elapsed_time,
@@ -96,15 +100,15 @@ module ManageIQPerformance
           }
           query_record[:stacktrace] = sql_stacktrace if include_trace?
 
-          query_data[:queries] << query_record
+          ActiveRecordQueries.query_data[:queries] << query_record
         end
 
         def record_instantiation elapsed_time, record_count, class_name
           if record_count
-            query_data[:total_rows] = query_data[:total_rows].to_i + record_count
+            ActiveRecordQueries.query_data[:total_rows] = ActiveRecordQueries.query_data[:total_rows].to_i + record_count
 
-            rows_for_class = query_data[:rows_by_class][class_name].to_i
-            query_data[:rows_by_class][class_name] = rows_for_class + record_count
+            rows_for_class = ActiveRecordQueries.query_data[:rows_by_class][class_name].to_i
+            ActiveRecordQueries.query_data[:rows_by_class][class_name] = rows_for_class + record_count
           end
         end
 
@@ -127,7 +131,7 @@ module ManageIQPerformance
         end
 
         def should_measure?
-          Thread.current[:miq_perf_sql_query_data]
+          ActiveRecordQueries.query_data
         end
 
         def include_trace?
