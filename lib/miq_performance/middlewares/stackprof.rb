@@ -25,10 +25,18 @@ begin
           StackProf.stop
 
           if results = StackProf.results
-            save_report generic_report_filename(env, :stackprof) do |f|
-              f.write Marshal.dump(results)
-            end
+            save_report generic_report_filename(env, :stackprof),
+                        stackprof_short_form_data,
+                        stackprof_long_form_data(results)
           end
+        end
+
+        def stackprof_long_form_data results
+          proc { Marshal.dump(results) }
+        end
+
+        def stackprof_short_form_data
+          proc {}
         end
 
         def stackprof_raw(env)

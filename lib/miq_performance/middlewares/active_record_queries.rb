@@ -19,11 +19,24 @@ module MiqPerformance
       end
 
       def active_record_queries_finish env
-        save_report generic_report_filename(env, :queries) do |f|
-          f.write Thread.current[:miq_perf_sql_query_data].to_yaml
-        end
+        save_report generic_report_filename(env, :queries),
+                    active_record_queries_short_form_data,
+                    active_record_queries_long_form_data
       ensure
         Thread.current[:miq_perf_sql_query_data] = nil
+      end
+
+      def active_record_queries_long_form_data
+        proc { Thread.current[:miq_perf_sql_query_data] }
+      end
+
+      def active_record_queries_short_form_data
+        proc do
+          {
+            "queries" => Thread.current[:miq_perf_sql_query_data][:total_queries],
+            "rows"    => Thread.current[:miq_perf_sql_query_data][:total_rows]
+          }
+        end
       end
 
       class Logger

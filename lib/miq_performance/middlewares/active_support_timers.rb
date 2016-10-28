@@ -19,10 +19,9 @@ module MiqPerformance
       def active_support_timers_start(env); end
 
       def active_support_timers_finish(env)
-        filename = Thread.current[:miq_perf_request_timer_data].delete "filename"
-        save_report filename do |f|
-          f.write Thread.current[:miq_perf_request_timer_data].to_yaml
-        end
+        save_report generic_report_filename(env, :info),
+                    active_support_timers_short_form_data,
+                    active_support_timers_long_form_data
       ensure
         Thread.current[:miq_perf_request_timer_data] = nil
       end
@@ -31,16 +30,23 @@ module MiqPerformance
         Thread.current[:miq_perf_request_timer_data] = parsed_data(event)
       end
 
-      def active_support_timers_filename event
-        request_path = format_path_for_filename event.payload[:path]
-        timestamp    = request_timestamp event.payload[:headers].env
+      def active_support_timers_long_form_data
+        proc { Thread.current[:miq_perf_request_timer_data] }
+      end
 
-        "#{request_path}/request_#{timestamp}.info"
+      def active_support_timers_short_form_data
+        proc do
+          {
+            "request"      => Thread.current[:miq_perf_request_timer_data]["path"],
+            "total_time"   => Thread.current[:miq_perf_request_timer_data]["time"]["total"],
+            "activerecord" => Thread.current[:miq_perf_request_timer_data]["time"]["activerecord"],
+            "views"        => Thread.current[:miq_perf_request_timer_data]["time"]["views"]
+          }
+        end
       end
 
       def parsed_data(event)
         {
-          "filename"   => active_support_timers_filename(event),
           "controller" => event.payload[:controller],
           "action"     => event.payload[:action],
           "path"       => event.payload[:path],

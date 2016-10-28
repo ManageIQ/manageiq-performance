@@ -5,16 +5,17 @@ require "miq_performance/configuration"
 # found in `lib/miq_performance/middlewares/`
 module MiqPerformance
   class Middleware
-    attr_reader :performance_middleware, :miq_performance_session_dir
+    attr_reader :performance_middleware, :middleware_storage
 
     PERFORMANCE_HEADER = "HTTP_WITH_PERFORMANCE_MONITORING".freeze
 
     def initialize app
       @app = app
       @performance_middleware = []
+      @middleware_storage     = []
 
-      mk_suite_dir
       initialize_performance_middleware
+      initialize_middleware_storage
     end
 
     def call env
@@ -53,6 +54,21 @@ module MiqPerformance
       end
     end
 
+    def initialize_middleware_storage
+      MiqPerformance.config.middleware_storage.each do |filename|
+        begin
+          require "miq_performance/middleware_storage/#{filename}"
+
+          name    = filename.split("_").map(&:capitalize).join
+          storage = Object.const_get "MiqPerformance::MiddlewareStorage::#{name}"
+
+          @middleware_storage << storage.new
+        rescue => e
+          puts e.inspect
+        end
+      end
+    end
+
     def performance_middleware_start env
       performance_middleware.each do |middleware|
         send "#{middleware}_start", env
@@ -63,23 +79,13 @@ module MiqPerformance
       performance_middleware.reverse.each do |middleware|
         send "#{middleware}_finish", env
       end
+      middleware_storage.each { |storage| storage.finalize }
     end
 
-    def mk_suite_dir
-      base_dir = MiqPerformance.config.default_dir
-      suite_dir = File.join(base_dir, "run_#{Time.now.to_i}")
-      FileUtils.mkdir_p(suite_dir)
-
-      @miq_performance_session_dir = suite_dir
-    end
-
-    def save_report filename
-      filepath = File.join(miq_performance_session_dir, filename)
-      FileUtils.mkdir_p(File.dirname filepath)
-      File.open(filepath, 'wb') do |file_object|
-        yield file_object
+    def save_report filename, long_form, short_form
+      middleware_storage.each do |storage|
+        storage.record filename, long_form, short_form
       end
-      filename
     end
 
     def generic_report_filename env, ext=:data
