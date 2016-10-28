@@ -149,6 +149,16 @@ describe MiqPerformance::Configuration do
       expect(MiqPerformance.config.middleware_storage).to match_array(middleware_storage)
       expect(MiqPerformance.config["middleware_storage"]).to match_array(middleware_storage)
     end
+
+    it "defines MiqPerformance.config.browser_mode.enabled?" do
+      expect(MiqPerformance.config.browser_mode.enabled?).to eq(false)
+      expect(MiqPerformance.config["browser_mode"]["enabled"]).to eq(false)
+    end
+
+    it "defines MiqPerformance.config.browser_mode.always_on?" do
+      expect(MiqPerformance.config.browser_mode.always_on?).to eq(false)
+      expect(MiqPerformance.config["browser_mode"]["always_on"]).to eq(false)
+    end
   end
 
   describe "loading from a yaml file" do
@@ -174,6 +184,9 @@ describe MiqPerformance::Configuration do
         middleware_storage:
           - file
           - log
+        browser_mode:
+          enabled: true
+          always_on: true
       YAML
     }
     before(:each) do
@@ -245,6 +258,16 @@ describe MiqPerformance::Configuration do
       middleware_storage = %w[file log]
       expect(MiqPerformance.config.middleware_storage).to match_array(middleware_storage)
       expect(MiqPerformance.config["middleware_storage"]).to match_array(middleware_storage)
+    end
+
+    it "defines MiqPerformance.config.browser_mode.enabled?" do
+      expect(MiqPerformance.config.browser_mode.enabled?).to eq(true)
+      expect(MiqPerformance.config["browser_mode"]["enabled"]).to eq(true)
+    end
+
+    it "defines MiqPerformance.config.browser_mode.always_on?" do
+      expect(MiqPerformance.config.browser_mode.always_on?).to eq(true)
+      expect(MiqPerformance.config["browser_mode"]["always_on"]).to eq(true)
     end
   end
 
