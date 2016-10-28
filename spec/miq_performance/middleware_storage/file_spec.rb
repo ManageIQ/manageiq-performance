@@ -32,10 +32,20 @@ describe MiqPerformance::MiddlewareStorage::File do
     let(:filestore) { described_class.new }
 
     it "writes a report to the given filename" do
-      data_writer = Proc.new {|io| io.write "my middleware dataz" }
+      data_writer = Proc.new { "my middleware dataz" }
       suite_dir = "#{proj_dir}/tmp/miq_performance/run_1234567"
-      filestore.record "my_result.info", &data_writer
+      filestore.record "my_result.info", nil, data_writer
       expect(File.read "#{suite_dir}/my_result.info").to eq "my middleware dataz"
+
+      FileUtils.rm_rf "#{proj_dir}/tmp/miq_performance"
+    end
+
+    it "writes a report as yml if given a hash" do
+      data = {"foo" => "my middleware dataz"}
+      data_writer = Proc.new { data }
+      suite_dir = "#{proj_dir}/tmp/miq_performance/run_1234567"
+      filestore.record "my_result.info", nil, data_writer
+      expect(File.read "#{suite_dir}/my_result.info").to eq data.to_yaml
 
       FileUtils.rm_rf "#{proj_dir}/tmp/miq_performance"
     end

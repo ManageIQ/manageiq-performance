@@ -12,9 +12,9 @@ module MiqPerformance
         create_logger
       end
 
-      def record filename
+      def record _, data, __
         Thread.current[:miq_perf_log_store_data] ||= {}
-        Thread.current[:miq_perf_log_store_data].merge!(yield)
+        Thread.current[:miq_perf_log_store_data].merge! Hash(data.call)
       end
 
       def finalize

@@ -53,18 +53,18 @@ describe MiqPerformance::MiddlewareStorage::Log do
     it "stores the middleware data for the finalize method" do
       data = {"data1" => "one", "data2" => "two"}
       data_writer = Proc.new { data }
-      logstore.record "my_result.info", &data_writer
+      logstore.record "my_result.info", data_writer, nil
       expect(Thread.current[:miq_perf_log_store_data]).to eq data
     end
 
     it "aggregates multiple data sources" do
       data1 = {"data1" => "one", "data2" => "two"}
       data1_writer = Proc.new { data1 }
-      logstore.record "my_result.info", &data1_writer
+      logstore.record "my_result.info", data1_writer, nil
 
       data2 = {"foo" => "bar"}
       data2_writer = Proc.new { data2 }
-      logstore.record "my_result.info", &data2_writer
+      logstore.record "my_result.info", data2_writer, nil
 
       expect(Thread.current[:miq_perf_log_store_data]).to eq data1.merge(data2)
     end
@@ -76,11 +76,11 @@ describe MiqPerformance::MiddlewareStorage::Log do
     it "writes to the log file" do
       data1 = {"data1" => "one", "data2" => "two"}
       data1_writer = Proc.new { data1 }
-      logstore.record "my_result.info", &data1_writer
+      logstore.record "my_result.info", data1_writer, nil
 
       data2 = {"foo" => "bar"}
       data2_writer = Proc.new { data2 }
-      logstore.record "my_result.info", &data2_writer
+      logstore.record "my_result.info", data2_writer, nil
       logstore.finalize
 
       log_file = "#{proj_dir}/tmp/log/miq_performance.log"

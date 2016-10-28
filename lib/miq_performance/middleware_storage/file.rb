@@ -1,3 +1,4 @@
+require "yaml"
 require "fileutils"
 require "miq_performance/configuration"
 
@@ -10,9 +11,12 @@ module MiqPerformance
         create_suite_dir
       end
 
-      def record filename, &block
-        write_report_file filename, &block
+      def record filename, _, file_data
+        write_report_file filename, &file_data
       end
+
+      # noop:  Files have already been written at this point
+      def finalize; end
 
       private
 
@@ -27,8 +31,9 @@ module MiqPerformance
       def write_report_file filename
         filepath = ::File.join(miq_performance_suite_dir, filename)
         FileUtils.mkdir_p(::File.dirname filepath)
-        ::File.open(filepath, 'wb') do |file_object|
-          yield file_object
+        ::File.open(filepath, 'wb') do |file_io|
+          data = yield
+          file_io.write data.is_a?(Hash) ? data.to_yaml : data
         end
         filename
       end
