@@ -2,12 +2,15 @@ require "yaml"
 
 module MiqPerformance
   class Configuration
-    REQUESTOR_CONFIG  = Struct.new :username,
-                                   :password,
-                                   :host,
-                                   :read_timeout,
-                                   :ignore_ssl,
-                                   :requestfile_dir
+    REQUESTOR_CONFIG     = Struct.new :username,
+                                      :password,
+                                      :host,
+                                      :read_timeout,
+                                      :ignore_ssl,
+                                      :requestfile_dir
+
+    BROWSER_MODE_CONFIG  = Struct.new :enabled?,
+                                      :always_on?
 
     DEFAULTS = {
       "default_dir"          => "tmp/miq_performance",
@@ -27,10 +30,16 @@ module MiqPerformance
         active_support_timers
         active_record_queries
       ],
-      "middleware_storage"   => %w[file]
+      "middleware_storage"   => %w[file],
+      "browser_mode"  => {
+        "enabled"   => false,
+        "always_on" => false
+      }
     }.freeze
 
-    attr_reader :default_dir, :log_dir, :requestor, :middleware, :middleware_storage
+    attr_reader :default_dir, :log_dir, :requestor,
+                :middleware, :middleware_storage,
+                :browser_mode
 
     def self.load_config
       new load_config_file
@@ -58,6 +67,7 @@ module MiqPerformance
       @requestor          = requestor_config config.fetch("requestor", {})
       @middleware         = self["middleware"]
       @middleware_storage = self["middleware_storage"]
+      @browser_mode       = browser_mode_config config.fetch("browser_mode", {})
     end
 
     def [](key)
@@ -108,6 +118,14 @@ module MiqPerformance
         (opts["read_timeout"] || defaults["read_timeout"]),
         (opts["ignore_ssl"]   || defaults["ignore_ssl"]),
         (opts["requestfile_dir"])
+      )
+    end
+
+    def browser_mode_config(opts={})
+      defaults = DEFAULTS["browser_mode"]
+      BROWSER_MODE_CONFIG.new(
+        (opts["enabled"]   || defaults["enabled"]),
+        (opts["always_on"] || defaults["always_on"])
       )
     end
   end

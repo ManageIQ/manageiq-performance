@@ -8,8 +8,13 @@ describe MiqPerformance::MiddlewareStorage::Log do
   before do
     allow(Time).to receive(:now).and_return("1234567")
 
-    requestor_defaults = MiqPerformance::Configuration::DEFAULTS["requestor"]
-    new_defaults = {"requestor" => requestor_defaults}.merge "log_dir" => "tmp/log"
+    requestor_defaults    = MiqPerformance::Configuration::DEFAULTS["requestor"]
+    browser_mode_defaults = MiqPerformance::Configuration::DEFAULTS["browser_mode"]
+    new_defaults = {
+      "requestor"    => requestor_defaults,
+      "browser_mode" => browser_mode_defaults
+    }.merge "log_dir" => "tmp/log"
+
     stub_const("MiqPerformance::Configuration::DEFAULTS", new_defaults)
   end
 
