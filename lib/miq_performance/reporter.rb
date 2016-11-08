@@ -39,7 +39,6 @@ module MiqPerformance
     def gather_request_times request_dir, request_id
       Dir["#{request_dir}/*.info"].inject(@report_data[request_id]) do |data, info_file|
         info = YAML.load_file(info_file)
-        # puts info.inspect
 
         data["ms"]           ||= []
         data["activerecord"] ||= []
