@@ -114,10 +114,15 @@ module MiqPerformance
     # size for the column, and formatted to 1 decimal point precision (if it is
     # a float)
     def print_row_data request_id
-      @report_data[request_id]["ms"].count.times do |i|
+      # Find a header for a count do use in the next line
+      count_header = HEADERS.values.flatten.detect do |hdr|
+        @report_data[request_id][hdr] and hdr
+      end
+
+      @report_data[request_id][count_header].count.times do |i|
         print_row do |hdr|
           value = HEADERS[hdr].map { |header_column|
-            @report_data[request_id][header_column][i]
+            @report_data[request_id].fetch(header_column, [])[i].to_i
           }.max
           value = "%.1f" % value unless value.class.ancestors.include?(Integer)
           value.to_s.rjust(column_size_for hdr, request_id)
