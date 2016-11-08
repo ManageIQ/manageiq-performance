@@ -144,8 +144,8 @@ module MiqPerformance
             value = i.to_s
             value = "%.1f" % value unless value.class.ancestors.include?(Integer)
             value.size
-          }.max
-        } + [
+          }.max if @report_data[request_id][header_column]
+        }.compact + [
           header.to_s.length,
           @report_data[request_id]["avgs"][header].to_s.size,
           4 # spacer size
