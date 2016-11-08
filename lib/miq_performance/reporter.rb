@@ -138,7 +138,8 @@ module MiqPerformance
     #   - The spacer string (`---:`)
     #
     def column_size_for header, request_id
-      @column_size_for[header] ||=
+      @column_size_for[request_id]         ||= {}
+      @column_size_for[request_id][header] ||=
         (HEADERS[header].map { |header_column|
           @report_data[request_id][header_column].map {|i|
             value = i.to_s
