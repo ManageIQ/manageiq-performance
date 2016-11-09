@@ -19,9 +19,11 @@ module MiqPerformance
       def active_support_timers_start(env); end
 
       def active_support_timers_finish(env)
-        save_report generic_report_filename(env, :info),
-                    active_support_timers_short_form_data,
-                    active_support_timers_long_form_data
+        if Thread.current[:miq_perf_request_timer_data]
+          save_report generic_report_filename(env, :info),
+                      active_support_timers_short_form_data,
+                      active_support_timers_long_form_data
+        end
       ensure
         Thread.current[:miq_perf_request_timer_data] = nil
       end
