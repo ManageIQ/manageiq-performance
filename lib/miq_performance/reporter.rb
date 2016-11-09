@@ -47,8 +47,8 @@ module MiqPerformance
         data
       end
 
-      @report_data[request_id]["avgs"]["ms"]           = @report_data[request_id]["ms"].inject(0, :+)
-      @report_data[request_id]["avgs"]["activerecord"] = @report_data[request_id]["activerecord"].inject(0, :+)
+      @report_data[request_id]["avgs"]["ms"]           = avg @report_data[request_id]["ms"]
+      @report_data[request_id]["avgs"]["activerecord"] = avg @report_data[request_id]["activerecord"]
     end
 
     def gather_db_info request_dir, request_id
@@ -64,9 +64,9 @@ module MiqPerformance
         data
       end
 
-      @report_data[request_id]["avgs"]["queries"]      = @report_data[request_id]["queries"].inject(0, :+)
-      @report_data[request_id]["avgs"]["rows"]         = @report_data[request_id]["rows"].inject(0, :+)
-      @report_data[request_id]["avgs"]["elapsed_time"] = @report_data[request_id]["elapsed_time"].inject(0, :+)
+      @report_data[request_id]["avgs"]["queries"]      = avg @report_data[request_id]["queries"]
+      @report_data[request_id]["avgs"]["rows"]         = avg @report_data[request_id]["rows"]
+      @report_data[request_id]["avgs"]["elapsed_time"] = avg @report_data[request_id]["elapsed_time"]
     end
 
     # Printing
@@ -151,6 +151,11 @@ module MiqPerformance
           @report_data[request_id]["avgs"][header].to_s.size,
           4 # spacer size
         ]).max
+    end
+
+    def avg data
+      data_set = Array(data)
+      data_set.inject(0, :+) / data_set.size
     end
   end
 end
