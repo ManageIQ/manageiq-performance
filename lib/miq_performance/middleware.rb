@@ -7,7 +7,9 @@ module MiqPerformance
   class Middleware
     attr_reader :performance_middleware, :middleware_storage
 
+    TIMESTAMP_HEADER = "HTTP_MIQ_PERF_TIMESTAMP".freeze
     PERFORMANCE_HEADER = "HTTP_WITH_PERFORMANCE_MONITORING".freeze
+    PERFORMANCE_HEADER_ID = "PERFORMANCE_MONITORING_ID".freeze
 
     def initialize app
       @app = app
@@ -22,7 +24,9 @@ module MiqPerformance
       if env[PERFORMANCE_HEADER]
         performance_middleware_start env
       end
-      @app.call env
+      response = @app.call env
+      response[1][PERFORMANCE_HEADER_ID] = env[TIMESTAMP_HEADER]
+      response
     ensure
       if env[PERFORMANCE_HEADER]
         performance_middleware_finish env
@@ -70,6 +74,7 @@ module MiqPerformance
     end
 
     def performance_middleware_start env
+      env[TIMESTAMP_HEADER] ||= Time.now.to_i
       performance_middleware.each do |middleware|
         send "#{middleware}_start", env
       end
@@ -102,7 +107,7 @@ module MiqPerformance
     end
 
     def request_timestamp env
-      env['HTTP_MIQ_PERF_TIMESTAMP'] || Time.now.to_i
+      env[TIMESTAMP_HEADER] || Time.now.to_i
     end
   end
 end
