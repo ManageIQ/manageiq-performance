@@ -2,7 +2,7 @@ require 'net/http'
 require 'logger'
 require 'uri'
 
-module MiqPerformance
+module ManageIQPerformance
   class Requestor
     CSRF_TAG_REGEX   = /meta.*name="csrf-token".*$/
     CSRF_TOKEN_REGEX = /content="([^"]*)".*/
@@ -93,15 +93,15 @@ module MiqPerformance
     end
 
     def username
-      MiqPerformance.config.requestor.username
+      ManageIQPerformance.config.requestor.username
     end
 
     def password
-      MiqPerformance.config.requestor.password
+      ManageIQPerformance.config.requestor.password
     end
 
     def poltergeist_enabled?
-      @poltergeist_enabled ||= defined?(MiqPerformance::Requestor::Poltergiest)
+      @poltergeist_enabled ||= defined?(ManageIQPerformance::Requestor::Poltergiest)
     end
 
     def log(msg)

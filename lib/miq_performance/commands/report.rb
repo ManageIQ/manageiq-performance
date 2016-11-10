@@ -1,7 +1,7 @@
 require "miq_performance/configuration"
 require "miq_performance/reporter"
 
-module MiqPerformance
+module ManageIQPerformance
   module Commands
     class Report
       def self.help_text
@@ -19,7 +19,7 @@ module MiqPerformance
       end
 
       def run
-        MiqPerformance::Reporter.build @opts[:run_dir]
+        ManageIQPerformance::Reporter.build @opts[:run_dir]
       end
 
       private
@@ -40,7 +40,7 @@ module MiqPerformance
       end
 
       def sorted_dirs
-        Dir["#{MiqPerformance.config.default_dir}/run_*"].sort
+        Dir["#{ManageIQPerformance.config.default_dir}/run_*"].sort
       end
 
       def first_dir

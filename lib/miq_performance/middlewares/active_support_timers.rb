@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   module Middlewares
     module ActiveSupportTimers
 

@@ -1,6 +1,6 @@
 require "miq_performance/middleware_storage/file"
 
-describe MiqPerformance::MiddlewareStorage::File do
+describe ManageIQPerformance::MiddlewareStorage::File do
   let(:file_dir) { File.dirname(__FILE__) }
   let(:proj_dir) { File.expand_path File.join("..", "..", ".."), file_dir }
 
@@ -18,7 +18,7 @@ describe MiqPerformance::MiddlewareStorage::File do
     end
 
     it "uses the default_dir config" do
-      MiqPerformance.config.instance_variable_set :@default_dir,
+      ManageIQPerformance.config.instance_variable_set :@default_dir,
                                                   "tmp/miqperf"
       described_class.new
       expected_dir = "#{proj_dir}/tmp/miqperf/run_1234567"

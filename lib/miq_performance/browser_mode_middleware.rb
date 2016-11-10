@@ -7,7 +7,7 @@ require "miq_performance/configuration"
 #
 # This is not enabled by default, and needs to be configured to have it
 # included in the stack.
-module MiqPerformance
+module ManageIQPerformance
   class BrowserModeMiddleware
     def initialize app
       @app = app
@@ -28,7 +28,7 @@ module MiqPerformance
     end
 
     def set_performance_middleware_proc
-      if MiqPerformance.config.browser_mode.always_on?
+      if ManageIQPerformance.config.browser_mode.always_on?
         @enable_performance_middleware = proc { |env| true }
       else
         @enable_performance_middleware = proc do |env|

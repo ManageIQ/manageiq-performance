@@ -12,7 +12,7 @@ module Rails
   end
 end
 
-middleware_defaults = MiqPerformance::Configuration::DEFAULTS["middleware"]
+middleware_defaults = ManageIQPerformance::Configuration::DEFAULTS["middleware"]
 
 shared_examples "middleware functionality for" do |middleware_order|
   middleware_order.each do |name|
@@ -44,7 +44,7 @@ shared_examples "middleware functionality for" do |middleware_order|
       expect(subject).to receive(:performance_middleware_start).once
       expect(subject).to receive(:performance_middleware_finish).once
 
-      subject.call({ MiqPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
     end
 
     it "runs the middleware in order" do
@@ -54,7 +54,7 @@ shared_examples "middleware functionality for" do |middleware_order|
         expect(subject).to receive("#{name}_start").ordered
       end
 
-      subject.call({ MiqPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
     end
 
     it "finishes the middleware in reverse order" do
@@ -64,16 +64,16 @@ shared_examples "middleware functionality for" do |middleware_order|
         expect(subject).to receive("#{name}_finish").ordered
       end
 
-      subject.call({ MiqPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
     end
   end
 
   after do
-    FileUtils.rm_r MiqPerformance.config.default_dir
+    FileUtils.rm_r ManageIQPerformance.config.default_dir
   end
 end
 
-describe MiqPerformance::Middleware do
+describe ManageIQPerformance::Middleware do
   context "with no configuration set (default)" do
     subject { described_class.new(Proc.new {}) }
     include_examples "middleware functionality for",
@@ -83,7 +83,7 @@ describe MiqPerformance::Middleware do
   context "with only stackprof and active_record_queries middlewares" do
     subject { described_class.new(Proc.new {}) }
     before do
-      MiqPerformance.config.instance_variable_set :@middleware, %w[stackprof active_record_queries]
+      ManageIQPerformance.config.instance_variable_set :@middleware, %w[stackprof active_record_queries]
     end
 
     include_examples "middleware functionality for",

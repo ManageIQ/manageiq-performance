@@ -13,7 +13,7 @@ namespace :miq_performance do
       require "miq_performance/commands/analyze"
       opts =  [args[:dir]]
       opts += ["--method", args[:method]] if args[:method]
-      MiqPerformance::Commands::Analyze.run(opts)
+      ManageIQPerformance::Commands::Analyze.run(opts)
     end
 
     desc "Analyze, with stackprof, a route in the first suite"

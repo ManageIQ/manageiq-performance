@@ -1,6 +1,6 @@
 require "miq_performance/middleware_storage/log"
 
-describe MiqPerformance::MiddlewareStorage::Log do
+describe ManageIQPerformance::MiddlewareStorage::Log do
   let(:file_dir) { File.dirname(__FILE__) }
   let(:proj_dir) { File.expand_path File.join("..", "..", ".."), file_dir }
   let(:log_dir)  { "#{proj_dir}/tmp/log" }
@@ -8,14 +8,14 @@ describe MiqPerformance::MiddlewareStorage::Log do
   before do
     allow(Time).to receive(:now).and_return("1234567")
 
-    requestor_defaults    = MiqPerformance::Configuration::DEFAULTS["requestor"]
-    browser_mode_defaults = MiqPerformance::Configuration::DEFAULTS["browser_mode"]
+    requestor_defaults    = ManageIQPerformance::Configuration::DEFAULTS["requestor"]
+    browser_mode_defaults = ManageIQPerformance::Configuration::DEFAULTS["browser_mode"]
     new_defaults = {
       "requestor"    => requestor_defaults,
       "browser_mode" => browser_mode_defaults
     }.merge "log_dir" => "tmp/log"
 
-    stub_const("MiqPerformance::Configuration::DEFAULTS", new_defaults)
+    stub_const("ManageIQPerformance::Configuration::DEFAULTS", new_defaults)
   end
 
   after do
@@ -44,7 +44,7 @@ describe MiqPerformance::MiddlewareStorage::Log do
     context "configured log location" do
       let(:log_dir)  { "#{proj_dir}/tmp/my_logdir" }
       it "uses the log_dir config to customize the log location" do
-        MiqPerformance.config.instance_variable_set :@log_dir,
+        ManageIQPerformance.config.instance_variable_set :@log_dir,
                                                     "tmp/my_logdir"
         described_class.new
         expected_dir = "#{proj_dir}/tmp/my_logdir"

@@ -6,7 +6,7 @@ namespace :miq_performance do
     fail "Error:  URL required" unless args[:run_dir]
 
     require "miq_performance/commands/report"
-    MiqPerformance::Commands::Report.run([args[:run_dir]])
+    ManageIQPerformance::Commands::Report.run([args[:run_dir]])
   end
 
   task :report_on_first do

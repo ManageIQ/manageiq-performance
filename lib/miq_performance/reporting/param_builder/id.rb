@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   module Reporting
     module ParamBuilder
       module Id

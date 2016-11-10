@@ -1,6 +1,6 @@
 require "yaml"
 
-module MiqPerformance
+module ManageIQPerformance
   class Configuration
     REQUESTOR_CONFIG     = Struct.new :username,
                                       :password,
@@ -88,10 +88,10 @@ module MiqPerformance
           cleaner = self["stacktrace_cleaner"]
 
           require "miq_performance/stacktrace_cleaners/#{cleaner}"
-          MiqPerformance::StacktraceCleaners.const_get(cleaner.capitalize)
+          ManageIQPerformance::StacktraceCleaners.const_get(cleaner.capitalize)
         rescue LoadError
           require "miq_performance/stacktrace_cleaners/simple"
-          MiqPerformance::StacktraceCleaners::Simple
+          ManageIQPerformance::StacktraceCleaners::Simple
         end
     end
 

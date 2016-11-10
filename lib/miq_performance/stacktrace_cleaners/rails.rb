@@ -1,6 +1,6 @@
 require "rails/backtrace_cleaner"
 
-module MiqPerformance
+module ManageIQPerformance
   module StacktraceCleaners
     class Rails
       def initialize

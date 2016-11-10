@@ -2,7 +2,7 @@ require "yaml"
 require "fileutils"
 require "miq_performance/configuration"
 
-module MiqPerformance
+module ManageIQPerformance
   module MiddlewareStorage
     class File
       attr_reader :miq_performance_suite_dir
@@ -21,7 +21,7 @@ module MiqPerformance
       private
 
       def create_suite_dir
-        base_dir = MiqPerformance.config.default_dir
+        base_dir = ManageIQPerformance.config.default_dir
         suite_dir = ::File.join(base_dir, "run_#{Time.now.to_i}")
         FileUtils.mkdir_p(suite_dir)
 

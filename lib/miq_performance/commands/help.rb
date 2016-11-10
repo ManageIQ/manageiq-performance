@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   module Commands
     class Help
       def self.help
@@ -11,7 +11,7 @@ module MiqPerformance
             require command_file
 
             cmd   = File.basename(command_file, ".*")
-            klass = MiqPerformance::Commands.const_get(cmd.capitalize)
+            klass = ManageIQPerformance::Commands.const_get(cmd.capitalize)
 
             help_text << "    #{cmd.ljust ljust_length} #{klass.help_text}"
           rescue NameError

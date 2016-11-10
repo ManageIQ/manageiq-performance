@@ -3,7 +3,7 @@ require "fileutils"
 require "miq_performance/configuration"
 require "miq_performance/reporting/param_builder/id"
 
-module MiqPerformance
+module ManageIQPerformance
   module Reporting
     class RequestfileBuilder
 
@@ -63,8 +63,8 @@ module MiqPerformance
       end
 
       def self.filepath
-        path = MiqPerformance.config.requestor.requestfile_dir ||
-                 MiqPerformance.config.default_dir
+        path = ManageIQPerformance.config.requestor.requestfile_dir ||
+                 ManageIQPerformance.config.default_dir
         path.start_with?("/") ? path : File.join(Dir.pwd, path)
       end
 

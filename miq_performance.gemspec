@@ -5,7 +5,7 @@ require 'miq_performance/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "miq_performance"
-  spec.version       = MiqPerformance::VERSION
+  spec.version       = ManageIQPerformance::VERSION
   spec.authors       = ["Nick LaMuro"]
   spec.email         = ["nicklamuro@gmail.com"]
 

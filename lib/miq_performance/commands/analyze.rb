@@ -3,7 +3,7 @@ require "miq_performance/configuration"
 begin
   require "stackprof"
 
-  module MiqPerformance
+  module ManageIQPerformance
     module Commands
       class Analyze
         def self.help_text
@@ -50,7 +50,7 @@ begin
         end
 
         def sorted_dirs
-          Dir["#{MiqPerformance.config.default_dir}/run_*"].sort
+          Dir["#{ManageIQPerformance.config.default_dir}/run_*"].sort
         end
 
         def first_dir

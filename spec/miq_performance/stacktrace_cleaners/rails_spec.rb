@@ -1,6 +1,6 @@
 require "miq_performance/stacktrace_cleaners/rails"
 
-describe MiqPerformance::StacktraceCleaners::Rails do
+describe ManageIQPerformance::StacktraceCleaners::Rails do
   before do
     # Rails doesn't include the `spec` dir in it's backtrace cleaner.
     # Normally, this wouldn't matter in practice, but since we are trying to

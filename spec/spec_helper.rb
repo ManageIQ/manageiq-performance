@@ -32,10 +32,10 @@ RSpec.configure do |config|
 
   # Always reset the config before each test
   config.before(:each) do
-    MiqPerformance.instance_variable_set :@config, nil
+    ManageIQPerformance.instance_variable_set :@config, nil
 
-    if defined? MiqPerformance::Configuration
-      MiqPerformance::Configuration.instance_variable_set :@config_file_location, nil
+    if defined? ManageIQPerformance::Configuration
+      ManageIQPerformance::Configuration.instance_variable_set :@config_file_location, nil
     end
   end
 end

@@ -1,5 +1,5 @@
-MiqPerformance
-==============
+ManageIQPerformance
+===================
 Libraries and utilities for testing, profiling, benchmarking, and debugging
 performance bottlenecks on the ManageIQ application.  Includes, but not limited
 to:

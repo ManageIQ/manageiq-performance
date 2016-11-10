@@ -1,15 +1,15 @@
 require 'miq_performance/middleware'
 
-module MiqPerformance
+module ManageIQPerformance
   class MiddlewareRailtie < Rails::Railtie
     initializer "miq_performance.configure_middleware" do |app|
       # Make this the first middleware in the stack.
       # TODO: Make this order independent
-      app.middleware.unshift MiqPerformance::Middleware
+      app.middleware.unshift ManageIQPerformance::Middleware
 
-      if MiqPerformance.config.browser_mode.enabled?
+      if ManageIQPerformance.config.browser_mode.enabled?
         require 'miq_performance/browser_mode_middleware'
-        app.middleware.insert_before "MiqPerformance::Middleware", "MiqPerformance::BrowserModeMiddleware"
+        app.middleware.insert_before "ManageIQPerformance::Middleware", "ManageIQPerformance::BrowserModeMiddleware"
       end
     end
   end

@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   class Reporter
     HEADERS = {
       "ms" => %w[ms],

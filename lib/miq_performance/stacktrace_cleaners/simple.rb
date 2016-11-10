@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   module StacktraceCleaners
     class Simple
       def initialize

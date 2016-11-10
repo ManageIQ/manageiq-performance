@@ -2,7 +2,7 @@ require "optparse"
 require "fileutils"
 require "miq_performance/configuration"
 
-module MiqPerformance
+module ManageIQPerformance
   module Commands
     class Clean
       attr_reader :opts
@@ -21,7 +21,7 @@ module MiqPerformance
       end
 
       def run
-        Dir["#{MiqPerformance.config.default_dir}/run_*"].each do |dir|
+        Dir["#{ManageIQPerformance.config.default_dir}/run_*"].each do |dir|
           if opts[:all] or Dir["#{dir}/*"].empty?
             puts "Deleting #{dir}..." if opts[:verbose]
             FileUtils.rm_rf dir, opts.fetch(:dry_run, {})

@@ -2,7 +2,7 @@ namespace :miq_performance do
   desc "Benchmark the application"
   task :benchmark => :environment do
     require "miq_performance/commands/benchmark"
-    MiqPerformance::Commands::Benchmark.run(["--requestfile"])
+    ManageIQPerformance::Commands::Benchmark.run(["--requestfile"])
   end
 
   desc "Perform a benchmark on a specified URL"
@@ -12,11 +12,11 @@ namespace :miq_performance do
     fail "Error:  URL required" unless args[:url]
 
     require "miq_performance/commands/benchmark"
-    MiqPerformance::Commands::Benchmark.run([args[:url]])
+    ManageIQPerformance::Commands::Benchmark.run([args[:url]])
   end
 
   desc "Build a RequestFile for benchmarking"
   task :build_request_file => :environment do
-    MiqPerformance::Reporting::RequestfileBuilder.new
+    ManageIQPerformance::Reporting::RequestfileBuilder.new
   end
 end

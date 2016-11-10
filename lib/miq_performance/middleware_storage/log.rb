@@ -3,7 +3,7 @@ require "logger"
 require "fileutils"
 require "miq_performance/configuration"
 
-module MiqPerformance
+module ManageIQPerformance
   module MiddlewareStorage
     class Log
 
@@ -26,7 +26,7 @@ module MiqPerformance
       private
 
       def create_log_file
-        base_dir = MiqPerformance.config.log_dir
+        base_dir = ManageIQPerformance.config.log_dir
         @log_file = ::File.join(base_dir, "miq_performance.log")
         FileUtils.mkdir_p(base_dir)
         FileUtils.touch(@log_file)

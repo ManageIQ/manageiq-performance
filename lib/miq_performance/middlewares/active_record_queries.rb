@@ -1,11 +1,11 @@
-module MiqPerformance
+module ManageIQPerformance
   module Middlewares
     module ActiveRecordQueries
 
       private
 
       def active_record_queries_initialize
-        logger = ::MiqPerformance::Middlewares::ActiveRecordQueries::Logger.new
+        logger = ::ManageIQPerformance::Middlewares::ActiveRecordQueries::Logger.new
         %w(sql.active_record instantiation.active_record).each do |event|
           ActiveSupport::Notifications.subscribe(event, logger)
         end
@@ -117,7 +117,7 @@ module MiqPerformance
         end
 
         def set_stacktrace_cleaner
-          @stacktrace_cleaner = MiqPerformance.config.stacktrace_cleaner.new
+          @stacktrace_cleaner = ManageIQPerformance.config.stacktrace_cleaner.new
         end
 
         def should_measure?
@@ -125,11 +125,11 @@ module MiqPerformance
         end
 
         def include_trace?
-          @include_trace ||= MiqPerformance.config.include_stack_traces?
+          @include_trace ||= ManageIQPerformance.config.include_stack_traces?
         end
 
         def skip_schema_queries?
-          @skip_schema_queries ||= MiqPerformance.config.skip_schema_queries?
+          @skip_schema_queries ||= ManageIQPerformance.config.skip_schema_queries?
         end
 
         # ORACLE and PG query types

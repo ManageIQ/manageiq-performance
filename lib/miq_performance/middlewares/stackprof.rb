@@ -1,7 +1,7 @@
 begin
   require 'stackprof'
 
-  module MiqPerformance
+  module ManageIQPerformance
     module Middlewares
       module Stackprof
 

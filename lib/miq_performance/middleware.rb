@@ -3,7 +3,7 @@ require "miq_performance/configuration"
 
 # This is a wrapper middleware for the specific performance utility middlewares
 # found in `lib/miq_performance/middlewares/`
-module MiqPerformance
+module ManageIQPerformance
   class Middleware
     attr_reader :performance_middleware, :middleware_storage
 
@@ -32,16 +32,16 @@ module MiqPerformance
     private
 
     def performance_header
-      ::MiqPerformance::Middleware::PERFORMANCE_HEADER
+      ::ManageIQPerformance::Middleware::PERFORMANCE_HEADER
     end
 
     def initialize_performance_middleware
-      MiqPerformance.config.middleware.each do |name|
+      ManageIQPerformance.config.middleware.each do |name|
         begin
           require "miq_performance/middlewares/#{name}"
 
           module_name = name.split("_").map(&:capitalize).join
-          middleware  = Object.const_get "MiqPerformance::Middlewares::#{module_name}"
+          middleware  = Object.const_get "ManageIQPerformance::Middlewares::#{module_name}"
 
           extend middleware
           @performance_middleware << name
@@ -55,12 +55,12 @@ module MiqPerformance
     end
 
     def initialize_middleware_storage
-      MiqPerformance.config.middleware_storage.each do |filename|
+      ManageIQPerformance.config.middleware_storage.each do |filename|
         begin
           require "miq_performance/middleware_storage/#{filename}"
 
           name    = filename.split("_").map(&:capitalize).join
-          storage = Object.const_get "MiqPerformance::MiddlewareStorage::#{name}"
+          storage = Object.const_get "ManageIQPerformance::MiddlewareStorage::#{name}"
 
           @middleware_storage << storage.new
         rescue => e

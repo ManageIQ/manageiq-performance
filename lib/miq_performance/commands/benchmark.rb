@@ -2,7 +2,7 @@ require "miq_performance/configuration"
 require "miq_performance/requestor"
 require "miq_performance/reporting/requestfile_builder"
 
-module MiqPerformance
+module ManageIQPerformance
   module Commands
     class Benchmark
       def self.help_text

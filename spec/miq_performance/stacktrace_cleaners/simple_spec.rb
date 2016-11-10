@@ -1,6 +1,6 @@
 require "miq_performance/stacktrace_cleaners/simple"
 
-describe MiqPerformance::StacktraceCleaners::Simple do
+describe ManageIQPerformance::StacktraceCleaners::Simple do
 
   describe "#call" do
     context "default startpoint" do

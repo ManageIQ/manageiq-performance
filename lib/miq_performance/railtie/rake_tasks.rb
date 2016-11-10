@@ -1,4 +1,4 @@
-module MiqPerformance
+module ManageIQPerformance
   class RakeTasksRailtie < Rails::Railtie
     rake_tasks do
       load 'miq_performance/tasks/analyze.rake'
