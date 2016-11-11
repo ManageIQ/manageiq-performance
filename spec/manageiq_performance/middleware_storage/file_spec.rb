@@ -51,6 +51,26 @@ describe ManageIQPerformance::MiddlewareStorage::File do
     end
   end
 
+  describe "#generic_report_filename" do
+    it "builds a filename from the env['REQUEST_PATH'] variable" do
+      env = {"REQUEST_PATH" => "/foo/bar/baz"}
+      result = subject.send(:filename, env)
+      expect(result).to eq "foo%bar%baz/request_1234567.data"
+    end
+
+    it "prefixes the route with 'root' if the REQUEST_PATH is '/'" do
+      env = {"REQUEST_PATH" => "/"}
+      result = subject.send(:filename, env)
+      expect(result).to eq "root/request_1234567.data"
+    end
+
+    it "updates the ext if one is passed in" do
+      env = {"REQUEST_PATH" => "/"}
+      result = subject.send(:filename, env, :info)
+      expect(result).to eq "root/request_1234567.info"
+    end
+  end
+
   describe "#format_path_for_filename" do
     it "returns 'root' if the request_path is '/'" do
       request_path = "/"

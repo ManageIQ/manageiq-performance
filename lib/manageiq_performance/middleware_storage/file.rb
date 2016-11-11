@@ -38,6 +38,13 @@ module ManageIQPerformance
         filename
       end
 
+      def filename env, ext=:data
+        request_path = format_path_for_filename env['REQUEST_PATH']
+        timestamp    = request_timestamp env
+
+        "#{request_path}/request_#{timestamp}.#{ext}"
+      end
+
       def format_path_for_filename path
         request_path = path.to_s.gsub("/", "%")[1..-1]
         request_path = "root" if request_path == ""
