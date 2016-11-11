@@ -43,6 +43,10 @@ module ManageIQPerformance
         request_path = "root" if request_path == ""
         request_path
       end
+
+      def request_timestamp env
+        env['HTTP_MIQ_PERF_TIMESTAMP'] || Time.now.to_i
+      end
     end
   end
 end

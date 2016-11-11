@@ -70,4 +70,15 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       expect(result).to eq "foo%bar%baz"
     end
   end
+
+  describe "request_timestamp" do
+    it "returns `Time.now` by default" do
+      expect(subject.send :request_timestamp, {}).to eq 1234567
+    end
+
+    it "returns the value of env['HTTP_MIQ_PERF_TIMESTAMP'] if set" do
+      env = {"HTTP_MIQ_PERF_TIMESTAMP" => "7654321"}
+      expect(subject.send :request_timestamp, env).to eq "7654321"
+    end
+  end
 end
