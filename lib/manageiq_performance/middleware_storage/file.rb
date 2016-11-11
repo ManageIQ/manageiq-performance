@@ -37,6 +37,12 @@ module ManageIQPerformance
         end
         filename
       end
+
+      def format_path_for_filename path
+        request_path = path.to_s.gsub("/", "%")[1..-1]
+        request_path = "root" if request_path == ""
+        request_path
+      end
     end
   end
 end

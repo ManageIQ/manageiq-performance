@@ -50,4 +50,24 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       FileUtils.rm_rf "#{proj_dir}/tmp/manageiq_performance"
     end
   end
+
+  describe "#format_path_for_filename" do
+    it "returns 'root' if the request_path is '/'" do
+      request_path = "/"
+      result = subject.send(:format_path_for_filename, request_path)
+      expect(result).to eq "root"
+    end
+
+    it "removes the leading '/' from the url" do
+      request_path = "/index"
+      result = subject.send(:format_path_for_filename, request_path)
+      expect(result).to eq "index"
+    end
+
+    it "updates the request_path to use '%' instead of '/'" do
+      request_path = "/foo/bar/baz"
+      result = subject.send(:format_path_for_filename, request_path)
+      expect(result).to eq "foo%bar%baz"
+    end
+  end
 end
