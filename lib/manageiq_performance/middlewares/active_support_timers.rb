@@ -20,7 +20,7 @@ module ManageIQPerformance
 
       def active_support_timers_finish(env)
         if Thread.current[:miq_perf_request_timer_data]
-          save_report generic_report_filename(env, :info),
+          save_report env, :info,
                       active_support_timers_short_form_data,
                       active_support_timers_long_form_data
         end

@@ -19,7 +19,7 @@ module ManageIQPerformance
       end
 
       def active_record_queries_finish env
-        save_report generic_report_filename(env, :queries),
+        save_report env, :queries,
                     active_record_queries_short_form_data,
                     active_record_queries_long_form_data
       ensure

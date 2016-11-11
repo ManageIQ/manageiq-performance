@@ -12,7 +12,7 @@ module ManageIQPerformance
         create_logger
       end
 
-      def record _, data, __
+      def record _, __, data, ___
         Thread.current[:miq_perf_log_store_data] ||= {}
         Thread.current[:miq_perf_log_store_data].merge! Hash(data.call)
       end

@@ -30,24 +30,28 @@ describe ManageIQPerformance::MiddlewareStorage::File do
 
   describe "#record" do
     let(:filestore) { described_class.new }
+    let(:env)       { {"REQUEST_PATH" => "/foo/bar"} }
+
+    after(:each)    { FileUtils.rm_rf "#{proj_dir}/tmp/manageiq_performance" }
 
     it "writes a report to the given filename" do
-      data_writer = Proc.new { "my middleware dataz" }
+      data = "my middleware dataz"
+      data_writer = Proc.new { data }
       suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      filestore.record "my_result.info", nil, data_writer
-      expect(File.read "#{suite_dir}/my_result.info").to eq "my middleware dataz"
+      expected_filename = "foo%bar/request_1234567.info"
 
-      FileUtils.rm_rf "#{proj_dir}/tmp/manageiq_performance"
+      filestore.record env, :info, nil, data_writer
+      expect(File.read "#{suite_dir}/#{expected_filename}").to eq data
     end
 
     it "writes a report as yml if given a hash" do
       data = {"foo" => "my middleware dataz"}
       data_writer = Proc.new { data }
       suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      filestore.record "my_result.info", nil, data_writer
-      expect(File.read "#{suite_dir}/my_result.info").to eq data.to_yaml
+      expected_filename = "foo%bar/request_1234567.info"
 
-      FileUtils.rm_rf "#{proj_dir}/tmp/manageiq_performance"
+      filestore.record env, :info, nil, data_writer
+      expect(File.read "#{suite_dir}/#{expected_filename}").to eq data.to_yaml
     end
   end
 

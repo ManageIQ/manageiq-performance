@@ -82,27 +82,10 @@ module ManageIQPerformance
       middleware_storage.each { |storage| storage.finalize }
     end
 
-    def save_report filename, long_form, short_form
+    def save_report env, prefix, long_form, short_form
       middleware_storage.each do |storage|
-        storage.record filename, long_form, short_form
+        storage.record env, prefix, long_form, short_form
       end
-    end
-
-    def generic_report_filename env, ext=:data
-      request_path = format_path_for_filename env['REQUEST_PATH']
-      timestamp    = request_timestamp env
-
-      "#{request_path}/request_#{timestamp}.#{ext}"
-    end
-
-    def format_path_for_filename path
-      request_path = path.to_s.gsub("/", "-")[1..-1]
-      request_path = "root" if request_path == ""
-      request_path
-    end
-
-    def request_timestamp env
-      env['HTTP_MIQ_PERF_TIMESTAMP'] || Time.now.to_i
     end
   end
 end

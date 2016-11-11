@@ -11,8 +11,8 @@ module ManageIQPerformance
         create_suite_dir
       end
 
-      def record filename, _, file_data
-        write_report_file filename, &file_data
+      def record env, filetype, _, file_data
+        write_report_file filename(env, filetype), &file_data
       end
 
       # noop:  Files have already been written at this point

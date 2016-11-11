@@ -25,7 +25,7 @@ begin
           StackProf.stop
 
           if results = StackProf.results
-            save_report generic_report_filename(env, :stackprof),
+            save_report env, :stackprof,
                         stackprof_short_form_data,
                         stackprof_long_form_data(results)
           end
