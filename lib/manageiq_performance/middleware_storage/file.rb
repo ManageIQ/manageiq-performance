@@ -28,14 +28,14 @@ module ManageIQPerformance
         @miq_performance_suite_dir = suite_dir
       end
 
-      def write_report_file filename
-        filepath = ::File.join(miq_performance_suite_dir, filename)
+      def write_report_file report_filename
+        filepath = ::File.join(miq_performance_suite_dir, report_filename)
         FileUtils.mkdir_p(::File.dirname filepath)
         ::File.open(filepath, 'wb') do |file_io|
           data = yield
           file_io.write data.is_a?(Hash) ? data.to_yaml : data
         end
-        filename
+        report_filename
       end
 
       def filename env, ext=:data
