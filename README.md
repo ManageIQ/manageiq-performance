@@ -20,7 +20,7 @@ Installation
 Add this line to your ManageIQ/manageiq Gemfile.dev.rb:
 
 ```ruby
-gem 'miq_performance', :github => 'NickLaMuro/miq_performance'
+gem 'manageiq-performance', :github => 'NickLaMuro/manageiq-performance'
 ```
 
 Since this is meant to be modular, you can include specific parts of the gem
@@ -28,9 +28,9 @@ that you need in the ManageIQ application by modifying the `:require` statement
 in the above `gem` invocation:
 
 ```ruby
-gem 'miq_performance', :require => [ 'miq_performance/railtie/rake_tasks',
-                                     'miq_performance/railtie/middleware' ],
-                       :github => 'NickLaMuro/miq_performance'
+gem 'manageiq-performance', :require => [ 'manageiq_performance/railtie/rake_tasks',
+                                          'manageiq_performance/railtie/middleware' ],
+                            :github => 'NickLaMuro/manageiq-performance'
 ```
 
 This will only then load the railties for the `rake_tasks` and the
@@ -62,7 +62,7 @@ The three middleware components currently available are:
 * `stackprof`
 
 Each will write their data to a directory that is configured on application
-boot, something like `tmp/miq_performance/run_123456789`, where `123456789` is
+boot, something like `tmp/manageiq_performance/run_123456789`, where `123456789` is
 a timestamp of when the application was booted.
 
 From there, any request with the header `WITH_PERFORMANCE_MONITORING`, will
@@ -74,7 +74,7 @@ of `root`, and requests to `/vm_infa/explorer` will be put in
 
 ```
 tmp/
-├── miq_performance
+├── manageiq_performance
 │   └── run_1472612126
 │       ├── root
 │       │   ├── request_1472612151930416.info
@@ -132,11 +132,11 @@ More info can be found on the [github page](https://github.com/tmm1/stackprof)
 
 ### Raketasks
 
-`miq_performance` comes with 3 rake tasks:
+`manageiq-performance` comes with 3 rake tasks:
 
-* `rake miq_performance:build_request_file`
-* `rake miq_performance:benchmark`
-* `rake miq_performance:benchmark_url["<REQUEST_PATH>"]`
+* `rake manageiq_performance:build_request_file`
+* `rake manageiq_performance:benchmark`
+* `rake manageiq_performance:benchmark_url["<REQUEST_PATH>"]`
 
 
 #### `build_request_file`
@@ -171,7 +171,7 @@ Similar to the `benchmark` task, but is used for one off requests.  Can be used
 like so:
 
 ```
-$ rake miq_performance:benchmark_url["/vm/show/123456"]
+$ rake manageiq_performance:benchmark_url["/vm/show/123456"]
 ```
 
 Currently this only supports `GET` requests, but will also accept the
@@ -195,4 +195,4 @@ TODO
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-https://github.com/NickLaMuro/miq_performance.
+https://github.com/NickLaMuro/manageiq-performance.

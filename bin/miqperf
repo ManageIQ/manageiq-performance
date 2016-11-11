@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 sub_cmd = ARGV.shift
-sub_cmd_lib = File.expand_path File.join('..', 'lib', 'miq_performance', 'commands'),
+sub_cmd_lib = File.expand_path File.join('..', 'lib', 'manageiq_performance', 'commands'),
                                File.dirname(__FILE__)
 
 case sub_cmd
