@@ -20,7 +20,7 @@ Installation
 Add this line to your ManageIQ/manageiq Gemfile.dev.rb:
 
 ```ruby
-gem 'manageiq-performance', :github => 'NickLaMuro/manageiq-performance'
+gem 'manageiq-performance', :github => 'ManageIQ/manageiq-performance'
 ```
 
 Since this is meant to be modular, you can include specific parts of the gem
@@ -30,7 +30,7 @@ in the above `gem` invocation:
 ```ruby
 gem 'manageiq-performance', :require => [ 'manageiq_performance/railtie/rake_tasks',
                                           'manageiq_performance/railtie/middleware' ],
-                            :github => 'NickLaMuro/manageiq-performance'
+                            :github => 'ManageIQ/manageiq-performance'
 ```
 
 This will only then load the railties for the `rake_tasks` and the
@@ -195,4 +195,4 @@ TODO
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at
-https://github.com/NickLaMuro/manageiq-performance.
+https://github.com/ManageIQ/manageiq-performance.

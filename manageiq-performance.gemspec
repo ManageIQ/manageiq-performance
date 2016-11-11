@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Nick LaMuro"]
   spec.email         = ["nicklamuro@gmail.com"]
 
-  spec.homepage      = "http://github.com/NickLaMuro/manageiq-performance"
+  spec.homepage      = "http://github.com/ManageIQ/manageiq-performance"
   spec.summary       = "Perfomance Utils and Benchmarking for the ManageIQ application"
 
   spec.description   = <<-DESC.gsub(/^ {4}/, '')
