@@ -76,7 +76,7 @@ module ManageIQPerformance
       @report_data.keys.each do |request_id|
         @column_size_for = {}
 
-        puts request_id
+        puts "/#{request_id.gsub("%", "/")}"
         print_headers   request_id
         print_spacers   request_id
         print_row_data  request_id
