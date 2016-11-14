@@ -105,7 +105,7 @@ module ManageIQPerformance
         def binds_to_params(binds)
           return if binds.nil?
           params = binds.map { |c| c.kind_of?(Array) ? [c.first, c.last] : [c.name, c.value] }
-          params.map { |(n,v)| n =~ @skip_rexp ? [n, nil] : [n, v] }
+          params.map { |(n,v)| n =~ @skip_rexp ? [n, nil] : [n, v.to_s] }
         end
 
         def sql_stacktrace
