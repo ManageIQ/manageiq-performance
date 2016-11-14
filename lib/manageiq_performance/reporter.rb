@@ -154,8 +154,8 @@ module ManageIQPerformance
     end
 
     def avg data
-      data_set = Array(data)
-      data_set.inject(0, :+) / data_set.size
+      return 0 if Array(data).empty?
+      data.inject(0, :+) / data.size
     end
   end
 end
