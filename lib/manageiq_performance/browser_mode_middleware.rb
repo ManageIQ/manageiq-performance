@@ -1,5 +1,6 @@
 require "fileutils"
 require "manageiq_performance/configuration"
+require "manageiq_performance/middleware"
 
 # This middleware wraps the existing `manageiq_performance/middleware` and allows
 # for triggering that middleware from either a URL param, or have it always
@@ -15,7 +16,7 @@ module ManageIQPerformance
     end
 
     def call env
-      if enable_performance_middleware?
+      if enable_performance_middleware? env
         env[Middleware::PERFORMANCE_HEADER] = "true"
       end
       @app.call env
@@ -23,8 +24,8 @@ module ManageIQPerformance
 
     private
 
-    def enabled_performance_middleware?
-      @enable_performance_middleware.call
+    def enable_performance_middleware? env
+      @enable_performance_middleware.call env
     end
 
     def set_performance_middleware_proc
@@ -32,7 +33,7 @@ module ManageIQPerformance
         @enable_performance_middleware = proc { |env| true }
       else
         @enable_performance_middleware = proc do |env|
-          env["QUERY_STRING"].include? "miq_performance_profile=true"
+          env.fetch("QUERY_STRING", "").include? "miq_performance_profile=true"
         end
       end
     end
