@@ -1,5 +1,16 @@
-ManageIQPerformance
-===================
+ManageIQ Performance
+====================
+
+[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/manageiq_performance?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Gem Version](https://badge.fury.io/rb/manageiq_performance.svg)](http://badge.fury.io/manageiq_performance)
+[![Build Status](https://travis-ci.org/ManageIQ/manageiq_performance.svg)](https://travis-ci.org/ManageIQ/manageiq_performance)
+[![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq_performance/badges/gpa.svg)](https://codeclimate.com/github/ManageIQ/manageiq_performance)
+[![Codacy](https://api.codacy.com/project/badge/grade/9ffce48ccb924020ae8f9e698048e9a4)](https://www.codacy.com/app/ManageIQ/manageiq_performance)
+[![Coverage Status](https://coveralls.io/repos/ManageIQ/manageiq_performance/badge.svg?branch=master&service=github)](https://coveralls.io/github/ManageIQ/manageiq_performance?branch=master)
+[![Dependency Status](https://gemnasium.com/ManageIQ/manageiq_performance.svg)](https://gemnasium.com/ManageIQ/manageiq_performance)
+[![Security](https://hakiri.io/github/ManageIQ/manageiq_performance/master.svg)](https://hakiri.io/github/ManageIQ/manageiq_performance/master)
+
 Libraries and utilities for testing, profiling, benchmarking, and debugging
 performance bottlenecks on the ManageIQ application.  Includes, but not limited
 to:
