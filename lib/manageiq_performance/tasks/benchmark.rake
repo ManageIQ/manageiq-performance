@@ -17,6 +17,7 @@ namespace :manageiq_performance do
 
   desc "Build a RequestFile for benchmarking"
   task :build_request_file => :environment do
+    require "manageiq_performance/reporting/requestfile_builder"
     ManageIQPerformance::Reporting::RequestfileBuilder.new
   end
 end
