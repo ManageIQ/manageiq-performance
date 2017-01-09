@@ -7,9 +7,12 @@ module ManageIQPerformance
           consumption
           configuration
           container_topology
+          ems_infra_dashboard
           middleware_topology
           network_topology
           subnet_topology
+          cloud_topology
+          infra_topology
           container_dashboard
           dashboard
         ]
