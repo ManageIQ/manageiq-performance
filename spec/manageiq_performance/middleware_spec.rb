@@ -2,16 +2,6 @@ require "active_support"
 require "active_record"
 require "manageiq_performance/middleware"
 
-# Stub rails
-module Rails
-  Application = Struct.new :config
-  Config      = Struct.new :filter_parameters
-
-  def self.application
-    Application.new Config.new([:password, :verify, :data])
-  end
-end
-
 middleware_defaults = ManageIQPerformance::Configuration::DEFAULTS["middleware"]
 
 shared_examples "middleware functionality for" do |middleware_order|
