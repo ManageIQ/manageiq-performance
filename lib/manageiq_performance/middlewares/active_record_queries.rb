@@ -7,7 +7,13 @@ module ManageIQPerformance
       def active_record_queries_initialize
         logger = ::ManageIQPerformance::Middlewares::ActiveRecordQueries::Logger.new
         %w(sql.active_record instantiation.active_record).each do |event|
-          ActiveSupport::Notifications.subscribe(event, logger)
+          existing_notifiers = ActiveSupport::Notifications.notifier.listeners_for('sql.active_record').map do |s|
+            s.instance_variable_get(:@delegate).class
+          end
+
+          unless existing_notifiers.include? logger.class
+            ActiveSupport::Notifications.subscribe(event, logger)
+          end
         end
       end
 
