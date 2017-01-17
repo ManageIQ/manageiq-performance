@@ -16,8 +16,17 @@ describe ManageIQPerformance::Middlewares::ActiveRecordQueries do
       2.times { FakeMiddleware.new }
     end
 
-    it "does not add duplicate ActiveSupport::Notification subscribers" do
-      existing_notifiers = ActiveSupport::Notifications.notifier.listeners_for('sql.active_record').map do |s|
+    it "does not add duplicate 'sql.active_record' subscribers" do
+      existing_notifiers  = ActiveSupport::Notifications.notifier.listeners_for("sql.active_record").map do |s|
+        s.instance_variable_get(:@delegate).class
+      end
+
+      logger_class = ::ManageIQPerformance::Middlewares::ActiveRecordQueries::Logger
+      expect( existing_notifiers.select {|n| n == logger_class }.count ).to eq(1)
+    end
+
+    it "does not add duplicate 'instantiation.active_record' subscribers" do
+      existing_notifiers = ActiveSupport::Notifications.notifier.listeners_for("instantiation.active_record").map do |s|
         s.instance_variable_get(:@delegate).class
       end
 
