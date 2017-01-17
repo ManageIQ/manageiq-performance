@@ -52,7 +52,7 @@ module ManageIQPerformance
       end
 
       def request_timestamp env
-        env['HTTP_MIQ_PERF_TIMESTAMP'] || Time.now.to_i
+        env['HTTP_MIQ_PERF_TIMESTAMP'] || (Time.now.to_f * 1000000).to_i
       end
     end
   end
