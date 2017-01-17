@@ -88,4 +88,15 @@ module ManageIQPerformance
       end
     end
   end
+
+  def self.profile name = nil, &code
+    name ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
+    env  = {
+      Middleware::PERFORMANCE_HEADER => true,
+      "REQUEST_PATH"                 => name
+    }
+
+    ManageIQPerformance::Middleware.new(code).call(env)
+  end
+
 end
