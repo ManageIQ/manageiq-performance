@@ -58,8 +58,8 @@ module ManageIQPerformance
         data["queries"]      ||= []
         data["rows"]         ||= []
         data["elapsed_time"] ||= []
-        data["queries"]      << queries[:total_queries]
-        data["rows"]         << queries[:total_rows]
+        data["queries"]      << queries[:total_queries].to_i
+        data["rows"]         << queries[:total_rows].to_i
         data["elapsed_time"] << queries.fetch(:queries, []).map {|q| q[:elapsed_time] }.inject(0.0, :+)
         data
       end
