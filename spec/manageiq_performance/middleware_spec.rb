@@ -26,9 +26,14 @@ class ProfilingTestClass
 end
 
 shared_examples "middleware functionality for" do |middleware_order|
+  before do
+    allow(Time).to receive(:now).and_return("1234567")
+  end
+
   let(:basic_env) {
     {
-      ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true
+      ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true,
+      "HTTP_MIQ_PERF_TIMESTAMP"                           => 1234567000000
     }
   }
 
