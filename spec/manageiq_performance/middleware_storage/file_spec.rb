@@ -88,6 +88,12 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       expect(result).to eq "index"
     end
 
+    it "maintains string if there is no leading '/'" do
+      request_path = "index"
+      result = subject.send(:format_path_for_filename, request_path)
+      expect(result).to eq "index"
+    end
+
     it "updates the request_path to use '%' instead of '/'" do
       request_path = "/foo/bar/baz"
       result = subject.send(:format_path_for_filename, request_path)
