@@ -119,7 +119,7 @@ module ManageIQPerformance
         @report_data[request_id][hdr] and hdr
       end
 
-      @report_data[request_id][count_header].count.times do |i|
+      (@report_data[request_id][count_header] || []).count.times do |i|
         print_row do |hdr|
           value = HEADERS[hdr].map { |header_column|
             @report_data[request_id].fetch(header_column, [])[i] || 0
