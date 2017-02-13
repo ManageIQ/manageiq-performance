@@ -20,7 +20,7 @@ module ManageIQPerformance
 
       def active_support_timers_finish(env)
         if Thread.current[:miq_perf_request_timer_data].nil? and env["HTTP_MIQ_PERF_TIMESTAMP"]
-          time = (env["MIQ_PERFORMANCE_END_TIME"] - env["HTTP_MIQ_PERF_TIMESTAMP"]) / 1000
+          time = (env["MIQ_PERFORMANCE_END_TIME"].to_i - env["HTTP_MIQ_PERF_TIMESTAMP"].to_i) / 1000
           Thread.current[:miq_perf_request_timer_data] = {
             "path" => env["REQUEST_PATH"],
             "time" => { "total" => time }

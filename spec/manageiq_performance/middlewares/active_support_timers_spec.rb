@@ -61,6 +61,13 @@ describe ManageIQPerformance::Middlewares::ActiveSupportTimers do
 
         subject.send :active_support_timers_finish, env
       end
+
+      it "does not blow up in HTTP_MIQ_PERF_TIMESTAMP is sent as a string" do
+        env = {"HTTP_MIQ_PERF_TIMESTAMP" => "1000000", "MIQ_PERFORMANCE_END_TIME" => 1026000}
+        expect(subject).to receive(:save_report).with(env, :info, short_data, long_data)
+
+        subject.send :active_support_timers_finish, env
+      end
     end
 
     after { Thread.current[:miq_perf_request_timer_data] = nil }
