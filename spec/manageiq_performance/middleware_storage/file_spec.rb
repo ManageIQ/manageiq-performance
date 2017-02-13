@@ -38,7 +38,7 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       data = "my middleware dataz"
       data_writer = Proc.new { data }
       suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      expected_filename = "foo%bar/request_1234567.info"
+      expected_filename = "foo%bar/request_1234567000000.info"
 
       filestore.record env, :info, nil, data_writer
       expect(File.read "#{suite_dir}/#{expected_filename}").to eq data
@@ -48,7 +48,7 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       data = {"foo" => "my middleware dataz"}
       data_writer = Proc.new { data }
       suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      expected_filename = "foo%bar/request_1234567.info"
+      expected_filename = "foo%bar/request_1234567000000.info"
 
       filestore.record env, :info, nil, data_writer
       expect(File.read "#{suite_dir}/#{expected_filename}").to eq data.to_yaml
@@ -59,19 +59,19 @@ describe ManageIQPerformance::MiddlewareStorage::File do
     it "builds a filename from the env['REQUEST_PATH'] variable" do
       env = {"REQUEST_PATH" => "/foo/bar/baz"}
       result = subject.send(:filename, env)
-      expect(result).to eq "foo%bar%baz/request_1234567.data"
+      expect(result).to eq "foo%bar%baz/request_1234567000000.data"
     end
 
     it "prefixes the route with 'root' if the REQUEST_PATH is '/'" do
       env = {"REQUEST_PATH" => "/"}
       result = subject.send(:filename, env)
-      expect(result).to eq "root/request_1234567.data"
+      expect(result).to eq "root/request_1234567000000.data"
     end
 
     it "updates the ext if one is passed in" do
       env = {"REQUEST_PATH" => "/"}
       result = subject.send(:filename, env, :info)
-      expect(result).to eq "root/request_1234567.info"
+      expect(result).to eq "root/request_1234567000000.info"
     end
   end
 
@@ -88,6 +88,12 @@ describe ManageIQPerformance::MiddlewareStorage::File do
       expect(result).to eq "index"
     end
 
+    it "maintains string if there is no leading '/'" do
+      request_path = "index"
+      result = subject.send(:format_path_for_filename, request_path)
+      expect(result).to eq "index"
+    end
+
     it "updates the request_path to use '%' instead of '/'" do
       request_path = "/foo/bar/baz"
       result = subject.send(:format_path_for_filename, request_path)
@@ -97,7 +103,7 @@ describe ManageIQPerformance::MiddlewareStorage::File do
 
   describe "request_timestamp" do
     it "returns `Time.now` by default" do
-      expect(subject.send :request_timestamp, {}).to eq 1234567
+      expect(subject.send :request_timestamp, {}).to eq 1234567000000
     end
 
     it "returns the value of env['HTTP_MIQ_PERF_TIMESTAMP'] if set" do

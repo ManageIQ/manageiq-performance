@@ -76,6 +76,7 @@ module ManageIQPerformance
     end
 
     def performance_middleware_finish env
+      env["MIQ_PERFORMANCE_END_TIME"] = (Time.now.to_f * 1000000).to_i
       performance_middleware.reverse.each do |middleware|
         send "#{middleware}_finish", env
       end
@@ -88,4 +89,16 @@ module ManageIQPerformance
       end
     end
   end
+
+  def self.profile name = nil, &code
+    name ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
+    env  = {
+      Middleware::PERFORMANCE_HEADER => true,
+      "REQUEST_PATH"                 => name,
+      "HTTP_MIQ_PERF_TIMESTAMP"      => (Time.now.to_f * 1000000).to_i
+    }
+
+    ManageIQPerformance::Middleware.new(code).call(env)
+  end
+
 end

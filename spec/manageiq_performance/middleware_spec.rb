@@ -4,7 +4,39 @@ require "manageiq_performance/middleware"
 
 middleware_defaults = ManageIQPerformance::Configuration::DEFAULTS["middleware"]
 
+class ProfilingTestClass
+  def self.test_profiling
+    ManageIQPerformance.profile { 1 + 1 }
+  end
+
+  def self.test_profiling_in_block
+    1.times do
+      ManageIQPerformance.profile { 1 + 1 }
+    end
+  end
+
+  def self.test_profile_eval_script
+    <<-EOF.gsub(/^\s*/, '')
+      begin
+      ManageIQPerformance.profile { 1 + 1 }
+      rescue
+      end
+    EOF
+  end
+end
+
 shared_examples "middleware functionality for" do |middleware_order|
+  before do
+    allow(Time).to receive(:now).and_return("1234567")
+  end
+
+  let(:basic_env) {
+    {
+      ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true,
+      "HTTP_MIQ_PERF_TIMESTAMP"                           => 1234567000000
+    }
+  }
+
   middleware_order.each do |name|
     it "loads #{name} middleware" do
       expect(subject.private_methods.include? "#{name}_start".to_sym).to  be true
@@ -34,7 +66,7 @@ shared_examples "middleware functionality for" do |middleware_order|
       expect(subject).to receive(:performance_middleware_start).once
       expect(subject).to receive(:performance_middleware_finish).once
 
-      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call(basic_env)
     end
 
     it "runs the middleware in order" do
@@ -44,7 +76,7 @@ shared_examples "middleware functionality for" do |middleware_order|
         expect(subject).to receive("#{name}_start").ordered
       end
 
-      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call(basic_env)
     end
 
     it "finishes the middleware in reverse order" do
@@ -54,7 +86,107 @@ shared_examples "middleware functionality for" do |middleware_order|
         expect(subject).to receive("#{name}_finish").ordered
       end
 
-      subject.call({ ManageIQPerformance::Middleware::PERFORMANCE_HEADER => true})
+      subject.call(basic_env)
+    end
+  end
+
+  describe "ManageIQPerformance::profile" do
+    let(:work) { Proc.new { Thread.current[:result] = (1..10).to_a.inject(0, :+) } }
+    let(:middleware_instance) { ManageIQPerformance::Middleware.new work }
+    let(:run_profile) do
+      Proc.new do
+        ManageIQPerformance.profile { work }
+      end
+    end
+
+    it "runs the code in the block" do
+      ManageIQPerformance.profile { Thread.current[:result] = 42 }
+
+      expect(Thread.current[:result]).to eq(42)
+    end
+
+    it "runs the middleware in order" do
+      allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+      middleware_order.each do |name|
+        expect(middleware_instance).to receive("#{name}_start").ordered
+      end
+
+      run_profile.call
+    end
+
+    it "finishes the middleware in reverse order" do
+      allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+      middleware_order.reverse.each do |name|
+        expect(middleware_instance).to receive("#{name}_finish").ordered
+      end
+
+      run_profile.call
+    end
+
+    context "with a name given" do
+      it "sets the REQUEST_PATH to the name in the env" do
+        allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+        expected_env = basic_env.merge("REQUEST_PATH" => "my_name")
+        expect(middleware_instance).to receive(:call).with(expected_env)
+
+        ManageIQPerformance.profile("my_name") { work }
+      end
+    end
+
+    # Testing that when a name is given, we are creating a name based on the
+    # call stack something that only has letters and underscores for the
+    # generated filename.  Don't really want to create another method for this,
+    # but this is some dense regexp code that is being done to generate this
+    # name.
+    context "without a name given" do
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:94:in `block (3 levels) in <top (required)>'
+      #
+      it "generates a name for REQUEST_PATH from the caller" do
+        allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+        expected_env = basic_env.merge("REQUEST_PATH" => "required")
+        expect(middleware_instance).to receive(:call).with(expected_env)
+
+        ManageIQPerformance.profile { work }
+      end
+
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:14:in `test_profiling'
+      #
+      it "name generator handles method names in call stack" do
+        allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+        expected_env = basic_env.merge("REQUEST_PATH" => "test_profiling")
+        expect(middleware_instance).to receive(:call).with(expected_env)
+
+        ProfilingTestClass.test_profiling
+      end
+
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:19:in `block in test_profiling_in_block'
+      #
+      it "name generator handles block references in call stack" do
+        allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+        expected_env = basic_env.merge("REQUEST_PATH" => "test_profiling_in_block")
+        expect(middleware_instance).to receive(:call).with(expected_env)
+
+        ProfilingTestClass.test_profiling_in_block
+      end
+
+      # Example callstack line:
+      #
+      #   (eval):64:in `<top (required)>'
+      #
+      it "name generator handles block references in call stack" do
+        puts "THIS ONE"
+        allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+        expected_env = basic_env.merge("REQUEST_PATH" => "required")
+        expect(middleware_instance).to receive(:call).with(expected_env)
+
+        eval ProfilingTestClass.test_profile_eval_script
+      end
     end
   end
 

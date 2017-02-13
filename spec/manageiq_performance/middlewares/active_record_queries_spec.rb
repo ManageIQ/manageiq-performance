@@ -2,7 +2,7 @@ require "active_record"
 require "manageiq_performance/middleware"
 require "manageiq_performance/middlewares/active_record_queries"
 
-class FakeMiddleware
+class FakeQueriesMiddleware
   include ManageIQPerformance::Middlewares::ActiveRecordQueries
 
   def initialize
@@ -13,7 +13,7 @@ end
 describe ManageIQPerformance::Middlewares::ActiveRecordQueries do
   context "with more than one instance of the middleware" do
     before(:each) do
-      2.times { FakeMiddleware.new }
+      2.times { FakeQueriesMiddleware.new }
     end
 
     it "does not add duplicate 'sql.active_record' subscribers" do
