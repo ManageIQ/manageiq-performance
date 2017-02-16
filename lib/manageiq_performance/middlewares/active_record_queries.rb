@@ -131,11 +131,13 @@ module ManageIQPerformance
         end
 
         def include_trace?
-          @include_trace ||= ManageIQPerformance.config.include_stack_traces?
+          return @include_trace if defined?(@include_trace)
+          @include_trace = ManageIQPerformance.config.include_stack_traces?
         end
 
         def skip_schema_queries?
-          @skip_schema_queries ||= ManageIQPerformance.config.skip_schema_queries?
+          return @skip_schema_queries if defined?(@skip_schema_queries)
+          @skip_schema_queries = ManageIQPerformance.config.skip_schema_queries?
         end
 
         # ORACLE and PG query types
