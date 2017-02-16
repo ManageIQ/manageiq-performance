@@ -72,7 +72,7 @@ module ManageIQPerformance
 
               record_sql_query payload[:sql],
                                elapsed_time,
-                               binds_to_params(payload[:binds])
+                               payload[:binds]
             elsif name == AR_INSTANTIATION_NOTIFIER
               record_instantiation elapsed_time,
                                    payload[:record_count],
@@ -89,14 +89,16 @@ module ManageIQPerformance
 
         def record_sql_query sql, elapsed_time, params
           query_data[:total_queries] = query_data[:total_queries].to_i + 1
-          query_record = {
-            :sql          => sql,
-            :elapsed_time => elapsed_time,
-            :params       => params
-          }
-          query_record[:stacktrace] = sql_stacktrace if include_trace?
+          if include_queries?
+            query_record = {
+              :sql          => sql,
+              :elapsed_time => elapsed_time,
+              :params       => binds_to_params(params)
+            }
+            query_record[:stacktrace] = sql_stacktrace if include_trace?
 
-          query_data[:queries] << query_record
+            query_data[:queries] << query_record
+          end
         end
 
         def record_instantiation elapsed_time, record_count, class_name
@@ -128,6 +130,11 @@ module ManageIQPerformance
 
         def should_measure?
           Thread.current[:miq_perf_sql_query_data]
+        end
+
+        def include_queries?
+          return @include_queries if defined?(@include_queries)
+          @include_queries = ManageIQPerformance.config.include_sql_queries?
         end
 
         def include_trace?

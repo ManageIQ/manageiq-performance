@@ -103,6 +103,11 @@ describe ManageIQPerformance::Configuration do
       expect(ManageIQPerformance.config["include_stack_traces"]).to eq(false)
     end
 
+    it "defines ManageIQPerformance.config.include_sql_queries?" do
+      expect(ManageIQPerformance.config.include_sql_queries?).to eq(true)
+      expect(ManageIQPerformance.config["include_sql_queries"]).to eq(true)
+    end
+
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
       expect(ManageIQPerformance.config.stacktrace_cleaner).to eq(ManageIQPerformance::StacktraceCleaners::Simple)
       expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq("simple")
@@ -169,6 +174,7 @@ describe ManageIQPerformance::Configuration do
         log_dir: tmp/my_log_dir
         skip_schema_queries: false
         include_stack_traces: true
+        include_sql_queries: false
         stacktrace_cleaner: rails
         requestor:
           username: foobar
@@ -211,6 +217,11 @@ describe ManageIQPerformance::Configuration do
     it "defines ManageIQPerformance.config.include_stack_traces?" do
       expect(ManageIQPerformance.config.include_stack_traces?).to eq(true)
       expect(ManageIQPerformance.config["include_stack_traces"]).to eq(true)
+    end
+
+    it "defines ManageIQPerformance.config.include_sql_queries?" do
+      expect(ManageIQPerformance.config.include_sql_queries?).to eq(false)
+      expect(ManageIQPerformance.config["include_sql_queries"]).to eq(false)
     end
 
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
