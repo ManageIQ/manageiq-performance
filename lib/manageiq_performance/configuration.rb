@@ -25,8 +25,8 @@ module ManageIQPerformance
         "read_timeout" => 300,
         "ignore_ssl"   => false
       },
+      # also have middleware: stackprof
       "middleware"           => %w[
-        stackprof
         active_support_timers
         active_record_queries
       ],
