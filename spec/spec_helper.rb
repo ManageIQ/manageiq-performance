@@ -1,5 +1,8 @@
 $LOAD_PATH.unshift File.expand_path "../..", __FILE__
 
+require 'tempfile'
+
+CONFIG_FILE_NAME = Tempfile.new('config').tap { |x| x.close } # sorry, not unlinking
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
@@ -37,7 +40,7 @@ RSpec.configure do |config|
     ManageIQPerformance.instance_variable_set :@config, nil
 
     if defined? ManageIQPerformance::Configuration
-      ManageIQPerformance::Configuration.instance_variable_set :@config_file_location, nil
+      ManageIQPerformance::Configuration.instance_variable_set :@config_file_location, CONFIG_FILE_NAME
     end
   end
 end

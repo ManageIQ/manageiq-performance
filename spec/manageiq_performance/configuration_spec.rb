@@ -10,6 +10,7 @@ describe ManageIQPerformance::Configuration do
 
   before(:each) do
     allow(Dir).to receive(:home).and_return(home_dir)
+    described_class.instance_variable_set :@config_file_location, nil
   end
 
   around(:example) do |example|
