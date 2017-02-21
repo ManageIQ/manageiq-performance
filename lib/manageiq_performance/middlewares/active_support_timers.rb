@@ -33,26 +33,34 @@ module ManageIQPerformance
                       active_support_timers_long_form_data
         end
       ensure
-        Thread.current[:miq_perf_request_timer_data] = nil
+        ActiveSupportTimers.query_data = nil
       end
 
       def active_support_timers_save event
-        Thread.current[:miq_perf_request_timer_data] = parsed_data(event)
+        ActiveSupportTimers.query_data = parsed_data(event)
       end
 
       def active_support_timers_long_form_data
-        proc { Thread.current[:miq_perf_request_timer_data] }
+        proc { ActiveSupportTimers.query_data }
       end
 
       def active_support_timers_short_form_data
         proc do
           {
-            "request"      => Thread.current[:miq_perf_request_timer_data]["path"],
-            "total_time"   => Thread.current[:miq_perf_request_timer_data]["time"]["total"],
-            "activerecord" => Thread.current[:miq_perf_request_timer_data]["time"]["activerecord"],
-            "views"        => Thread.current[:miq_perf_request_timer_data]["time"]["views"]
+            "request"      => ActiveSupportTimers.query_data["path"],
+            "total_time"   => ActiveSupportTimers.query_data["time"]["total"],
+            "activerecord" => ActiveSupportTimers.query_data["time"]["activerecord"],
+            "views"        => ActiveSupportTimers.query_data["time"]["views"]
           }
         end
+      end
+
+      def self.query_data
+        Thread.current[:miq_perf_request_timer_data]
+      end
+
+      def self.query_data=(value)
+        Thread.current[:miq_perf_request_timer_data] = value
       end
 
       def parsed_data(event)
