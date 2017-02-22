@@ -17,6 +17,7 @@ module ManageIQPerformance
       "log_dir"              => "log",
       "skip_schema_queries"  => true,
       "include_stack_traces" => false,
+      "include_sql_queries"  => true,
       "stacktrace_cleaner"   => "simple",
       "requestor"            => {
         "username"     => "admin",
@@ -76,6 +77,10 @@ module ManageIQPerformance
 
     def skip_schema_queries?
       self["skip_schema_queries"]
+    end
+
+    def include_sql_queries?
+      self["include_sql_queries"]
     end
 
     def include_stack_traces?
