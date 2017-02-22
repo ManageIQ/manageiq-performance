@@ -180,7 +180,6 @@ shared_examples "middleware functionality for" do |middleware_order|
       #   (eval):64:in `<top (required)>'
       #
       it "name generator handles block references in call stack" do
-        puts "THIS ONE"
         allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
         expected_env = basic_env.merge("REQUEST_PATH" => "required")
         expect(middleware_instance).to receive(:call).with(expected_env)
