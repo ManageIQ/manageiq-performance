@@ -145,7 +145,7 @@ describe ManageIQPerformance::Configuration do
     end
 
     it "defines ManageIQPerformance.config.middleware" do
-      middleware = %w[stackprof active_support_timers active_record_queries]
+      middleware = %w[stackprof active_support_timers memory active_record_queries]
       expect(ManageIQPerformance.config.middleware).to match_array(middleware)
       expect(ManageIQPerformance.config["middleware"]).to match_array(middleware)
     end

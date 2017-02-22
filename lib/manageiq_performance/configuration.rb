@@ -30,6 +30,7 @@ module ManageIQPerformance
         stackprof
         active_support_timers
         active_record_queries
+        memory
       ],
       "middleware_storage"   => %w[file],
       "browser_mode"  => {
