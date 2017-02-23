@@ -122,7 +122,7 @@ module ManageIQPerformance
       @report_data[request_id][count_header].count.times do |i|
         print_row do |hdr|
           value = HEADERS[hdr].map { |header_column|
-            @report_data[request_id].fetch(header_column, [])[i].to_i
+            @report_data[request_id].fetch(header_column, [])[i] || 0
           }.max
           value = "%.1f" % value unless value.class.ancestors.include?(Integer)
           value.to_s.rjust(column_size_for hdr, request_id)
@@ -143,7 +143,7 @@ module ManageIQPerformance
         (HEADERS[header].map { |header_column|
           @report_data[request_id][header_column].map {|i|
             value = i.to_s
-            value = "%.1f" % value unless value.class.ancestors.include?(Integer)
+            value = "%.1f" % i if i && !i.class.ancestors.include?(Integer)
             value.size
           }.max if @report_data[request_id][header_column]
         }.compact + [
