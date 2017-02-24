@@ -7,31 +7,31 @@ module ManageIQPerformance
       end
 
       def memory_start(env)
-        Memory.memory_query_data = memory_parse_data
+        self.memory_query_data = memory_parse_data
       end
 
       def memory_finish(env)
-        Memory.memory_query_data = memory_parse_data(Memory.memory_query_data)
+        self.memory_query_data = memory_parse_data(memory_query_data)
         save_report env, :memory,
                     memory_short_form_data,
                     memory_long_form_data
       ensure
-        Memory.memory_query_data = nil
+        self.memory_query_data = nil
       end
 
       def memory_long_form_data
-        proc { Memory.memory_query_data }
+        proc { memory_query_data }
       end
 
       def memory_short_form_data
-        proc { Memory.memory_query_data }
+        proc { memory_query_data }
       end
 
-      def self.memory_query_data
+      def memory_query_data
         Thread.current[:miq_perf_request_memory_data]
       end
 
-      def self.memory_query_data=(value)
+      def memory_query_data=(value)
         Thread.current[:miq_perf_request_memory_data] = value
       end
 
