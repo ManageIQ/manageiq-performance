@@ -38,7 +38,7 @@ module ManageIQPerformance
 
     def gather_request_times request_dir, request_id
       Dir["#{request_dir}/*.info"].inject(@report_data[request_id]) do |data, info_file|
-        info = YAML.load_file(info_file)
+        info = YAML.load_file(info_file) || {}
 
         data["ms"]           ||= []
         data["activerecord"] ||= []
@@ -58,8 +58,8 @@ module ManageIQPerformance
         data["queries"]      ||= []
         data["rows"]         ||= []
         data["elapsed_time"] ||= []
-        data["queries"]      << queries[:total_queries]
-        data["rows"]         << queries[:total_rows]
+        data["queries"]      << queries[:total_queries].to_i
+        data["rows"]         << queries[:total_rows].to_i
         data["elapsed_time"] << queries.fetch(:queries, []).map {|q| q[:elapsed_time] }.inject(0.0, :+)
         data
       end
@@ -119,7 +119,7 @@ module ManageIQPerformance
         @report_data[request_id][hdr] and hdr
       end
 
-      @report_data[request_id][count_header].count.times do |i|
+      (@report_data[request_id][count_header] || []).count.times do |i|
         print_row do |hdr|
           value = HEADERS[hdr].map { |header_column|
             @report_data[request_id].fetch(header_column, [])[i] || 0
