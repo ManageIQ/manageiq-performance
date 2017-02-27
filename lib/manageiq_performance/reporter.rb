@@ -1,5 +1,7 @@
 module ManageIQPerformance
   class Reporter
+    attr_reader :io
+
     HEADERS = {
       "ms" => %w[ms],
       "queries" => %w[queries],
@@ -7,13 +9,14 @@ module ManageIQPerformance
       "rows" => %w[rows]
     }
 
-    def self.build(run_dir)
-      new(run_dir).build
+    def self.build(run_dir, io=STDOUT)
+      new(run_dir, io).build
     end
 
-    def initialize(run_dir)
+    def initialize(run_dir, io=STDOUT)
       @run_dir = run_dir
       @report_data = {}
+      @io = io
     end
 
     def build
@@ -76,7 +79,7 @@ module ManageIQPerformance
       @report_data.keys.each do |request_id|
         @column_size_for = {}
 
-        puts "/#{request_id.gsub("%", "/")}"
+        io.puts "/#{request_id.gsub("%", "/")}"
         print_headers   request_id
         print_spacers   request_id
         print_row_data  request_id
@@ -93,7 +96,7 @@ module ManageIQPerformance
       row =  "| "
       row += HEADERS.keys.map {|hdr| yield hdr }.join(" | ")
       row +=  " |"
-      puts row
+      io.puts row
     end
 
     # Prints the headers.  Just uses the `hdr` from the yield of `print_rows`
