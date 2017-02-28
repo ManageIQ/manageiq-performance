@@ -110,12 +110,14 @@ shared_examples "middleware functionality for" do |middleware_order|
       middleware_order.each do |name|
         expect(middleware_instance).to receive("#{name}_start").ordered
       end
+      allow(subject).to receive(:performance_middleware_finish)
 
       run_profile.call
     end
 
     it "finishes the middleware in reverse order" do
       allow(ManageIQPerformance::Middleware).to receive(:new).and_return(middleware_instance)
+      allow(subject).to receive(:performance_middleware_start)
       middleware_order.reverse.each do |name|
         expect(middleware_instance).to receive("#{name}_finish").ordered
       end
