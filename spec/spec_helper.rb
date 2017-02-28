@@ -58,3 +58,12 @@ module Rails
     Application.new Config.new([:password, :verify, :data])
   end
 end
+
+
+# Strip Heardoc
+
+class String
+  def __strip_heredoc
+    gsub(/^#{scan(/^[ \t]*(?=\S)/).min}/, ''.freeze)
+  end
+end
