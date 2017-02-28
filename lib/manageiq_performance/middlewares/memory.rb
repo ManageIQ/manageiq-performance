@@ -36,8 +36,7 @@ module ManageIQPerformance
       end
 
       def memory_include_memsize?
-        # ManageIQPerformance.config.memory_include_memsize?
-        false
+        ManageIQPerformance.config.include_memsize?
       end
 
       def memory_parse_data(old = {})

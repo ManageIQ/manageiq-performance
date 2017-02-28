@@ -109,6 +109,11 @@ describe ManageIQPerformance::Configuration do
       expect(ManageIQPerformance.config["include_sql_queries"]).to eq(true)
     end
 
+    it "defines ManageIQPerformance.config.include_memsize?" do
+      expect(ManageIQPerformance.config.include_memsize?).to eq(false)
+      expect(ManageIQPerformance.config["include_memsize"]).to eq(false)
+    end
+
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
       expect(ManageIQPerformance.config.stacktrace_cleaner).to eq(ManageIQPerformance::StacktraceCleaners::Simple)
       expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq("simple")
@@ -176,6 +181,7 @@ describe ManageIQPerformance::Configuration do
         skip_schema_queries: false
         include_stack_traces: true
         include_sql_queries: false
+        include_memsize: true
         stacktrace_cleaner: rails
         requestor:
           username: foobar
@@ -223,6 +229,11 @@ describe ManageIQPerformance::Configuration do
     it "defines ManageIQPerformance.config.include_sql_queries?" do
       expect(ManageIQPerformance.config.include_sql_queries?).to eq(false)
       expect(ManageIQPerformance.config["include_sql_queries"]).to eq(false)
+    end
+
+    it "defines ManageIQPerformance.config.include_memsize?" do
+      expect(ManageIQPerformance.config.include_memsize?).to eq(true)
+      expect(ManageIQPerformance.config["include_memsize"]).to eq(true)
     end
 
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
