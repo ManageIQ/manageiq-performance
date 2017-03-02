@@ -4,6 +4,7 @@ module ManageIQPerformance
       private
 
       def memory_initialize
+        require "objspace" if memory_include_memsize?
       end
 
       def memory_start(env)
