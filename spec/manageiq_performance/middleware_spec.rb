@@ -200,7 +200,7 @@ describe ManageIQPerformance::Middleware do
   context "with no configuration set (default)" do
     subject { described_class.new(Proc.new {}) }
     include_examples "middleware functionality for",
-                     [:stackprof, :active_support_timers, :active_record_queries]
+                     [:active_support_timers, :active_record_queries]
   end
 
   context "with only stackprof and active_record_queries middlewares" do
