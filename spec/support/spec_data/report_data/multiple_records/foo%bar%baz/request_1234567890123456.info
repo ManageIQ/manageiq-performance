@@ -1,0 +1,10 @@
+---
+controller: FooController
+action: index
+path: "/foo"
+format: :json
+status: 200
+time:
+  views: 0.2387319691479206
+  activerecord: 72
+  total: 500000

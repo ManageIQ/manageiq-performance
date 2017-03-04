@@ -1,3 +1,6 @@
+require "yaml"
+require "bigdecimal"
+
 module ManageIQPerformance
   class Reporter
     attr_reader :io
@@ -63,7 +66,7 @@ module ManageIQPerformance
         data["elapsed_time"] ||= []
         data["queries"]      << queries[:total_queries].to_i
         data["rows"]         << queries[:total_rows].to_i
-        data["elapsed_time"] << queries.fetch(:queries, []).map {|q| q[:elapsed_time] }.inject(0.0, :+)
+        data["elapsed_time"] << queries.fetch(:queries, []).map {|q| q[:elapsed_time] }.inject(BigDecimal("0.0"), :+).to_f
         data
       end
 

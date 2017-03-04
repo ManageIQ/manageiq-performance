@@ -1,0 +1,12 @@
+---
+:queries:
+- :sql: SELECT "vm".* FROM "vms"
+  :elapsed_time: 73.2
+  :params: []
+:rows_by_class:
+  Hardware: 35
+  Roles: 10
+  User: 10
+  Vm: 30
+:total_queries: 2000000000
+:total_rows: 245
