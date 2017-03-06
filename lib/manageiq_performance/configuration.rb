@@ -18,6 +18,7 @@ module ManageIQPerformance
       "skip_schema_queries"  => true,
       "include_stack_traces" => false,
       "include_sql_queries"  => true,
+      "include_memsize"      => false,
       "stacktrace_cleaner"   => "simple",
       "requestor"            => {
         "username"     => "admin",
@@ -30,6 +31,7 @@ module ManageIQPerformance
         stackprof
         active_support_timers
         active_record_queries
+        memory
       ],
       "middleware_storage"   => %w[file],
       "browser_mode"  => {
@@ -87,6 +89,9 @@ module ManageIQPerformance
       self["include_stack_traces"]
     end
 
+    def include_memsize?
+      self["include_memsize"]
+    end
     def stacktrace_cleaner
       @stacktrace_cleaner ||=
         begin
