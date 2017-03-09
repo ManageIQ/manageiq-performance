@@ -10,7 +10,7 @@ def build_gem file
   file_obj = File.new(file, "w+")
 
   Gem::Package.new(file_obj)
-              .tap{ |p| p.spec = GemBase64.gemspec }
+              .tap{ |p| p.spec = GemBase64.miqperf_gemspec }
               .build
 end
 
@@ -53,10 +53,10 @@ describe GemBase64 do
     FileUtils.rm_rf spec_tmp
   end
 
-  describe "::gemspec" do
+  describe "::miqperf_gemspec" do
     it "reads the .gemspec file and returns a Gem::Specification instance" do
-      expect(GemBase64.gemspec.name).to    eq "manageiq-performance"
-      expect(GemBase64.gemspec.version).to eq version
+      expect(GemBase64.miqperf_gemspec.name).to    eq "manageiq-performance"
+      expect(GemBase64.miqperf_gemspec.version).to eq version
     end
   end
 
