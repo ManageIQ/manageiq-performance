@@ -14,3 +14,11 @@ task :generate_install_script do
   b = binding
   File.write @output_filename, ERB.new(@template, nil, "-").result(b)
 end
+
+desc "Add stackprof to install script (use with generate_install_script task)"
+task :include_stackprof do
+  @stackprof_gemspec   = GemBase64.find_gemspec_for "stackprof"
+  stackprof_gem_tar_io = File.new @stackprof_gemspec.cache_file, "r"
+
+  @stackprof_gem_base64_string = GemBase64.gem_as_base64_string stackprof_gem_tar_io
+end

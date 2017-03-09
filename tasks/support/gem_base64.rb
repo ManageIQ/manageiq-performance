@@ -3,8 +3,8 @@ require "rubygems/package"
 
 class GemBase64
 
-  def self.gem_as_base64_string
-    Base64.encode64(gem_as_tar_io.read)
+  def self.gem_as_base64_string(gem_tar_io = self.gem_as_tar_io)
+    Base64.encode64(gem_tar_io.read)
   end
 
   def self.gem_as_tar_io(gemspec = self.miqperf_gemspec)
