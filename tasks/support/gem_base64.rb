@@ -7,7 +7,7 @@ class GemBase64
     Base64.encode64(gem_as_tar_io.read)
   end
 
-  def self.gem_as_tar_io
+  def self.gem_as_tar_io(gemspec = self.miqperf_gemspec)
     io = StringIO.new
     Gem::Package.new(io)
                 .tap { |p| p.spec = gemspec }
@@ -16,7 +16,7 @@ class GemBase64
     io.tap { |i| i.rewind }
   end
 
-  def self.gemspec
+  def self.miqperf_gemspec
     filepath = File.expand_path "../../../manageiq-performance.gemspec", __FILE__
     Gem::Specification.load filepath
   end
