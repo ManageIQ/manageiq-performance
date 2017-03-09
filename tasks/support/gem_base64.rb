@@ -3,8 +3,8 @@ require "rubygems/package"
 
 class GemBase64
 
-  def self.gem_as_base64_string
-    Base64.encode64(gem_as_tar_io.read)
+  def self.gem_as_base64_string(gem_tar_io = self.gem_as_tar_io)
+    Base64.encode64(gem_tar_io.read)
   end
 
   def self.gem_as_tar_io(gemspec = self.miqperf_gemspec)
@@ -24,7 +24,7 @@ class GemBase64
   def self.find_gemspec_for gem
     gemspec = begin
                 find_local_gemspec gem
-              rescue Gem::LoadError
+              rescue Gem::LoadError, NoMethodError
                 Gem::Specification.new(gem)
               end
 
@@ -64,7 +64,7 @@ class GemBase64
 
   def self.find_local_gemspec(gem)
     if defined?(Bundler)
-      ::Bundler.locked_gems.specs.detect { |spec| spec.name == gem }
+      ::Bundler.locked_gems.specs.detect { |spec| spec.name == gem }.__materialize__
     else
       Gem::Specification.find_by_name(gem)
     end
