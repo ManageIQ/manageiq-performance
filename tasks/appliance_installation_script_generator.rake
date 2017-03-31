@@ -38,3 +38,35 @@ task :include_stackprof do
 
   @stackprof_gem_base64_string = GemBase64.gem_as_base64_string stackprof_gem_tar_io
 end
+
+desc <<-DESC
+Include a single gem, exclude others (use with generate_install_script task)
+
+Useful when not trying to install `manageiq-performance`, but another gem on an
+existing appliance.
+
+Example:
+
+$ rake solo_gem[vcr] generate_install_script
+
+DESC
+task :solo_gem, [:gem] do |t, args|
+  @solo_gem = true
+
+  new_gem = args[:gem]
+  raise "You must include a gem to add..." unless new_gem
+
+  @other_gems ||= []
+  @other_gems << {}.tap {|new_gem_entry|
+    new_gem_entry[:name]     = new_gem
+    new_gem_entry[:env_name] = new_gem.upcase.gsub "-", "_"
+
+    gemspec = GemBase64.find_gemspec_for new_gem
+    new_gem_entry[:gemspec] = gemspec
+
+
+    new_gem_tar_io = File.new gemspec.cache_file, "r"
+    new_gem_base64_string = GemBase64.gem_as_base64_string new_gem_tar_io
+    new_gem_entry[:gem_base64_string] = new_gem_base64_string
+  }
+end
