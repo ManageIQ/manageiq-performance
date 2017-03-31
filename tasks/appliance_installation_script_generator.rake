@@ -70,3 +70,39 @@ task :solo_gem, [:gem] do |t, args|
     new_gem_entry[:gem_base64_string] = new_gem_base64_string
   }
 end
+
+desc <<-DESC
+Include a single, extra gem
+
+(use with generate_install_script task)
+
+Adds another gem to the installtion along side `manageiq-performance`.
+
+Example:
+
+$ rake extra_gem[vcr] generate_install_script
+
+This can also be used along side the `:solo_gem` task if you wish to install
+multiple gems without manageiq-performance:
+
+$ rake solo_gem[vcr] extra_gem[thor] generate_install_script
+
+DESC
+task :extra_gem, [:gem] do |t, args|
+  new_gem = args[:gem]
+  raise "You must include a gem to add..." unless new_gem
+
+  @other_gems ||= []
+  @other_gems << {}.tap {|new_gem_entry|
+    new_gem_entry[:name]     = new_gem
+    new_gem_entry[:env_name] = new_gem.upcase.gsub "-", "_"
+
+    gemspec = GemBase64.find_gemspec_for new_gem
+    new_gem_entry[:gemspec] = gemspec
+
+
+    new_gem_tar_io = File.new gemspec.cache_file, "r"
+    new_gem_base64_string = GemBase64.gem_as_base64_string new_gem_tar_io
+    new_gem_entry[:gem_base64_string] = new_gem_base64_string
+  }
+end
