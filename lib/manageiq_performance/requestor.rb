@@ -68,12 +68,12 @@ module ManageIQPerformance
       log "--> getting csrf_token..." unless @csrf_token
       @csrf_token ||= nethttp_request(:get, '/', :headers => BASE_HEADERS)
                         .body.scan(CSRF_TAG_REGEX).first.to_s
-                        .match(CSRF_TOKEN_REGEX)[1]
+                        .match(CSRF_TOKEN_REGEX) {|match| match[1] }
     end
 
     def login_headers
       BASE_HEADERS.merge({
-        'X-CSRF-Token' => csrf_token, # first so session is set correctly
+        'X-CSRF-Token' => csrf_token.to_s, # first so session is set correctly
         'Cookie'       => @session,
       })
     end
