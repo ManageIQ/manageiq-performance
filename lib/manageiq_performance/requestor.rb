@@ -81,7 +81,6 @@ module ManageIQPerformance
     def full_request_headers
       timestamp = (Time.now.to_f * 1000000).to_i.to_s
       @headers.merge({
-        'X-CSRF-Token'       => csrf_token, # first so session is set correctly
         'Cookie'             => @session,
         'MIQ_PERF_TIMESTAMP' => timestamp
       })
