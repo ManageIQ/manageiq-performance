@@ -1,0 +1,108 @@
+<% if @opts[:include_bundler] -%>
+require "rubygems"
+require "bundler/setup"
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+require "benchmark"
+<% end -%>
+
+<% if using_stackprof? -%>
+<% $LOAD_PATH.grep(/stackprof/).each do |stackprof_path| -%>
+$LOAD_PATH << "<%= stackprof_path %>" unless $LOAD_PATH.include? "<%= stackprof_path %>"
+<% end # $LOAD_PATH.grep(/stackprof/).each -%>
+
+require "stackprof"
+<% end # if use_stackprof-%>
+
+<% if @opts[:print_memory] -%>
+<% if use_sysproctable? -%>
+<% $LOAD_PATH.grep(/proctable/).each do |sysproctable_path| -%>
+$LOAD_PATH << "<%= sysproctable_path %>" unless $LOAD_PATH.include? "<%= sysproctable_path %>"
+<% end # $LOAD_PATH.grep(/proctable/).each -%>
+require "sys/proctable"
+<% end # if use_sysproctable -%>
+require "<%= @miqperf_root.join "manageiq_performance", "utils", "process_memory.rb" %>"
+<% end # if @opts[:print_memory] -%>
+
+
+
+#################### PROFILING STARTS HERE ####################
+
+
+
+<% if @opts[:generate_require_tree] -%>
+require "<%= @miqperf_root.join "manageiq_performance", "core_ext", "kernel_require.rb" %>"
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+measurements = Benchmark.measure do
+<% end -%>
+
+<% if using_stackprof? -%>
+StackProf.start(mode: :<%= @opts[:stackprof_mode] %>, interval: <%= @opts[:stackprof_interval].to_i %>)
+<% end -%>
+
+
+# Command to run
+<% if @profile_file -%>
+require "<%= @cmd_root.join @profile_file %>"
+<% else -%>
+require "<%= @cmd_root.join "config", "application.rb" %>"
+Rails.application.class.initialize!
+<% end -%>
+
+
+<% if using_stackprof? -%>
+StackProf.stop
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+end # Benchmark.measure
+<% end -%>
+
+
+
+#################### PROFILING ENDS HERE ####################
+
+
+
+<% if using_stackprof? -%>
+File.write("<%= @stackprof_output.expand_path %>", Marshal.dump(StackProf.results), :mode => "wb")
+<% end -%>
+
+<% if @opts[:generate_require_tree] -%>
+TOP_REQUIRE.set_top_require_cost
+<% end -%>
+
+<% if @opts[:generate_require_tree] && @opts[:full_require_tree] -%>
+puts ""
+TOP_REQUIRE.print_sorted_children
+<% end -%>
+
+<% if @opts[:generate_require_tree] && @opts[:require_tree_summary] -%>
+puts ""
+TOP_REQUIRE.print_summary
+<% end -%>
+
+<% if @opts[:print_memory] -%>
+puts ""
+puts "TOTAL_MEMORY_USED: #{ManageIQPerformance::Utils::ProcessMemory.get}MiB"
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+real_seconds = measurements.real % 60
+user_seconds = measurements.utime % 60
+sys_seconds  = measurements.stime % 60
+cu_seconds   = measurements.cutime % 60
+cs_seconds   = measurements.cstime % 60
+
+puts ""
+puts "Timings"
+puts "-------"
+puts "real    %dm%.3fs" % [(measurements.real - real_seconds),  real_seconds]
+puts "user    %dm%.3fs" % [(measurements.utime - user_seconds), user_seconds]
+puts "sys     %dm%.3fs" % [(measurements.stime - sys_seconds),  sys_seconds]
+puts "cuser   %dm%.3fs" % [(measurements.cutime - cu_seconds),  cu_seconds]
+puts "csys    %dm%.3fs" % [(measurements.cstime - cs_seconds),  cs_seconds]
+<% end -%>
