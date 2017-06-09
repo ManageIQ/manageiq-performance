@@ -4,6 +4,7 @@ module ManageIQPerformance
       attr_reader :output
 
       DEFAULT_OPTS = {
+        :target_type => :file,
         :full_require_tree => true,
         :stackprof_mode => :cpu,
         :stackprof_interval => 1000
@@ -26,7 +27,7 @@ module ManageIQPerformance
         @miqperf_root = Pathname.new File.expand_path("../..", __dir__)
 
         option_parser.parse!(args)
-        @profile_file  = args.first
+        @profile_target  = args.first
       end
 
       def run
@@ -78,6 +79,7 @@ module ManageIQPerformance
       def command
         cmd  = "#{Gem.ruby} #{@run_wrapper.path} "
         cmd += @opts[:passthrough_args] if @opts[:passthrough_args]
+        cmd += @profile_target if @opts[:target_type] == :rake
         cmd
       end
 
@@ -111,18 +113,26 @@ module ManageIQPerformance
         require 'optparse'
 
         @optparse ||= OptionParser.new do |opt|
-          opt.banner = "Usage: #{File.basename $0} proile [options] [FILE]"
+          opt.banner = "Usage: #{File.basename $0} proile [options] [TARGET]"
 
           opt.separator ""
           opt.separator self.class.help_text.capitalize
           opt.separator ""
-          opt.separator "Pass a FILE, which is a ruby script file, that will be"
-          opt.separator "run in a subprocess with extra profiling.  Options add"
-          opt.separator "various things to profile, or run the `-d`/`--debug`  "
-          opt.separator "flag to print out the resulting script to stdout (this"
-          opt.separator "can be piped into a another process if opt.separator  "
-          opt.separator "a subprocess is not desired)."
+          opt.separator "Pass a TARGET, which is a ruby script file or a rake  "
+          opt.separator "task, that will be run in a subprocess with extra     "
+          opt.separator "profiling.  Options add various things to profile, or "
+          opt.separator "run the `-d`/`--debug`flag to print out the resulting "
+          opt.separator "script to stdout (this can be piped into a another    "
+          opt.separator "process if a subprocess is not desired).              "
           opt.separator ""
+
+          opt.separator "Target Types"
+
+          opt.on           "--file",               "Target is a ruby file (default)",   set_target(:file)
+          opt.on           "--rake",               "Target is a rake task",             set_target(:rake)
+
+          opt.separator ""
+
           opt.separator "Options"
 
           opt.on "-a",     "--args=ARGS",          "Args to pass to profiled file",     passthrough_args
@@ -142,6 +152,10 @@ module ManageIQPerformance
 
           opt.on("-h",     "--help",               "Show this message") { puts opt; exit }
         end
+      end
+
+      def set_target(val)
+        Proc.new { @opts[:target_type] = val }
       end
 
       def passthrough_args

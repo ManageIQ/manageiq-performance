@@ -1,5 +1,7 @@
-<% if @opts[:include_bundler] -%>
+<% if @opts[:include_bundler] || @opts[:target_type] == :rake -%>
 require "rubygems"
+<% end -%>
+<% if @opts[:include_bundler] -%>
 require "bundler/setup"
 <% end -%>
 
@@ -45,8 +47,11 @@ StackProf.start(mode: :<%= @opts[:stackprof_mode] %>, interval: <%= @opts[:stack
 
 
 # Command to run
-<% if @profile_file -%>
-require "<%= @cmd_root.join @profile_file %>"
+<% if @opts[:target_type] == :file && @profile_target -%>
+require "<%= @cmd_root.join @profile_target %>"
+<% elsif @opts[:target_type] == :rake && @profile_target -%>
+require "rake"
+Rake.application.run
 <% else -%>
 require "<%= @cmd_root.join "config", "application.rb" %>"
 Rails.application.class.initialize!
