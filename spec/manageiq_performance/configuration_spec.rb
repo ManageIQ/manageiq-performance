@@ -9,7 +9,7 @@ require "fileutils"
 #   * We use a fake home dir and project dir to avoid loading a user's actual
 #   config when running tests on a developer's machine
 
-shared_examples "the default config" do |config_options|
+shared_examples "the default config" do |config_options={}|
   default_config_hash = {
     ["default_dir"]                  => "tmp/manageiq_performance",
     ["log_dir"]                      => "log",
@@ -59,10 +59,18 @@ shared_examples "the default config" do |config_options|
     end
   end
 
-  default_config_hash.each do |config_keys, expected|
+  exclude_keys = config_options[:without] || []
+  default_config_hash.reject { |key,_| exclude_keys.include?(key) }.each do |config_keys, expected|
     it "defining ManageIQPerformance.config.#{config_keys.join('.')}" do
       expect(extract_config_method_value(config_keys)).to eq expected
       expect(extract_config_hash_value(config_keys)).to eq expected_config_hash_value expected
+    end
+  end
+
+  default_config_hash.select { |key,_| exclude_keys.include?(key) }.each do |config_keys, expected|
+    it "does not use the default for ManageIQPerformance.config.#{config_keys.join('.')}" do
+      expect(extract_config_method_value(config_keys)).to_not eq expected
+      expect(extract_config_hash_value(config_keys)).to_not eq expected_config_hash_value expected
     end
   end
 end
@@ -288,6 +296,19 @@ describe ManageIQPerformance::Configuration do
     it "uses the simple StacktraceCleaner by default" do
       expect(ManageIQPerformance.config.stacktrace_cleaner).to eq(ManageIQPerformance::StacktraceCleaners::Simple)
       expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq("foobar")
+    end
+  end
+
+  describe "reassigning the config" do
+    before(:each) do
+      ManageIQPerformance.config = { "default_dir" => "foo/bar/baz" }
+    end
+
+    it_behaves_like "the default config", :without => [["default_dir"]]
+
+    it "sets the config to now point to the default dir changes" do
+      expect(ManageIQPerformance.config.default_dir).to eq "foo/bar/baz"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "foo/bar/baz"
     end
   end
 end

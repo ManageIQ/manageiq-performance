@@ -143,4 +143,8 @@ module ManageIQPerformance
   def self.config
     @config ||= Configuration.load_config
   end
+
+  def self.config= config
+    @config = Configuration.new config
+  end
 end
