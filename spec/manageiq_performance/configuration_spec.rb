@@ -2,6 +2,12 @@ require "manageiq_performance/configuration"
 require "manageiq_performance/stacktrace_cleaners/simple"
 require "fileutils"
 
+# Few things to know about this spec file:
+#
+#   * The spec helper has a callback in it to clear out the global "config"
+#   after each test (needed in other places)
+#   * We use a fake home dir and project dir to avoid loading a user's actual
+#   config when running tests on a developer's machine
 describe ManageIQPerformance::Configuration do
   let(:spec_dir) { File.expand_path "..", File.dirname(__FILE__) }
   let(:spec_tmp) { "#{spec_dir}/tmp" }
