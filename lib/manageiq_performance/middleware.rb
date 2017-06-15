@@ -90,15 +90,24 @@ module ManageIQPerformance
     end
   end
 
-  def self.profile name = nil, &code
-    name ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
+  def self.profile *args, &code
+    options = args.last.is_a?(Hash) ? args.shift : {}
+    name    = args.shift
+    name    ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
+
     env  = {
       Middleware::PERFORMANCE_HEADER => true,
       "REQUEST_PATH"                 => name,
       "HTTP_MIQ_PERF_TIMESTAMP"      => (Time.now.to_f * 1000000).to_i
     }
 
-    ManageIQPerformance::Middleware.new(code).call(env)
+    if options[:config_changes]
+      ManageIQPerformance.with_config options[:config_changes] do
+        ManageIQPerformance::Middleware.new(code).call(env)
+      end
+    else
+      ManageIQPerformance::Middleware.new(code).call(env)
+    end
   end
 
 end
