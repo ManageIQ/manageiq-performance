@@ -40,9 +40,8 @@ module ManageIQPerformance
       }
     }.freeze
 
-    attr_reader :default_dir, :log_dir, :requestor,
-                :middleware, :middleware_storage,
-                :browser_mode
+    attr_reader :config_hash, :default_dir, :log_dir, :requestor,
+                :middleware, :middleware_storage, :browser_mode
 
     def self.load_config
       new load_config_file
@@ -146,5 +145,13 @@ module ManageIQPerformance
 
   def self.config= config
     @config = Configuration.new config
+  end
+
+  def self.with_config temporary_config
+    old_config = @config
+    @config = Configuration.new config.config_hash.merge(temporary_config)
+    yield
+  ensure
+    @config = old_config
   end
 end

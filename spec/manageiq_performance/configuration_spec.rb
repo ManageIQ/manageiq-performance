@@ -311,4 +311,47 @@ describe ManageIQPerformance::Configuration do
       expect(ManageIQPerformance.config["default_dir"]).to eq "foo/bar/baz"
     end
   end
+
+  describe "with a temporary set of config changes" do
+    let(:config_changes) { { "default_dir" => "foo/bar/baz" } }
+
+    it "only makes the changes to default_dir during the duration of the block" do
+      expect(ManageIQPerformance.config.default_dir).to eq "tmp/manageiq_performance"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "tmp/manageiq_performance"
+
+      ManageIQPerformance.with_config(config_changes) do
+        expect(ManageIQPerformance.config.default_dir).to eq "foo/bar/baz"
+        expect(ManageIQPerformance.config["default_dir"]).to eq "foo/bar/baz"
+      end
+
+      expect(ManageIQPerformance.config.default_dir).to eq "tmp/manageiq_performance"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "tmp/manageiq_performance"
+    end
+
+    it "inherits values set in the previous config" do
+      ManageIQPerformance.config = { "include_sql_queries" => false }
+
+      expect(ManageIQPerformance.config.include_sql_queries?).to eq false
+      expect(ManageIQPerformance.config["include_sql_queries"]).to eq false
+      expect(ManageIQPerformance.config.default_dir).to eq "tmp/manageiq_performance"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "tmp/manageiq_performance"
+
+      ManageIQPerformance.with_config(config_changes) do
+        expect(ManageIQPerformance.config.include_sql_queries?).to eq false
+        expect(ManageIQPerformance.config["include_sql_queries"]).to eq false
+        expect(ManageIQPerformance.config.default_dir).to eq "foo/bar/baz"
+        expect(ManageIQPerformance.config["default_dir"]).to eq "foo/bar/baz"
+      end
+
+      expect(ManageIQPerformance.config.default_dir).to eq "tmp/manageiq_performance"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "tmp/manageiq_performance"
+    end
+
+    it "returns the result of the block" do
+      result = ManageIQPerformance.with_config(config_changes) do
+        ManageIQPerformance.config.default_dir
+      end
+      expect(result).to eq config_changes["default_dir"]
+    end
+  end
 end
