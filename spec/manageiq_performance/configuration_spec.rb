@@ -195,90 +195,90 @@ describe ManageIQPerformance::Configuration do
     end
 
     it "defines ManageIQPerformance.config.default_dir" do
-      expect(ManageIQPerformance.config.default_dir).to eq("/tmp/miq_perf")
-      expect(ManageIQPerformance.config["default_dir"]).to eq("/tmp/miq_perf")
+      expect(ManageIQPerformance.config.default_dir).to eq "/tmp/miq_perf"
+      expect(ManageIQPerformance.config["default_dir"]).to eq "/tmp/miq_perf"
     end
 
     it "defines ManageIQPerformance.config.log_dir" do
-      expect(ManageIQPerformance.config.log_dir).to eq("tmp/my_log_dir")
-      expect(ManageIQPerformance.config["log_dir"]).to eq("tmp/my_log_dir")
+      expect(ManageIQPerformance.config.log_dir).to eq "tmp/my_log_dir"
+      expect(ManageIQPerformance.config["log_dir"]).to eq "tmp/my_log_dir"
     end
 
     it "defines ManageIQPerformance.config.skip_schema_queries?" do
-      expect(ManageIQPerformance.config.skip_schema_queries?).to eq(false)
-      expect(ManageIQPerformance.config["skip_schema_queries"]).to eq(false)
+      expect(ManageIQPerformance.config.skip_schema_queries?).to eq false
+      expect(ManageIQPerformance.config["skip_schema_queries"]).to eq false
     end
 
     it "defines ManageIQPerformance.config.include_stack_traces?" do
-      expect(ManageIQPerformance.config.include_stack_traces?).to eq(true)
-      expect(ManageIQPerformance.config["include_stack_traces"]).to eq(true)
+      expect(ManageIQPerformance.config.include_stack_traces?).to eq true
+      expect(ManageIQPerformance.config["include_stack_traces"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.include_sql_queries?" do
-      expect(ManageIQPerformance.config.include_sql_queries?).to eq(false)
-      expect(ManageIQPerformance.config["include_sql_queries"]).to eq(false)
+      expect(ManageIQPerformance.config.include_sql_queries?).to eq false
+      expect(ManageIQPerformance.config["include_sql_queries"]).to eq false
     end
 
     it "defines ManageIQPerformance.config.include_memsize?" do
-      expect(ManageIQPerformance.config.include_memsize?).to eq(true)
-      expect(ManageIQPerformance.config["include_memsize"]).to eq(true)
+      expect(ManageIQPerformance.config.include_memsize?).to eq true
+      expect(ManageIQPerformance.config["include_memsize"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
-      expect(ManageIQPerformance.config.stacktrace_cleaner).to eq(ManageIQPerformance::StacktraceCleaners::Rails)
-      expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq("rails")
+      expect(ManageIQPerformance.config.stacktrace_cleaner).to eq ManageIQPerformance::StacktraceCleaners::Rails
+      expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq "rails"
     end
 
     it "defines ManageIQPerformance.config.requestor.username" do
-      expect(ManageIQPerformance.config.requestor.username).to eq("foobar")
-      expect(ManageIQPerformance.config["requestor"]["username"]).to eq("foobar")
+      expect(ManageIQPerformance.config.requestor.username).to eq "foobar"
+      expect(ManageIQPerformance.config["requestor"]["username"]).to eq "foobar"
     end
 
     it "defines ManageIQPerformance.config.requestor.password" do
-      expect(ManageIQPerformance.config.requestor.password).to eq("p@ssw0rd")
-      expect(ManageIQPerformance.config["requestor"]["password"]).to eq("p@ssw0rd")
+      expect(ManageIQPerformance.config.requestor.password).to eq "p@ssw0rd"
+      expect(ManageIQPerformance.config["requestor"]["password"]).to eq "p@ssw0rd"
     end
 
     it "defines ManageIQPerformance.config.requestor.host" do
-      expect(ManageIQPerformance.config.requestor.host).to eq("http://123.45.67.89")
-      expect(ManageIQPerformance.config["requestor"]["host"]).to eq("http://123.45.67.89")
+      expect(ManageIQPerformance.config.requestor.host).to eq "http://123.45.67.89"
+      expect(ManageIQPerformance.config["requestor"]["host"]).to eq "http://123.45.67.89"
     end
 
     it "defines ManageIQPerformance.config.requestor.read_timeout" do
-      expect(ManageIQPerformance.config.requestor.read_timeout).to eq(400)
-      expect(ManageIQPerformance.config["requestor"]["read_timeout"]).to eq(400)
+      expect(ManageIQPerformance.config.requestor.read_timeout).to eq 400
+      expect(ManageIQPerformance.config["requestor"]["read_timeout"]).to eq 400
     end
 
     it "defines ManageIQPerformance.config.requestor.ignore_ssl" do
-      expect(ManageIQPerformance.config.requestor.ignore_ssl).to eq(true)
-      expect(ManageIQPerformance.config["requestor"]["ignore_ssl"]).to eq(true)
+      expect(ManageIQPerformance.config.requestor.ignore_ssl).to eq true
+      expect(ManageIQPerformance.config["requestor"]["ignore_ssl"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.requestor.requestfile_dir" do
-      expect(ManageIQPerformance.config.requestor.requestfile_dir).to eq("config")
-      expect(ManageIQPerformance.config["requestor"]["requestfile_dir"]).to eq("config")
+      expect(ManageIQPerformance.config.requestor.requestfile_dir).to eq "config"
+      expect(ManageIQPerformance.config["requestor"]["requestfile_dir"]).to eq "config"
     end
 
     it "defines ManageIQPerformance.config.middleware" do
       middleware = %w[active_support_timers stackprof active_record_queries]
-      expect(ManageIQPerformance.config.middleware).to match_array(middleware)
-      expect(ManageIQPerformance.config["middleware"]).to match_array(middleware)
+      expect(ManageIQPerformance.config.middleware).to match_array middleware
+      expect(ManageIQPerformance.config["middleware"]).to match_array middleware
     end
 
     it "defines ManageIQPerformance.config.middleware" do
       middleware_storage = %w[file log]
-      expect(ManageIQPerformance.config.middleware_storage).to match_array(middleware_storage)
-      expect(ManageIQPerformance.config["middleware_storage"]).to match_array(middleware_storage)
+      expect(ManageIQPerformance.config.middleware_storage).to eq middleware_storage
+      expect(ManageIQPerformance.config["middleware_storage"]).to eq middleware_storage
     end
 
     it "defines ManageIQPerformance.config.browser_mode.enabled?" do
-      expect(ManageIQPerformance.config.browser_mode.enabled?).to eq(true)
-      expect(ManageIQPerformance.config["browser_mode"]["enabled"]).to eq(true)
+      expect(ManageIQPerformance.config.browser_mode.enabled?).to eq true
+      expect(ManageIQPerformance.config["browser_mode"]["enabled"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.browser_mode.always_on?" do
-      expect(ManageIQPerformance.config.browser_mode.always_on?).to eq(true)
-      expect(ManageIQPerformance.config["browser_mode"]["always_on"]).to eq(true)
+      expect(ManageIQPerformance.config.browser_mode.always_on?).to eq true
+      expect(ManageIQPerformance.config["browser_mode"]["always_on"]).to eq true
     end
   end
 
@@ -294,8 +294,8 @@ describe ManageIQPerformance::Configuration do
     end
 
     it "uses the simple StacktraceCleaner by default" do
-      expect(ManageIQPerformance.config.stacktrace_cleaner).to eq(ManageIQPerformance::StacktraceCleaners::Simple)
-      expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq("foobar")
+      expect(ManageIQPerformance.config.stacktrace_cleaner).to eq ManageIQPerformance::StacktraceCleaners::Simple
+      expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq "foobar"
     end
   end
 
