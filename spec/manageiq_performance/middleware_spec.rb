@@ -244,10 +244,24 @@ shared_examples "middleware functionality for" do |middleware_order|
         expect(Thread.current[:result]).to eq(42)
       end
     end
+
+    context "with :in_memory set" do
+      let(:in_memory_config) { { "middleware_storage" => %w[memory] } }
+      it "runs with a temporary configuration" do
+        expect(ManageIQPerformance).to receive(:with_config).with(in_memory_config)
+        ManageIQPerformance.profile(:in_memory => true) { work }
+      end
+
+      it "doesn't clobber other config changes" do
+        config_changes = {"middleware" => [] }
+        expect(ManageIQPerformance).to receive(:with_config).with(config_changes.merge in_memory_config)
+        ManageIQPerformance.profile(:in_memory => true, :config_changes => config_changes) { work }
+      end
+    end
   end
 
   after do
-    FileUtils.rm_r ManageIQPerformance.config.default_dir
+    FileUtils.rm_rf ManageIQPerformance.config.default_dir
   end
 end
 
