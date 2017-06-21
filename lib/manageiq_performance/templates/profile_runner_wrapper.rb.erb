@@ -58,7 +58,9 @@ Rake.application.run
 <% elsif @opts[:target_type] == :rails or @profile_target.nil? -%>
 require "<%= @cmd_root.join "config", "application.rb" %>"
 Rails.application.class.initialize!
+<% end -%>
 
+<% if [:eval, :rails].include? @opts[:target_type] -%>
 <%= ARGV.join(" ") unless ARGV.empty? %>
 <% end -%>
 

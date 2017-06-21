@@ -61,7 +61,7 @@ module ManageIQPerformance
       def debug_wrapper_script
         @run_wrapper.rewind
         puts "# Outout: #{@output == STDOUT ? "STDOUT" : @opt[:output_file]}"
-        puts "# Wrapper file:  #{@run_wrapper.path}..."
+        puts "# Wrapper file:  #{@run_wrapper.path}"
         puts "# CMD:  #{command}"
         puts "#"
         puts "# --------------------"
@@ -128,6 +128,7 @@ module ManageIQPerformance
 
           opt.separator "Target Types"
 
+          opt.on           "--eval",               "Args eval'd in current context",    set_target(:eval)
           opt.on           "--file",               "Target is a ruby file (default)",   set_target(:file)
           opt.on           "--rake",               "Target is a rake task",             set_target(:rake)
           opt.on           "--rails",              "Args eval'd in rails context",      set_target(:rails)
