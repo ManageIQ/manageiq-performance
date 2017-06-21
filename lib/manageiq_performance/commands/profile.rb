@@ -130,6 +130,7 @@ module ManageIQPerformance
 
           opt.on           "--file",               "Target is a ruby file (default)",   set_target(:file)
           opt.on           "--rake",               "Target is a rake task",             set_target(:rake)
+          opt.on           "--rails",              "Args eval'd in rails context",      set_target(:rails)
 
           opt.separator ""
 
