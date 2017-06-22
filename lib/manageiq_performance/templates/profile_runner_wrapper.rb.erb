@@ -9,13 +9,15 @@ require "bundler/setup"
 require "benchmark"
 <% end -%>
 
-<% if using_stackprof? -%>
+<% if using_stackprof? or miqperf_profile? -%>
 <% $LOAD_PATH.grep(/stackprof/).each do |stackprof_path| -%>
 $LOAD_PATH << "<%= stackprof_path %>" unless $LOAD_PATH.include? "<%= stackprof_path %>"
-<% end # $LOAD_PATH.grep(/stackprof/).each -%>
+<% end -%>
+<% end -%>
 
+<% if using_stackprof? -%>
 require "stackprof"
-<% end # if use_stackprof-%>
+<% end -%>
 
 <% if @opts[:print_memory] -%>
 <% if use_sysproctable? -%>
@@ -33,6 +35,20 @@ require "<%= @miqperf_root.join "manageiq_performance", "utils", "process_memory
 
 
 
+<% if miqperf_profile? %>
+<% $LOAD_PATH.grep(/manageiq-performance/).each do |miqperf_path| -%>
+$LOAD_PATH << "<%= miqperf_path %>" unless $LOAD_PATH.include? "<%= miqperf_path %>"
+<% end # $LOAD_PATH.grep(/manageiq-performance/).each -%>
+require "manageiq_performance/middleware"
+
+profile_middleware = ManageIQPerformance.config.middleware
+<% end # if miqperf_profile? -%>
+
+<% if @opts[:preload_rails_app] -%>
+require "<%= @cmd_root.join "config", "application.rb" %>"
+Rails.application.class.initialize!
+<% end -%>
+
 <% if @opts[:generate_require_tree] -%>
 require "<%= @miqperf_root.join "manageiq_performance", "core_ext", "kernel_require.rb" %>"
 <% end -%>
@@ -45,25 +61,44 @@ measurements = Benchmark.measure do
 StackProf.start(mode: :<%= @opts[:stackprof_mode] %>, interval: <%= @opts[:stackprof_interval].to_i %>)
 <% end -%>
 
+<% if @opts[:target_type] == :rake && @profile_target -%>
+require "rake"
+<% # If there are no @profile_target present, even though the default -%>
+<% # target is a "file" target, load rails to for a static analisis   -%>
+<% # of the app boot                                                  -%>
+<% elsif !@opts[:preload_rails_app] && (@opts[:target_type] == :rails or @profile_target.nil?) -%>
+require "<%= @cmd_root.join "config", "application.rb" %>"
+Rails.application.class.initialize!
+<% end -%>
+
+<% if miqperf_profile? %>
+<%= "profile_middleware -= ['stackprof']" if using_stackprof? %>
+profile_middleware -= ['active_support_timers'] unless defined? ActiveSupport::Notifications
+profile_middleware -= ['active_record_queries'] unless defined? ::Rails
+<%= "profile_middleware -= #{@opts[:disabled_middleware].inspect}" if @opts[:disabled_middleware] %>
+<%= "profile_middleware |= #{@opts[:enabled_middleware].inspect}" if @opts[:enabled_middleware] %>
+profile_opts = {
+  :in_memory => true,
+  :config_changes => {
+    'middleware' => profile_middleware,
+  }
+}
+ManageIQPerformance.profile('profile_runner', profile_opts) do
+<% end -%>
 
 # Command to run
 <% if @opts[:target_type] == :file && @profile_target -%>
 require "<%= @cmd_root.join @profile_target %>"
 <% elsif @opts[:target_type] == :rake && @profile_target -%>
-require "rake"
 Rake.application.run
-<% # If there are no @profile_target present, even though the default -%>
-<% # target is a "file" target, load rails to for a static analisis   -%>
-<% # of the app boot                                                  -%>
-<% elsif @opts[:target_type] == :rails or @profile_target.nil? -%>
-require "<%= @cmd_root.join "config", "application.rb" %>"
-Rails.application.class.initialize!
-<% end -%>
-
-<% if [:eval, :rails].include? @opts[:target_type] -%>
+<% elsif [:eval, :rails].include? @opts[:target_type] -%>
 <%= ARGV.join(" ") unless ARGV.empty? %>
 <% end -%>
 
+
+<% if miqperf_profile? %>
+end # ManageIQPerformance.profile
+<% end -%>
 
 <% if using_stackprof? -%>
 StackProf.stop
@@ -79,8 +114,9 @@ end # Benchmark.measure
 
 
 
-<% if using_stackprof? -%>
-File.write("<%= @stackprof_output.expand_path %>", Marshal.dump(StackProf.results), :mode => "wb")
+<% if (using_stackprof? || miqperf_profile?) && @stackprof_output -%>
+stackprof_data = <%= using_stackprof? ? "Marshal.dump(StackProf.results)" : "ManageIQPerformance.last_run[:stackprof]" %>
+File.write("<%= @stackprof_output.expand_path %>", stackprof_data, :mode => "wb")
 <% end -%>
 
 <% if @opts[:generate_require_tree] -%>
@@ -117,4 +153,23 @@ puts "user    %dm%.3fs" % [(measurements.utime - user_seconds), user_seconds]
 puts "sys     %dm%.3fs" % [(measurements.stime - sys_seconds),  sys_seconds]
 puts "cuser   %dm%.3fs" % [(measurements.cutime - cu_seconds),  cu_seconds]
 puts "csys    %dm%.3fs" % [(measurements.cstime - cs_seconds),  cs_seconds]
+<% end -%>
+
+<% if miqperf_profile? -%>
+puts ""
+puts "Total time in SQL: #{ManageIQPerformance.last_run[:queries][:queries].inject(0){ |s,r| s + r[:elapsed_time] }.round(2)} ms"
+puts "Total count queries #{ManageIQPerformance.last_run[:queries][:total_queries]}"
+slowest_query = ManageIQPerformance.last_run[:queries][:queries].max_by{ |x| x[:elapsed_time] }
+puts "Slowest SQL query took #{slowest_query[:elapsed_time]} ms: \n" + slowest_query[:sql]
+<% end -%>
+
+<% if (using_stackprof? or miqperf_profile?) and @stackprof_output.nil? -%>
+if defined?(StackProf)
+  puts ""
+  <% if using_stackprof? %>
+  StackProf::Report.new(StackProf.results).print_text(false, 20)
+  <% elsif miqperf_profile? %>
+  StackProf::Report.new(Marshal.load(ManageIQPerformance.last_run[:stackprof])).print_text(false, 20) if ManageIQPerformance.last_run[:stackprof]
+  <% end %>
+end
 <% end -%>

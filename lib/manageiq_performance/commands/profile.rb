@@ -109,6 +109,10 @@ module ManageIQPerformance
           end
       end
 
+      def miqperf_profile?
+        @opts[:use_miqperf_profile]
+      end
+
       def option_parser
         require 'optparse'
 
@@ -142,6 +146,10 @@ module ManageIQPerformance
           opt.on "-D",     "--[no-]debug",         "Debug the generated wrapper",       set_debug
           opt.on "-m",     "--[no-]mem",           "Print mem used for profile",        memory_flag
           opt.on           "--[no-]sys-proctable", "Use sys/proctable for mem",         sysproctable_flag
+          opt.on "-M",     "--[no-]miq-prof",      "Use ManageIQPerformance.profile",   miq_prof_flag
+          opt.on           "--[no-]preload-app",   "Initialize app before profiling",   preload_rails_app
+          opt.on           "--skip-middleware=MW", "Disable a middleware (repeatable)", disable_middleware
+          opt.on           "--use-middleware=MW",  "Enable a middleware (repeatable)",  enable_middleware
           opt.on "-oFILE", "--output=FILE",        "Output for report (def STDOUT)",    set_output
           opt.on "-pFILE", "--stackprof-out=FILE", "Output for stackprof",              stackprof_output
           opt.on "-r",     "--[no-]require-tree",  "Enable require tree report",        require_tree_flag
@@ -178,6 +186,28 @@ module ManageIQPerformance
 
       def sysproctable_flag
         Proc.new {|val| @opts[:sysproctable] = val }
+      end
+
+      def miq_prof_flag
+        Proc.new {|val| @opts[:use_miqperf_profile] = val }
+      end
+
+      def preload_rails_app
+        Proc.new {|val| @opts[:preload_rails_app] = val }
+      end
+
+      def disable_middleware
+        Proc.new do |middleware|
+          @opts[:disabled_middleware] ||= []
+          @opts[:disabled_middleware] << middleware
+        end
+      end
+
+      def enable_middleware
+        Proc.new do |middleware|
+          @opts[:enabled_middleware] ||= []
+          @opts[:enabled_middleware] << middleware
+        end
       end
 
       def set_output
