@@ -48,6 +48,7 @@ existing appliance.
 Example:
 
 $ rake solo_gem[vcr] generate_install_script
+$ rake solo_gem[path/to/my_gem/my_gem.gemspec] generate_install_script
 
 DESC
 task :solo_gem, [:gem] do |t, args|
@@ -58,14 +59,18 @@ task :solo_gem, [:gem] do |t, args|
 
   @other_gems ||= []
   @other_gems << {}.tap {|new_gem_entry|
-    new_gem_entry[:name]     = new_gem
-    new_gem_entry[:env_name] = new_gem.upcase.gsub "-", "_"
+    path = new_gem if File.exist? new_gem
+    gemspec = GemBase64.find_gemspec_for new_gem, path
 
-    gemspec = GemBase64.find_gemspec_for new_gem
-    new_gem_entry[:gemspec] = gemspec
+    new_gem_entry[:gemspec]  = gemspec
+    new_gem_entry[:name]     = gemspec.name
+    new_gem_entry[:env_name] = gemspec.name.upcase.gsub "-", "_"
 
-
-    new_gem_tar_io = File.new gemspec.cache_file, "r"
+    if path
+      new_gem_tar_io = GemBase64.gem_as_tar_io gemspec
+    else
+      new_gem_tar_io = File.new gemspec.cache_file, "r"
+    end
     new_gem_base64_string = GemBase64.gem_as_base64_string new_gem_tar_io
     new_gem_entry[:gem_base64_string] = new_gem_base64_string
   }
@@ -81,6 +86,7 @@ Adds another gem to the installtion along side `manageiq-performance`.
 Example:
 
 $ rake extra_gem[vcr] generate_install_script
+$ rake extra_gem[path/to/my_gem/my_gem.gemspec] generate_install_script
 
 This can also be used along side the `:solo_gem` task if you wish to install
 multiple gems without manageiq-performance:
@@ -94,14 +100,18 @@ task :extra_gem, [:gem] do |t, args|
 
   @other_gems ||= []
   @other_gems << {}.tap {|new_gem_entry|
-    new_gem_entry[:name]     = new_gem
-    new_gem_entry[:env_name] = new_gem.upcase.gsub "-", "_"
+    path = new_gem if File.exist? new_gem
+    gemspec = GemBase64.find_gemspec_for new_gem, path
 
-    gemspec = GemBase64.find_gemspec_for new_gem
-    new_gem_entry[:gemspec] = gemspec
+    new_gem_entry[:gemspec]  = gemspec
+    new_gem_entry[:name]     = gemspec.new_gem
+    new_gem_entry[:env_name] = gemspec.new_gem.upcase.gsub "-", "_"
 
-
-    new_gem_tar_io = File.new gemspec.cache_file, "r"
+    if path
+      new_gem_tar_io = GemBase64.gem_as_tar_io gemspec
+    else
+      new_gem_tar_io = File.new gemspec.cache_file, "r"
+    end
     new_gem_base64_string = GemBase64.gem_as_base64_string new_gem_tar_io
     new_gem_entry[:gem_base64_string] = new_gem_base64_string
   }

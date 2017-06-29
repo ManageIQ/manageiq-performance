@@ -21,14 +21,16 @@ class GemBase64
     Gem::Specification.load filepath
   end
 
-  def self.find_gemspec_for gem
+  def self.find_gemspec_for gem, gemspec_path = nil
     gemspec = begin
                 find_local_gemspec gem
               rescue Gem::LoadError, NoMethodError
                 Gem::Specification.new(gem)
-              end
+              end unless gemspec_path
 
-    unless File.exist? gemspec.cache_file
+    if gemspec_path
+      gemspec = Gem::Specification.load gemspec_path
+    elsif not File.exist?(gemspec.cache_file)
       # cache deleted or the gem never existed in the first place
       #
       # Much of this is taken from rubygems/remote_fetcher, specifically the
