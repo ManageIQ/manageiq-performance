@@ -64,7 +64,7 @@ module ManageIQPerformance
     end
 
     def initialize(config={})
-      @config             = config
+      @config_hash        = config
       @default_dir        = self["default_dir"]
       @log_dir            = self["log_dir"]
       @requestor          = requestor_config config.fetch("requestor", {})
@@ -74,7 +74,7 @@ module ManageIQPerformance
     end
 
     def [](key)
-      @config.fetch key, DEFAULTS[key]
+      @config_hash.fetch key, DEFAULTS[key]
     end
 
     def skip_schema_queries?
