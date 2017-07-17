@@ -40,9 +40,8 @@ module ManageIQPerformance
       }
     }.freeze
 
-    attr_reader :default_dir, :log_dir, :requestor,
-                :middleware, :middleware_storage,
-                :browser_mode
+    attr_reader :config_hash, :default_dir, :log_dir, :requestor,
+                :middleware, :middleware_storage, :browser_mode
 
     def self.load_config
       new load_config_file
@@ -64,7 +63,7 @@ module ManageIQPerformance
     end
 
     def initialize(config={})
-      @config             = config
+      @config_hash        = config
       @default_dir        = self["default_dir"]
       @log_dir            = self["log_dir"]
       @requestor          = requestor_config config.fetch("requestor", {})
@@ -74,7 +73,7 @@ module ManageIQPerformance
     end
 
     def [](key)
-      @config.fetch key, DEFAULTS[key]
+      @config_hash.fetch key, DEFAULTS[key]
     end
 
     def skip_schema_queries?
@@ -142,5 +141,17 @@ module ManageIQPerformance
 
   def self.config
     @config ||= Configuration.load_config
+  end
+
+  def self.config= config
+    @config = Configuration.new config
+  end
+
+  def self.with_config temporary_config
+    old_config = @config
+    @config = Configuration.new config.config_hash.merge(temporary_config)
+    yield
+  ensure
+    @config = old_config
   end
 end
