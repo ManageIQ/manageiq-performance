@@ -38,4 +38,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "stackprof"
   spec.add_development_dependency "rails"
+  spec.add_development_dependency "timecop"
 end

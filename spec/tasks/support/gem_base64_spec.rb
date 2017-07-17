@@ -1,6 +1,7 @@
 require "tasks/support/gem_base64"
 require "manageiq_performance/version"
 require "fileutils"
+require "timecop"
 
 def build_gem file
   pkg_dir = File.dirname file
@@ -37,15 +38,16 @@ def decode_and_untar gem_string, pattern="*"
 end
 
 describe GemBase64 do
-  let(:version) { Gem::Version.new(ManageIQPerformance::VERSION) }
-  let(:spec_dir) { File.expand_path "../../..", __FILE__ }
-  let(:spec_tmp) { "#{spec_dir}/tmp" }
-  let(:pkg_dir)  { "#{spec_tmp}/pkg" }
-  let(:gem_file) { "#{pkg_dir}/manageiq_performance-#{version.to_s}.gem" }
+  let(:version)   { Gem::Version.new(ManageIQPerformance::VERSION) }
+  let(:spec_dir)  { File.expand_path "../../..", __FILE__ }
+  let(:spec_tmp)  { "#{spec_dir}/tmp" }
+  let(:pkg_dir)   { "#{spec_tmp}/pkg" }
+  let(:gem_file)  { "#{pkg_dir}/manageiq_performance-#{version.to_s}.gem" }
+  let(:time_lock) { Time.now }
 
   around(:each) do |example|
     Gem::DefaultUserInteraction.use_ui(Gem::SilentUI.new) do
-      build_gem gem_file
+      Timecop.freeze(time_lock) { build_gem gem_file }
       example.run
     end
     FileUtils.rm_rf spec_tmp
@@ -60,16 +62,17 @@ describe GemBase64 do
 
   describe "::gem_as_tar_io" do
     it "returns an io object of the .gem (tar) contents" do
-      result = GemBase64.gem_as_tar_io
+      result = Timecop.freeze(time_lock) { GemBase64.gem_as_tar_io }
       expect(result.read).to eq File.read(gem_file)
     end
   end
 
   describe "::gem_as_base64_string" do
     it "returns a base65 string version of the .gem that recompiles back correctly" do
-      bin_file = File.expand_path("../../../../bin/miqperf", __FILE__)
+      bin_file         = File.expand_path("../../../../bin/miqperf", __FILE__)
       expected_content = File.read bin_file
-      actual_content   = decode_and_untar GemBase64.gem_as_base64_string, "bin/miqperf"
+      base64_content   = Timecop.freeze(time_lock) { GemBase64.gem_as_base64_string }
+      actual_content   = decode_and_untar base64_content, "bin/miqperf"
 
       expect(actual_content).to eq expected_content
     end
