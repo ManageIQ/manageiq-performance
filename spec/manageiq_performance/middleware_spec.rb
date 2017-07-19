@@ -189,10 +189,79 @@ shared_examples "middleware functionality for" do |middleware_order|
         eval ProfilingTestClass.test_profile_eval_script
       end
     end
+
+    context "with the :config_changes option" do
+      before(:each) do
+        # Pre-require the middleware and middleware storages here incase they
+        # haven't been loaded via other parts of the suite.  In most cases,
+        # this will be wasteful, but the `Object.const_get` we have to do in
+        # the test farther down as a return result might get executed before
+        # any Middleware.new is called in the specs.
+        middleware_order.each do |name|
+          require "manageiq_performance/middlewares/#{name}"
+        end
+        ManageIQPerformance.config.middleware_storage.each do |name|
+          require "manageiq_performance/middleware_storage/#{name}"
+        end
+      end
+
+      # include one less middleware than what was passed into the example
+      let(:config_changes) { {"middleware" => middleware_order[0..-2].map(&:to_s) } }
+      let(:run_profile) do
+        Proc.new do
+          ManageIQPerformance.profile(:config_changes => config_changes) { work }
+        end
+      end
+
+      it "loads the config changed middleware in order" do
+        # Confirms that we load the reduced set of middleware that changes with
+        # the config_changes
+        #
+        # Need to include the configured middleware storages in here as well
+        # since they share the usage of `Object.const_get`, and we have to do
+        # these both these prior to the `expect().to recieve` calls, otherwise
+        # the spec will fail early.
+        (middleware_order[0..-2].map { |name|
+          constant_name = "ManageIQPerformance::Middlewares::#{name.to_s.split("_").map(&:capitalize).join}"
+          constant      = Object.const_get constant_name
+          [constant_name, constant]
+        } + ManageIQPerformance.config.middleware_storage.map { |name|
+          constant_name = "ManageIQPerformance::MiddlewareStorage::#{name.to_s.split("_").map(&:capitalize).join}"
+          constant      = Object.const_get constant_name
+          [constant_name, constant]
+        }).each do |constant_name, constant|
+          expect(Object).to receive(:const_get).with(constant_name).and_return(constant)
+        end
+
+        unused_middleware = "ManageIQPerformance::Middlewares::#{middleware_order.last.to_s.split("_").map(&:capitalize).join}"
+        expect(Object).to receive(:const_get).with(unused_middleware).never
+
+        run_profile.call
+      end
+
+      it "returns the result of the block" do
+        ManageIQPerformance.profile(:config_changes => config_changes) { Thread.current[:result] = 42 }
+        expect(Thread.current[:result]).to eq(42)
+      end
+    end
+
+    context "with :in_memory set" do
+      let(:in_memory_config) { { "middleware_storage" => %w[memory] } }
+      it "runs with a temporary configuration" do
+        expect(ManageIQPerformance).to receive(:with_config).with(in_memory_config)
+        ManageIQPerformance.profile(:in_memory => true) { work }
+      end
+
+      it "doesn't clobber other config changes" do
+        config_changes = {"middleware" => [] }
+        expect(ManageIQPerformance).to receive(:with_config).with(config_changes.merge in_memory_config)
+        ManageIQPerformance.profile(:in_memory => true, :config_changes => config_changes) { work }
+      end
+    end
   end
 
   after do
-    FileUtils.rm_r ManageIQPerformance.config.default_dir
+    FileUtils.rm_rf ManageIQPerformance.config.default_dir
   end
 end
 
