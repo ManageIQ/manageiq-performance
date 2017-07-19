@@ -101,16 +101,10 @@ module ManageIQPerformance
       "HTTP_MIQ_PERF_TIMESTAMP"      => (Time.now.to_f * 1000000).to_i
     }
 
-    if options[:config_changes] || options[:in_memory]
-      config_changes = (options[:config_changes] || {}).dup
-      config_changes.merge!("middleware_storage" => %w[memory]) if options[:in_memory]
-    end
+    config_changes = (options[:config_changes] || {}).dup
+    config_changes.merge!("middleware_storage" => %w[memory]) if options[:in_memory]
 
-    if config_changes
-      ManageIQPerformance.with_config config_changes do
-        ManageIQPerformance::Middleware.new(code).call(env)
-      end
-    else
+    ManageIQPerformance.with_config config_changes do
       ManageIQPerformance::Middleware.new(code).call(env)
     end
   end
