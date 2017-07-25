@@ -1,6 +1,13 @@
 require "erb"
 require File.expand_path "../support/gem_base64", __FILE__
 
+SCRIPT_FILENAME = "tmp/manageiq-performance-appliance-installation-script.rb"
+
+CLEAN.include SCRIPT_FILENAME
+
+# clobber any renamed generated scripts that might have been renamed
+CLOBBER.include "tmp/*_script.rb"
+
 desc "Generate script for installing gem on an appliance"
 task :generate_install_script do
   template_dir       = File.expand_path "../support/templates", __FILE__
@@ -9,7 +16,7 @@ task :generate_install_script do
   @gemspec           = GemBase64.miqperf_gemspec
   @gem_base64_string = GemBase64.gem_as_base64_string
   @template          = File.read File.join(template_dir, template_filename)
-  @output_filename   = "tmp/manageiq-performance-appliance-installation-script.rb"
+  @output_filename   = SCRIPT_FILENAME
 
   b = binding
   File.write @output_filename, ERB.new(@template, nil, "-").result(b)
@@ -27,6 +34,8 @@ task :include_stackprof do
 end
 
 TMP_C_EXT_GEMS_DIR = Pathname.new "tmp/installer_script_gems"
+
+CLEAN.include TMP_C_EXT_GEMS_DIR.to_s
 
 task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
   gem_to_build = args[:gem]
@@ -159,6 +168,13 @@ task :unpack_gem, [:gem] do |t, args|
   # tasks, and they will only run if they are needed
   Rake::Task[safe_gemspec_file].invoke
 end
+
+desc "Remove the docker-machine instance for rake-compiler-dock"
+task :delete_docker_machine do
+  sh "docker-machine rm -y --force #{ENV["MACHINE_NAME"] || 'rake-compiler-dock'}"
+end
+# Add the above task as a prerequisite for `rake clobber`
+Rake::Task[:clobber].enhance [:delete_docker_machine]
 
 def ext_build_for gem
   gemspec      = GemBase64.find_gemspec_for gem
