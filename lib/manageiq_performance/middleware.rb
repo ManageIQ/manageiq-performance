@@ -91,7 +91,7 @@ module ManageIQPerformance
   end
 
   def self.profile *args, &code
-    options = args.last.is_a?(Hash) ? args.shift : {}
+    options = args.last.is_a?(Hash) ? args.pop : {}
     name    = args.shift
     name    ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
 

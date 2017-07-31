@@ -243,6 +243,11 @@ shared_examples "middleware functionality for" do |middleware_order|
         ManageIQPerformance.profile(:config_changes => config_changes) { Thread.current[:result] = 42 }
         expect(Thread.current[:result]).to eq(42)
       end
+
+      it "allows still setting a name for the profile block" do
+        ManageIQPerformance.profile("my_name", :config_changes => config_changes) { Thread.current[:result] = 42 }
+        expect(Thread.current[:result]).to eq(42)
+      end
     end
 
     context "with :in_memory set" do
