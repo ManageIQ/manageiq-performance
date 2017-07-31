@@ -34,7 +34,8 @@ module ManageIQPerformance
         memory
       ],
       "middleware_storage"   => %w[file],
-      "browser_mode"  => {
+      "monitor_queue"        => false,
+      "browser_mode"         => {
         "enabled"   => false,
         "always_on" => false
       }
@@ -91,6 +92,11 @@ module ManageIQPerformance
     def include_memsize?
       self["include_memsize"]
     end
+
+    def monitor_queue?
+      self["monitor_queue"]
+    end
+
     def stacktrace_cleaner
       @stacktrace_cleaner ||=
         begin
