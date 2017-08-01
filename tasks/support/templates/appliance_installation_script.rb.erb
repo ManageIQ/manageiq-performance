@@ -5,11 +5,19 @@ require "rubygems/installer"
 require "bundler/lockfile_parser"
 require "bundler/definition"
 
+GEM_INSTALL_DIR          = "/tmp/manageiq-performance-gem-dir"
+
 MIQPERF_GEM_NAME         = "<%= @gemspec.name %>"
 MIQPERF_GEM_VERSION      = "<%= @gemspec.version %>"
 MIQPERF_FULL_GEM_NAME    = "#{MIQPERF_GEM_NAME}-#{MIQPERF_GEM_VERSION}"
-MIQPERF_GEM_DIR          = "/tmp/manageiq-performance-gem-dir"
-MIQPERF_INSTALL_LOCATION = "#{MIQPERF_GEM_DIR}/gems/#{MIQPERF_FULL_GEM_NAME}"
+MIQPERF_INSTALL_LOCATION = "#{GEM_INSTALL_DIR}/gems/#{MIQPERF_FULL_GEM_NAME}"
+
+<% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
+STACKPROF_GEM_NAME         = "<%= @stackprof_gemspec.name %>"
+STACKPROF_GEM_VERSION      = "<%= @stackprof_gemspec.version %>"
+STACKPROF_FULL_GEM_NAME    = "#{STACKPROF_GEM_NAME}-#{STACKPROF_GEM_VERSION}"
+STACKPROF_INSTALL_LOCATION = "#{GEM_INSTALL_DIR}/gems/#{STACKPROF_FULL_GEM_NAME}"
+<% end -%>
 
 VMDB_DIR                 = "/var/www/miq/vmdb"
 
@@ -32,6 +40,12 @@ MIQPERF_GEM_BUNDLE = <<-GEM
 <%= @gem_base64_string -%>
 GEM
 
+<% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
+STACKPROF_GEM_BUNDLE = <<-STACKPROF_GEM
+<%= @stackprof_gem_base64_string -%>
+STACKPROF_GEM
+<% end -%>
+
 
 ##### Install manageiq-performance #####
 puts "Installing manageiq-performance.gem"
@@ -39,7 +53,18 @@ puts "Installing manageiq-performance.gem"
 gem_file = "/tmp/#{MIQPERF_FULL_GEM_NAME}.gem"
 File.write gem_file, Base64.decode64(MIQPERF_GEM_BUNDLE)
 
-Gem::Installer.new(gem_file, :install_dir => MIQPERF_GEM_DIR).install
+Gem::Installer.new(gem_file, :install_dir => GEM_INSTALL_DIR).install
+
+
+<% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
+##### Install stackprof #####
+puts "Installing stackprof.gem"
+
+gem_file = "/tmp/#{STACKPROF_FULL_GEM_NAME}.gem"
+File.write gem_file, Base64.decode64(STACKPROF_GEM_BUNDLE)
+
+Gem::Installer.new(gem_file, :install_dir => GEM_INSTALL_DIR).install
+<% end -%>
 
 
 ######### Update Gemfile.lock ##########
@@ -63,6 +88,20 @@ definition.dependencies << miqperf_bundler_dep
 definition.send(:sources).send :add_path_source, miqperf_bundler_src.options
 definition.send(:resolve)[miqperf_bundler_spec.identifier] = miqperf_bundler_spec
 
+<% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
+# Build sources, dependencies and spec for stackprof
+stackprof_version      = Gem::Version.new(STACKPROF_GEM_VERSION)
+stackprof_bundler_src  = Bundler::Source::Path.from_lock "remote" => STACKPROF_INSTALL_LOCATION
+stackprof_bundler_dep  = Bundler::Dependency.new STACKPROF_GEM_NAME, nil, "source" => stackprof_bundler_src
+stackprof_bundler_spec = Bundler::LazySpecification.new STACKPROF_GEM_NAME, stackprof_version, Gem::Platform::RUBY
+stackprof_bundler_spec.source = stackprof_bundler_src
+
+# Add source, spec, and dependency to existing definition
+definition.dependencies << stackprof_bundler_dep
+definition.send(:sources).send :add_path_source, stackprof_bundler_src.options
+definition.send(:resolve)[stackprof_bundler_spec.identifier] = stackprof_bundler_spec
+<% end -%>
+
 # Write the file
 File.open("#{VMDB_DIR}/Gemfile.lock", "wb") do |file|
   file.puts definition.to_lock
@@ -74,9 +113,14 @@ puts "Updating Gemfile"
 
 gemfile_addition = <<-GEMFILE_ADDITION
 
-gem "manageiq-performance", "=0.1.0",
+gem "manageiq-performance", "=#{MIQPERF_GEM_VERSION}",
     :require => ["manageiq_performance/railtie/middleware"],
     :path    => "#{MIQPERF_INSTALL_LOCATION}"
+
+<% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
+gem "stackprof", "=#{STACKPROF_GEM_VERSION}", :require => false,
+    :path    => "#{STACKPROF_INSTALL_LOCATION}"
+<% end -%>
 GEMFILE_ADDITION
 
 File.open("#{VMDB_DIR}/Gemfile", "a") do |gemfile|
@@ -96,6 +140,7 @@ browser_mode:
 middleware:
   - active_support_timers
   - active_record_queries
+<%= "  - stackprof" if @stackprof_gemspec and @stackprof_gem_base64_string %>
 middleware_storage:
   - log
 EOF

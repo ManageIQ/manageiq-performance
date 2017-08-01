@@ -2,6 +2,7 @@ require "tasks/support/gem_base64"
 require "manageiq_performance/version"
 require "fileutils"
 require "timecop"
+require "rspec/version"
 
 def build_gem file
   pkg_dir = File.dirname file
@@ -10,7 +11,7 @@ def build_gem file
   file_obj = File.new(file, "w+")
 
   Gem::Package.new(file_obj)
-              .tap{ |p| p.spec = GemBase64.gemspec }
+              .tap{ |p| p.spec = GemBase64.miqperf_gemspec }
               .build
 end
 
@@ -53,10 +54,10 @@ describe GemBase64 do
     FileUtils.rm_rf spec_tmp
   end
 
-  describe "::gemspec" do
+  describe "::miqperf_gemspec" do
     it "reads the .gemspec file and returns a Gem::Specification instance" do
-      expect(GemBase64.gemspec.name).to    eq "manageiq-performance"
-      expect(GemBase64.gemspec.version).to eq version
+      expect(GemBase64.miqperf_gemspec.name).to    eq "manageiq-performance"
+      expect(GemBase64.miqperf_gemspec.version).to eq version
     end
   end
 
@@ -75,6 +76,32 @@ describe GemBase64 do
       actual_content   = decode_and_untar base64_content, "bin/miqperf"
 
       expect(actual_content).to eq expected_content
+    end
+  end
+
+  describe "::find_gemspec_for" do
+    context "for a gem in the bundle" do
+      it "returns the .gemspec object for the gem" do
+        gem     = "rspec"
+        version = Gem::Version.new RSpec::Version::STRING
+        result  = GemBase64.find_gemspec_for gem
+
+        expect(result.name).to    eq gem
+        expect(result.version).to eq version
+      end
+    end
+
+    context "for a gem not in the bundle" do
+      after { FileUtils.rm_rf GemBase64.tmp_dir }
+
+      it "returns the .gemspec object for the gem" do
+        gem     = "nyan-cat-formatter"
+        version = Gem::Version.new "0.12"
+        result  = GemBase64.find_gemspec_for gem
+
+        expect(result.name).to    eq gem
+        expect(result.version).to eq version
+      end
     end
   end
 end
