@@ -7,16 +7,12 @@ require "bundler/definition"
 
 GEM_INSTALL_DIR          = "/tmp/manageiq-performance-gem-dir"
 
-MIQPERF_GEM_NAME         = "<%= @gemspec.name %>"
-MIQPERF_GEM_VERSION      = "<%= @gemspec.version %>"
-MIQPERF_FULL_GEM_NAME    = "#{MIQPERF_GEM_NAME}-#{MIQPERF_GEM_VERSION}"
-MIQPERF_INSTALL_LOCATION = "#{GEM_INSTALL_DIR}/gems/#{MIQPERF_FULL_GEM_NAME}"
+<% unless @solo_gem -%>
+<%= render_partial "gem_constants", :name => @gemspec.name, :env_name => "MIQPERF", :gemspec => @gemspec -%>
+<% end -%>
 
 <% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
-STACKPROF_GEM_NAME         = "<%= @stackprof_gemspec.name %>"
-STACKPROF_GEM_VERSION      = "<%= @stackprof_gemspec.version %>"
-STACKPROF_FULL_GEM_NAME    = "#{STACKPROF_GEM_NAME}-#{STACKPROF_GEM_VERSION}"
-STACKPROF_INSTALL_LOCATION = "#{GEM_INSTALL_DIR}/gems/#{STACKPROF_FULL_GEM_NAME}-x86_64-linux"
+<%= render_partial "gem_constants", :name => @stackprof_gemspec.name, :env_name => "STACKPROF", :gemspec => @stackprof_gemspec, :platform => "x86_64-linux" -%>
 <% end -%>
 
 VMDB_DIR                 = "/var/www/miq/vmdb"
@@ -36,34 +32,17 @@ VMDB_DIR                 = "/var/www/miq/vmdb"
 #
 #     https://github.com/pypa/get-pip/blob/master/tasks/generate.py
 #
-MIQPERF_GEM_BUNDLE = <<-GEM
-<%= @gem_base64_string -%>
-GEM
+<%= render_partial "gem_base64_string", :env_name => "MIQPERF", :gem_base64_string => @gem_base64_string -%>
 
 <% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
-STACKPROF_GEM_BUNDLE = <<-STACKPROF_GEM
-<%= @stackprof_gem_base64_string -%>
-STACKPROF_GEM
+<%= render_partial "gem_base64_string", :env_name => "STACKPROF", :gem_base64_string => @stackprof_gem_base64_string -%>
 <% end -%>
 
 
-##### Install manageiq-performance #####
-puts "Installing manageiq-performance.gem"
-
-gem_file = "/tmp/#{MIQPERF_FULL_GEM_NAME}.gem"
-File.write gem_file, Base64.decode64(MIQPERF_GEM_BUNDLE)
-
-Gem::Installer.new(gem_file, :install_dir => GEM_INSTALL_DIR).install
-
+<%= render_partial "install_gem", :name => @gemspec.name, :env_name => "MIQPERF" -%>
 
 <% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
-##### Install stackprof #####
-puts "Installing stackprof.gem"
-
-gem_file = "/tmp/#{STACKPROF_FULL_GEM_NAME}.gem"
-File.write gem_file, Base64.decode64(STACKPROF_GEM_BUNDLE)
-
-Gem::Installer.new(gem_file, :install_dir => GEM_INSTALL_DIR).install
+<%= render_partial "install_gem", :name => @stackprof_gemspec.name, :env_name => "STACKPROF" -%>
 <% end -%>
 
 
@@ -76,30 +55,10 @@ lockfile   = File.expand_path "#{VMDB_DIR}/Gemfile.lock"
 definition = Bundler::Definition.build gemfile, lockfile, nil
 definition.to_lock
 
-# Build sources, dependencies and spec for manageiq_performance
-miqperf_version      = Gem::Version.new(MIQPERF_GEM_VERSION)
-miqperf_bundler_src  = Bundler::Source::Path.from_lock "remote" => MIQPERF_INSTALL_LOCATION
-miqperf_bundler_dep  = Bundler::Dependency.new MIQPERF_GEM_NAME, nil, "source" => miqperf_bundler_src
-miqperf_bundler_spec = Bundler::LazySpecification.new MIQPERF_GEM_NAME, miqperf_version, Gem::Platform::RUBY
-miqperf_bundler_spec.source = miqperf_bundler_src
-
-# Add source, spec, and dependency to existing definition
-definition.dependencies << miqperf_bundler_dep
-definition.send(:sources).send :add_path_source, miqperf_bundler_src.options
-definition.send(:resolve)[miqperf_bundler_spec.identifier] = miqperf_bundler_spec
+<%= render_partial "new_bundler_dependency", :name => @gemspec.name, :env_name => "MIQPERF" -%>
 
 <% if @stackprof_gemspec and @stackprof_gem_base64_string -%>
-# Build sources, dependencies and spec for stackprof
-stackprof_version      = Gem::Version.new(STACKPROF_GEM_VERSION)
-stackprof_bundler_src  = Bundler::Source::Path.from_lock "remote" => STACKPROF_INSTALL_LOCATION
-stackprof_bundler_dep  = Bundler::Dependency.new STACKPROF_GEM_NAME, nil, "source" => stackprof_bundler_src
-stackprof_bundler_spec = Bundler::LazySpecification.new STACKPROF_GEM_NAME, stackprof_version, Gem::Platform::RUBY
-stackprof_bundler_spec.source = stackprof_bundler_src
-
-# Add source, spec, and dependency to existing definition
-definition.dependencies << stackprof_bundler_dep
-definition.send(:sources).send :add_path_source, stackprof_bundler_src.options
-definition.send(:resolve)[stackprof_bundler_spec.identifier] = stackprof_bundler_spec
+<%= render_partial "new_bundler_dependency", :name => @stackprof_gemspec.name, :env_name => "STACKPROF" -%>
 <% end -%>
 
 # Write the file
