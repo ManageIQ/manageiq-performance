@@ -1,0 +1,4 @@
+<%= env_name %>_GEM_NAME         = "<%= name %>"
+<%= env_name %>_GEM_VERSION      = "<%= gemspec.version %>"
+<%= env_name %>_FULL_GEM_NAME    = "#{<%= env_name %>_GEM_NAME}-#{<%= env_name %>_GEM_VERSION}"
+<%= env_name %>_INSTALL_LOCATION = "#{GEM_INSTALL_DIR}/gems/#{<%= env_name %>_FULL_GEM_NAME}<%= "-#{platform}" if defined? platform %>"
