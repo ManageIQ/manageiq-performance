@@ -38,12 +38,13 @@ class GemBase64
                                         .spec_for_dependency(gem_dependency)[0]
                                         .max_by { |(s,_)| s.version }
 
-      Gem::RemoteFetcher.fetcher.download gemspec, source.uri.to_s, tmp_dir
+      cache_file = Gem::RemoteFetcher.fetcher.download gemspec, source.uri.to_s, tmp_dir
 
       # This is set when the gemspec is created to the default location for the
       # gem cache, but we want it in a tmp dir that we set so we aren't adding
       # extra gems to the users gem dir without them knowing.
-      gemspec.instance_variable_set(:@base_dir, tmp_dir)
+      gemspec.instance_variable_set(:@loaded_from, cache_file)
+      gemspec.instance_variable_set(:@base_dir, nil)
       gemspec.instance_variable_set(:@cache_dir, nil)
       gemspec.instance_variable_set(:@cache_file, nil)
     end

@@ -95,12 +95,14 @@ describe GemBase64 do
       after { FileUtils.rm_rf GemBase64.tmp_dir }
 
       it "returns the .gemspec object for the gem" do
-        gem     = "nyan-cat-formatter"
-        version = Gem::Version.new "0.12"
-        result  = GemBase64.find_gemspec_for gem
+        gem            = "nyan-cat-formatter"
+        version        = Gem::Version.new "0.12"
+        result         = GemBase64.find_gemspec_for gem
+        cache_file_loc = File.join GemBase64.tmp_dir, "cache", "#{gem}-0.12.0.gem"
 
-        expect(result.name).to    eq gem
-        expect(result.version).to eq version
+        expect(result.name).to       eq gem
+        expect(result.version).to    eq version
+        expect(result.cache_file).to eq cache_file_loc
       end
     end
   end
