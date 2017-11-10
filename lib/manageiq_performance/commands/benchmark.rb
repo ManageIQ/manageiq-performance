@@ -50,6 +50,8 @@ module ManageIQPerformance
       end
 
       def option_parser
+        require "optparse"
+
         @optparse ||= OptionParser.new do |opt|
           opt.banner = "Usage: #{File.basename $0} benchmark [options] path"
 

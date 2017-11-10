@@ -1,4 +1,3 @@
-require "optparse"
 require "fileutils"
 require "manageiq_performance/configuration"
 
@@ -32,6 +31,8 @@ module ManageIQPerformance
       private
 
       def option_parser
+        require "optparse"
+
         OptionParser.new do |opt|
           opt.banner = "Usage: #{File.basename $0} clean [options]"
 
