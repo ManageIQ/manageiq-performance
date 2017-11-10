@@ -7,18 +7,26 @@ module ManageIQPerformance
     CSRF_TAG_REGEX   = /meta.*name="csrf-token".*$/
     CSRF_TOKEN_REGEX = /content="([^"]*)".*/
 
-    BASE_HEADERS     = {'Accept' => 'text/html'}
-    DEFAULT_HEADERS  = {
+    HTML_HEADERS     = {'Accept' => 'text/html'}
+    JSON_HEADERS     = {'Accept' => 'application/json'}
+    PERF_HEADERS     = {
                          'WITH_PERFORMANCE_MONITORING' => 'true',
-                         'MIQ_PERF_STACKPROF_RAW' => 'true'
-                       }.merge(BASE_HEADERS)
+                         'MIQ_PERF_STACKPROF_RAW'      => 'true'
+                       }
+    UI_HEADERS       = PERF_HEADERS.merge(HTML_HEADERS)
+    API_HEADERS      = PERF_HEADERS.merge(JSON_HEADERS)
+
+
+    # Deprecated
+    BASE_HEADERS     = HTML_HEADERS
+    DEFAULT_HEADERS  = UI_HEADERS
 
     attr_accessor :uri, :api, :session, :headers
 
     def initialize(options={})
       @uri         = URI.parse(options[:host] || "http://localhost:3000")
-      @headers     = DEFAULT_HEADERS.merge(options[:headers] || {})
       @api         = options[:api] || false
+      @headers     = (api ? API_HEADERS : UI_HEADERS).merge(options[:headers] || {})
       @logger      = options[:logger] || Logger.new(STDOUT)
       @ignore_cert = options[:ignore_ssl] || false
 
@@ -67,13 +75,13 @@ module ManageIQPerformance
 
     def csrf_token
       log "--> getting csrf_token..." unless @csrf_token
-      @csrf_token ||= nethttp_request(:get, '/', :headers => BASE_HEADERS)
+      @csrf_token ||= nethttp_request(:get, '/', :headers => HTML_HEADERS)
                         .body.scan(CSRF_TAG_REGEX).first.to_s
                         .match(CSRF_TOKEN_REGEX) {|match| match[1] }
     end
 
     def login_headers
-      BASE_HEADERS.merge({
+      HTML_HEADERS.merge({
         'X-CSRF-Token' => csrf_token.to_s, # first so session is set correctly
         'Cookie'       => @session,
       })
