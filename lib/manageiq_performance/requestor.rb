@@ -13,11 +13,12 @@ module ManageIQPerformance
                          'MIQ_PERF_STACKPROF_RAW' => 'true'
                        }.merge(BASE_HEADERS)
 
-    attr_accessor :uri, :session, :headers
+    attr_accessor :uri, :api, :session, :headers
 
     def initialize(options={})
       @uri         = URI.parse(options[:host] || "http://localhost:3000")
       @headers     = DEFAULT_HEADERS.merge(options[:headers] || {})
+      @api         = options[:api] || false
       @logger      = options[:logger] || Logger.new(STDOUT)
       @ignore_cert = options[:ignore_ssl] || false
 
