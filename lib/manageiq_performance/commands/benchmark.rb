@@ -1,7 +1,3 @@
-require "manageiq_performance/configuration"
-require "manageiq_performance/requestor"
-require "manageiq_performance/reporting/requestfile_builder"
-
 module ManageIQPerformance
   module Commands
     class Benchmark
@@ -10,6 +6,10 @@ module ManageIQPerformance
       end
 
       def self.run(args)
+        require "manageiq_performance/configuration"
+        require "manageiq_performance/requestor"
+        require "manageiq_performance/reporting/requestfile_builder"
+
         new(args).run
       end
 
@@ -50,6 +50,8 @@ module ManageIQPerformance
       end
 
       def option_parser
+        require "optparse"
+
         @optparse ||= OptionParser.new do |opt|
           opt.banner = "Usage: #{File.basename $0} benchmark [options] path"
 

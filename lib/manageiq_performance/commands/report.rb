@@ -1,6 +1,3 @@
-require "manageiq_performance/configuration"
-require "manageiq_performance/reporter"
-
 module ManageIQPerformance
   module Commands
     class Report
@@ -9,6 +6,9 @@ module ManageIQPerformance
       end
 
       def self.run(args)
+        require "manageiq_performance/configuration"
+        require "manageiq_performance/reporter"
+
         new(args).run
       end
 
@@ -25,6 +25,8 @@ module ManageIQPerformance
       private
 
       def option_parser
+        require "optparse"
+
         @optparse ||= OptionParser.new do |opt|
           opt.banner = "Usage: #{File.basename $0} report [options] [dir]"
 

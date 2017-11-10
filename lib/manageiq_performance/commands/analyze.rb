@@ -1,6 +1,6 @@
-require "manageiq_performance/configuration"
-
 begin
+  # Have this up top so we don't initialize this class if the stackprof dep
+  # isn't available.
   require "stackprof"
 
   module ManageIQPerformance
@@ -11,6 +11,8 @@ begin
         end
 
         def self.run(args)
+          require "manageiq_performance/configuration"
+
           new(args).run
         end
 
@@ -34,6 +36,8 @@ begin
         private
 
         def option_parser
+          require "optparse"
+
           @optparse ||= OptionParser.new do |opt|
             opt.banner = "Usage: #{File.basename $0} analyze [options] [dir]"
 
