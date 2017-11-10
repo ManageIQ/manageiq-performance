@@ -30,6 +30,8 @@ module ManageIQPerformance
       @logger      = options[:logger] || Logger.new(STDOUT)
       @ignore_cert = options[:ignore_ssl] || false
 
+      require 'json' if api
+
       login
     end
 
@@ -48,13 +50,17 @@ module ManageIQPerformance
       request_args  = Array(payload)
       request_args << (options[:headers] || full_request_headers)
 
-      unless %w[/ /dashboard/authenticate].include?(path) # logged already
+      unless %w[/ /api/auth /dashboard/authenticate].include?(path) # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
       end
 
       http.send(method, path, *request_args).tap do |response|
-        set_cookie_field = response.get_fields('set-cookie')
-        @session         = set_cookie_field[0] if set_cookie_field
+        if api && path == '/api/auth'
+          @session         = JSON.parse(response.body)["auth_token"]
+        elsif not api
+          set_cookie_field = response.get_fields('set-cookie')
+          @session         = set_cookie_field[0] if set_cookie_field
+        end
       end
     end
 
@@ -69,8 +75,12 @@ module ManageIQPerformance
     def login
       hdrs = login_headers
       log "--> logging in..."
-      nethttp_request :post, "/dashboard/authenticate",
-                  :params  => credentials, :headers => hdrs
+      if api
+        nethttp_request :get, "/api/auth", :headers => hdrs
+      else
+        nethttp_request :post, "/dashboard/authenticate",
+                        :params  => credentials, :headers => hdrs
+      end
     end
 
     def csrf_token
@@ -81,16 +91,26 @@ module ManageIQPerformance
     end
 
     def login_headers
-      HTML_HEADERS.merge({
-        'X-CSRF-Token' => csrf_token.to_s, # first so session is set correctly
-        'Cookie'       => @session,
-      })
+      if api
+        JSON_HEADERS.merge({
+          # Value calculated from the same method found in
+          # Net::HTTPHeader#basic_encode, which is what is used in the
+          # `#basic_auth` method.
+          'authorization' => 'Basic ' + ["#{username}:#{password}"].pack('m0')
+        })
+      else
+        HTML_HEADERS.merge({
+          'X-CSRF-Token' => csrf_token.to_s, # first so session is set correctly
+          'Cookie'       => @session,
+        })
+      end
     end
 
     def full_request_headers
       timestamp = (Time.now.to_f * 1000000).to_i.to_s
+      token_hdr = api ? "X-Auth-Token" : "Cookie"
       @headers.merge({
-        'Cookie'             => @session,
+        token_hdr            => @session,
         'MIQ_PERF_TIMESTAMP' => timestamp
       })
     end
