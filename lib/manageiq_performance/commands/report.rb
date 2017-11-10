@@ -1,6 +1,3 @@
-require "manageiq_performance/configuration"
-require "manageiq_performance/reporter"
-
 module ManageIQPerformance
   module Commands
     class Report
@@ -9,6 +6,9 @@ module ManageIQPerformance
       end
 
       def self.run(args)
+        require "manageiq_performance/configuration"
+        require "manageiq_performance/reporter"
+
         new(args).run
       end
 

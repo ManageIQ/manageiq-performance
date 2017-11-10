@@ -1,6 +1,3 @@
-require "fileutils"
-require "manageiq_performance/configuration"
-
 module ManageIQPerformance
   module Commands
     class Clean
@@ -11,6 +8,9 @@ module ManageIQPerformance
       end
 
       def self.run(args)
+        require "fileutils"
+        require "manageiq_performance/configuration"
+
         new(args).run
       end
 
