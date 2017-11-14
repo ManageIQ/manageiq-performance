@@ -14,7 +14,7 @@ module ManageIQPerformance
       end
 
       def initialize(args)
-        @opts     = {:samples => 1}
+        @opts     = {:samples => 1, :api => false}
         parse_env_variables
         option_parser.parse!(args)
         @path     = args.first
@@ -68,6 +68,7 @@ module ManageIQPerformance
           opt.separator ""
           opt.separator "Options"
 
+          opt.on("-a",     "--[no-]api",           "Toggle api requests",    set_api)
           opt.on("-HHOST", "--host=HOST",          "MIQ endpoint to target", define_host)
           opt.on("-mMETH", "--method=METHOD",      "HTTP method (def: GET)", http_method)
           opt.on("-d",     "--no-ssl",             "Disable SSL verify",     disable_ssl)
@@ -76,6 +77,10 @@ module ManageIQPerformance
           opt.on("-sNUM",  "--samples=NUM",        "Alias for --count",      set_count)
           opt.on("-h",     "--help",               "Show this message") { puts opt; exit }
         end
+      end
+
+      def set_api
+        Proc.new {|api| @opts[:api] = api }
       end
 
       def define_host
