@@ -26,6 +26,7 @@ shared_examples "the default config" do |config_options={}|
     ["requestor", "requestfile_dir"] => nil,
     ["middleware"]                   => %w[stackprof active_support_timers active_record_queries memory],
     ["middleware_storage"]           => %w[file],
+    ["monitor_queue?"]               => false,
     ["browser_mode", "enabled?"]     => false,
     ["browser_mode", "always_on?"]   => false,
   }
@@ -185,6 +186,7 @@ describe ManageIQPerformance::Configuration do
         middleware_storage:
           - file
           - log
+        monitor_queue: true
         browser_mode:
           enabled: true
           always_on: true
@@ -269,6 +271,11 @@ describe ManageIQPerformance::Configuration do
       middleware_storage = %w[file log]
       expect(ManageIQPerformance.config.middleware_storage).to eq middleware_storage
       expect(ManageIQPerformance.config["middleware_storage"]).to eq middleware_storage
+    end
+
+    it "defines ManageIQPerformance.config.monitor_queue?" do
+      expect(ManageIQPerformance.config.monitor_queue?).to eq true
+      expect(ManageIQPerformance.config["monitor_queue"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.browser_mode.enabled?" do

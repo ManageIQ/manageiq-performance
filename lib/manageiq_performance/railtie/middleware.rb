@@ -12,5 +12,11 @@ module ManageIQPerformance
         app.middleware.insert_before "ManageIQPerformance::Middleware", "ManageIQPerformance::BrowserModeMiddleware"
       end
     end
+
+    if ManageIQPerformance.config.monitor_queue?
+      config.after_initialize do
+        require "manageiq_performance/middlewares/miq_queue_timers"
+      end
+    end
   end
 end
