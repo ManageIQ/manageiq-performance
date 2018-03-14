@@ -135,8 +135,8 @@ shared_examples "middleware functionality for" do |middleware_order|
       end
     end
 
-    # Testing that when a name is given, we are creating a name based on the
-    # call stack something that only has letters and underscores for the
+    # Testing that when a name is not given, we are creating a name based on
+    # the call stack something that only has letters and underscores for the
     # generated filename.  Don't really want to create another method for this,
     # but this is some dense regexp code that is being done to generate this
     # name.
