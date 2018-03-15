@@ -91,9 +91,22 @@ shared_examples "middleware functionality for" do |middleware_order|
 
     it "finishes the middleware in reverse order" do
       allow(subject).to receive(:performance_middleware_start)
+      middleware_order.each do |name|
+        allow(subject).to receive("#{name}_start")
+      end
 
       middleware_order.reverse.each do |name|
         expect(subject).to receive("#{name}_finish").ordered
+      end
+
+      subject.call(basic_env)
+    end
+
+    it "calls `#finalize` on each of the middleware storages" do
+      allow(subject).to receive(:performance_middleware_start)
+
+      subject.middleware_storage.each do |storage|
+        expect(storage).to receive(:finalize).ordered
       end
 
       subject.call(basic_env)
