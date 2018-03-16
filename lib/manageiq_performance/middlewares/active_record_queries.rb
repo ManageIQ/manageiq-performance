@@ -153,7 +153,7 @@ module ManageIQPerformance
         IGNORED_PAYLOAD    = %w[EXPLAIN CACHE].freeze
 
         def ignore_payload?(payload)
-          payload[:exception] ||
+          payload[:exception] || payload[:cached] ||
           (skip_schema_queries? and SCHEMA_QUERY_TYPES.include?(payload[:name])) ||
           IGNORED_PAYLOAD.include?(payload[:name])
         end

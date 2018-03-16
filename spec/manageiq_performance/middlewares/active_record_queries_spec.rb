@@ -121,6 +121,21 @@ describe ManageIQPerformance::Middlewares::ActiveRecordQueries do
       expect(data[:total_queries]).to              be nil
     end
 
+    it "ignores cached queries" do
+      BaseClass.cache do
+        query_1.load
+        Book.where(:id => 1).load # query that will be cached
+      end
+
+      expect(data[:queries].count).to              eq 1
+      expect(data[:queries].first[:sql]).to        eq query_1_result
+      expect(data[:queries].first[:params]).to     eq [["id", "1"]]
+      expect(data[:queries].first[:stacktrace]).to be nil
+      expect(data[:rows_by_class]["Book"]).to      eq 0
+      expect(data[:total_queries]).to              eq 1
+      expect(data[:total_rows]).to                 eq 0
+    end
+
     it "ignores SCHEMA queries" do
       BaseClass.connection.table_exists?("books")
       BaseClass.connection.table_exists?("authors")
