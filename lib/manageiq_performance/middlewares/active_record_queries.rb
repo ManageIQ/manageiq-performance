@@ -153,9 +153,26 @@ module ManageIQPerformance
         IGNORED_PAYLOAD    = %w[EXPLAIN CACHE].freeze
 
         def ignore_payload?(payload)
-          payload[:exception] ||
+          payload[:exception] || payload[:cached] ||
           (skip_schema_queries? and SCHEMA_QUERY_TYPES.include?(payload[:name])) ||
           IGNORED_PAYLOAD.include?(payload[:name])
+        end
+      end
+
+      def self.clear_memoized_logger_vars
+        %w(sql.active_record instantiation.active_record).each do |event|
+          listeners = ActiveSupport::Notifications.notifier.listeners_for(event)
+          logger    = listeners.detect do |l|
+            l.instance_variable_get(:@delegate).is_a? self::Logger
+          end.instance_variable_get(:@delegate)
+
+          [
+            :@include_queries, :@include_trace, :@skip_schema_queries
+          ].each do |instance_variable|
+            if logger.instance_variable_defined? instance_variable
+              logger.remove_instance_variable instance_variable
+            end
+          end
         end
       end
 

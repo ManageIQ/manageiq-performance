@@ -93,20 +93,27 @@ module ManageIQPerformance
   def self.profile *args, &code
     options = args.last.is_a?(Hash) ? args.pop : {}
     name    = args.shift
-    name    ||= caller.first.match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2].gsub(/[^a-z_]/,'')
-
-    env  = {
-      Middleware::PERFORMANCE_HEADER => true,
-      "REQUEST_PATH"                 => name,
-      "HTTP_MIQ_PERF_TIMESTAMP"      => (Time.now.to_f * 1000000).to_i
-    }
 
     config_changes = (options[:config_changes] || {}).dup
     config_changes.merge!("middleware_storage" => %w[memory]) if options[:in_memory]
 
     ManageIQPerformance.with_config config_changes do
-      ManageIQPerformance::Middleware.new(code).call(env)
+      ManageIQPerformance::Middleware.new(code).call(profile_env_for name)
     end
   end
+
+  ROOT = File.expand_path("..", File.dirname(__FILE__)).freeze
+
+  def self.profile_env_for name=nil
+    name ||= caller.detect { |stackline| !stackline.include? ROOT }
+                   .match(/`(|.*\s)([a-z_\(\)]+)>?'$/)[2]
+                   .gsub(/[^a-z_]/,'')
+    {
+      Middleware::PERFORMANCE_HEADER => true,
+      "REQUEST_PATH"                 => name,
+      "HTTP_MIQ_PERF_TIMESTAMP"      => (Time.now.to_f * 1000000).to_i
+    }
+  end
+  private_class_method :profile_env_for
 
 end

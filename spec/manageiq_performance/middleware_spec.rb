@@ -23,6 +23,16 @@ class ProfilingTestClass
       end
     EOF
   end
+
+  def self.test_profile_env_for
+    ManageIQPerformance.send :profile_env_for
+  end
+
+  def self.test_profile_env_for_in_block
+    [1].map do
+      ManageIQPerformance.send :profile_env_for
+    end.first
+  end
 end
 
 shared_examples "middleware functionality for" do |middleware_order|
@@ -81,9 +91,22 @@ shared_examples "middleware functionality for" do |middleware_order|
 
     it "finishes the middleware in reverse order" do
       allow(subject).to receive(:performance_middleware_start)
+      middleware_order.each do |name|
+        allow(subject).to receive("#{name}_start")
+      end
 
       middleware_order.reverse.each do |name|
         expect(subject).to receive("#{name}_finish").ordered
+      end
+
+      subject.call(basic_env)
+    end
+
+    it "calls `#finalize` on each of the middleware storages" do
+      allow(subject).to receive(:performance_middleware_start)
+
+      subject.middleware_storage.each do |storage|
+        expect(storage).to receive(:finalize).ordered
       end
 
       subject.call(basic_env)
@@ -135,11 +158,8 @@ shared_examples "middleware functionality for" do |middleware_order|
       end
     end
 
-    # Testing that when a name is given, we are creating a name based on the
-    # call stack something that only has letters and underscores for the
-    # generated filename.  Don't really want to create another method for this,
-    # but this is some dense regexp code that is being done to generate this
-    # name.
+    # Testing that when a name is not given, we are creating a name based on
+    # the call stack.  More direct tests in `.profile_env_for` below.
     context "without a name given" do
       # Example callstack line:
       #
@@ -263,6 +283,88 @@ shared_examples "middleware functionality for" do |middleware_order|
         ManageIQPerformance.profile(:in_memory => true, :config_changes => config_changes) { work }
       end
     end
+  end
+
+  describe "ManageIQPerformance::profile_env_for (private)" do
+    subject { ManageIQPerformance.send :profile_env_for, profile_name }
+
+    shared_examples "sets default env fields" do
+      it "sets the PERFORMANCE_HEADER to true" do
+        header = ManageIQPerformance::Middleware::PERFORMANCE_HEADER
+        expect(subject[header]).to be true
+      end
+
+      it "sets the HTTP_MIQ_PERF_TIMESTAMP to the current time" do
+        expect(subject["HTTP_MIQ_PERF_TIMESTAMP"]).to eq(1234567000000)
+      end
+    end
+
+    context "with a name given" do
+      let(:profile_name) { "my_name" }
+      include_examples "sets default env fields"
+
+      it "sets the REQUEST_PATH to the name passed in" do
+        expect(subject["REQUEST_PATH"]).to eq("my_name")
+      end
+    end
+
+    # Tests all of the permutations that can come from the regexp parsing to
+    # define name based on the backtrace line of the caller.
+    context "without a name given" do
+      let(:profile_name) { nil }
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:94:in `block (3 levels) in <top (required)>'
+      #
+      context "with a 'block (x levels) in <top (required)>' caller" do
+        subject { lambda { ManageIQPerformance.send :profile_env_for }.call }
+        include_examples "sets default env fields"
+
+        it "generates a name for REQUEST_PATH" do
+          expect(subject["REQUEST_PATH"]).to eq("required")
+        end
+      end
+
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:14:in `test_profiling'
+      #
+      context "with a '`method_name' caller" do
+        subject { ProfilingTestClass.test_profile_env_for }
+        include_examples "sets default env fields"
+
+        it "generates a name for REQUEST_PATH" do
+          expect(subject["REQUEST_PATH"]).to eq("test_profile_env_for")
+        end
+      end
+
+      # Example callstack line:
+      #
+      #   /spec/manageiq_performance/middleware_spec.rb:19:in `block in test_profiling_in_block'
+      #
+      context "with a '`block in method_name' caller" do
+        subject { ProfilingTestClass.test_profile_env_for_in_block }
+        include_examples "sets default env fields"
+
+        it "generates a name for REQUEST_PATH" do
+          expect(subject["REQUEST_PATH"]).to eq("test_profile_env_for_in_block")
+        end
+      end
+
+      # Example callstack line:
+      #
+      #   (eval):64:in `<top (required)>'
+      #
+      context "with an 'eval' and '`<top (required)>' caller" do
+        subject { eval "ManageIQPerformance.send :profile_env_for" }
+        include_examples "sets default env fields"
+
+        it "generates a name for REQUEST_PATH" do
+          expect(subject["REQUEST_PATH"]).to eq("required")
+        end
+      end
+    end
+
   end
 
   after do
