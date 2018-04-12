@@ -2,6 +2,31 @@ require File.expand_path "../support/gem_base64", __FILE__
 
 TMP_C_EXT_GEMS_DIR = Pathname.new "tmp/installer_script_gems"
 
+# For our purposes, this is just getting the currently installed ruby version,
+# and the distro platform from the `rbconfig.rb` path.  Normally this would
+# handled multiple ruby dirs, but since this is a system ruby in this
+# container, that isn't needed.
+RAKE_COMPILER_CONFIG_SETUP_RB_SCRIPT = <<-RC_SETUP_RB.lines.map(&:strip).join(' ')
+  require 'fileutils';
+  require 'pathname';
+  require 'yaml';
+
+  rake_compiler_config = Pathname.new(Dir.home).join '.rake-compiler', 'config.yml';
+  FileUtils.mkdir_p rake_compiler_config.dirname;
+
+  rbs = {};
+  Dir['/usr/local/lib/ruby/**/rbconfig.rb'].each { |rbcf|
+    p = rbcf.match(/\\d\\.\\d\\.\\d\\/([-\\w]+)\\/rbconfig/)[1];
+    rbs['rbconfig-%s-%s' % [p,RUBY_VERSION]] = rbcf;
+  };
+  File.write rake_compiler_config, rbs.to_yaml;
+RC_SETUP_RB
+
+RAKE_COMPILER_DOCK_BASE_SETUP = <<-BASE_SETUP.lines.map(&:strip).join(" && ")
+  gem install rake-compiler --no-ri --no-rdoc
+  ruby -e "#{RAKE_COMPILER_CONFIG_SETUP_RB_SCRIPT}"
+BASE_SETUP
+
 CLEAN.include TMP_C_EXT_GEMS_DIR.to_s
 
 task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
@@ -16,28 +41,12 @@ task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
     rake_compiler_dock_setup
     unpackaged_gem = TMP_C_EXT_GEMS_DIR.join(gem_to_build)
 
-    rake_compiler_config_setup_rb_script = <<-RC_SETUP_RB.lines.map(&:strip).join(' ')
-      require 'fileutils';
-      require 'pathname';
-      require 'yaml';
-
-      rake_compiler_config = Pathname.new(Dir.home).join '.rake-compiler', 'config.yml';
-      FileUtils.mkdir_p rake_compiler_config.dirname;
-
-      rbs = {};
-      Dir['/usr/local/lib/ruby/**/rbconfig.rb'].each { |rbcf|
-        p = rbcf.match(/\\d\\.\\d\\.\\d\\/([-\\w]+)\\/rbconfig/)[1];
-        rbs['rbconfig-%s-%s' % [p,RUBY_VERSION]] = rbcf;
-      };
-      File.write rake_compiler_config, rbs.to_yaml;
-    RC_SETUP_RB
-
     rake_compiler_dock_cmd = <<-CMD.lines.map(&:strip).join(" && ")
-      gem install rake-compiler --no-ri --no-rdoc
-      ruby -e "#{rake_compiler_config_setup_rb_script}"
       cd #{unpackaged_gem}
       rake cross native gem
     CMD
+    rake_compiler_dock_cmd.prepend "; "
+    rake_compiler_dock_cmd.prepend RAKE_COMPILER_DOCK_BASE_SETUP
 
     RakeCompilerDock.sh rake_compiler_dock_cmd, :check_docker => false,
                                                 :runas => false,
