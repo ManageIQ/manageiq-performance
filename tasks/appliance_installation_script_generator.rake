@@ -42,7 +42,9 @@ end
 
 
 desc <<-DESC
-Include a single gem, exclude others (use with generate_install_script task)
+Include a single gem, excluding manageiq-performance
+
+(use with generate_install_script)
 
 Useful when not trying to install `manageiq-performance`, but another gem on an
 existing appliance.
@@ -63,6 +65,27 @@ task :solo_gem, [:gem] do |t, args|
 end
 
 
+desc <<-DESC
+Include a single c gem, excluding manageiq-performance
+
+(use with generate_install_script)
+
+Useful when not trying to install `manageiq-performance`, but another gem on an
+existing appliance.
+
+Example:
+
+$ rake solo_c_gem[stackprof] generate_install_script
+$ rake solo_c_gem[path/to/my_gem/my_gem.gemspec] generate_install_script
+
+DESC
+task :solo_c_gem, [:gem] do |t, args|
+  @solo_gem = true
+
+  new_gem = args[:gem]
+  raise "You must include a gem to add..." unless new_gem
+
+  add_gem_entry new_gem, :c_ext => true
 end
 
 
@@ -93,6 +116,8 @@ end
 
 
 def add_gem_entry(new_gem, opts = {})
+  Rake::Task[:build_c_ext_gem].invoke new_gem if opts[:c_ext]
+
   @other_gems ||= []
   @other_gems << {}.tap {|new_gem_entry|
     path = new_gem if File.exist? new_gem
@@ -104,6 +129,9 @@ def add_gem_entry(new_gem, opts = {})
 
     if path
       new_gem_tar_io = GemBase64.gem_as_tar_io gemspec
+    elsif opts[:c_ext]
+      new_gem_tar_io = File.new ext_build_for(new_gem), "r"
+      new_gem_entry[:platform] = "x86_64-linux"
     else
       new_gem_tar_io = File.new gemspec.cache_file, "r"
     end
