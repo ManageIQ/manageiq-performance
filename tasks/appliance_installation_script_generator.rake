@@ -24,6 +24,7 @@ task :generate_install_script do
 
   b = binding
   File.write @output_filename, ERB.new(@template, nil, "-").result(b)
+  puts "Generated #{@output_filename}"
 end
 
 desc "Add stackprof to install script (use with generate_install_script task)"
