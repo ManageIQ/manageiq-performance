@@ -8,6 +8,7 @@ CLEAN.include SCRIPT_FILENAME
 # clobber any renamed generated scripts that might have been renamed
 CLOBBER.include "tmp/*_script.rb"
 
+
 desc "Generate script for installing gem on an appliance"
 task :generate_install_script do
   require File.expand_path "../support/template_helper", __FILE__
@@ -39,6 +40,7 @@ task :include_stackprof do
   @stackprof_gem_base64_string = GemBase64.gem_as_base64_string stackprof_gem_tar_io
 end
 
+
 desc <<-DESC
 Include a single gem, exclude others (use with generate_install_script task)
 
@@ -57,24 +59,12 @@ task :solo_gem, [:gem] do |t, args|
   new_gem = args[:gem]
   raise "You must include a gem to add..." unless new_gem
 
-  @other_gems ||= []
-  @other_gems << {}.tap {|new_gem_entry|
-    path = new_gem if File.exist? new_gem
-    gemspec = GemBase64.find_gemspec_for new_gem, path
-
-    new_gem_entry[:gemspec]  = gemspec
-    new_gem_entry[:name]     = gemspec.name
-    new_gem_entry[:env_name] = gemspec.name.upcase.gsub "-", "_"
-
-    if path
-      new_gem_tar_io = GemBase64.gem_as_tar_io gemspec
-    else
-      new_gem_tar_io = File.new gemspec.cache_file, "r"
-    end
-    new_gem_base64_string = GemBase64.gem_as_base64_string new_gem_tar_io
-    new_gem_entry[:gem_base64_string] = new_gem_base64_string
-  }
+  add_gem_entry new_gem
 end
+
+
+end
+
 
 desc <<-DESC
 Include a single, extra gem
@@ -98,14 +88,19 @@ task :extra_gem, [:gem] do |t, args|
   new_gem = args[:gem]
   raise "You must include a gem to add..." unless new_gem
 
+  add_gem_entry new_gem
+end
+
+
+def add_gem_entry(new_gem, opts = {})
   @other_gems ||= []
   @other_gems << {}.tap {|new_gem_entry|
     path = new_gem if File.exist? new_gem
     gemspec = GemBase64.find_gemspec_for new_gem, path
 
     new_gem_entry[:gemspec]  = gemspec
-    new_gem_entry[:name]     = gemspec.new_gem
-    new_gem_entry[:env_name] = gemspec.new_gem.upcase.gsub "-", "_"
+    new_gem_entry[:name]     = gemspec.name
+    new_gem_entry[:env_name] = gemspec.name.upcase.gsub "-", "_"
 
     if path
       new_gem_tar_io = GemBase64.gem_as_tar_io gemspec
