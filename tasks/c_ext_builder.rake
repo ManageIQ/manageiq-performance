@@ -13,16 +13,8 @@ task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
   # Make all of the next section a internally created `file` rake rule so that
   # we only generate this if it doesn't already exist.
   file build_file do
-    ENV["RAKE_COMPILER_DOCK_IMAGE"] ||= "manageiq/ruby"
-    machine_name                      = ENV["MACHINE_NAME"] || nil
-
-    require 'rake_compiler_dock'
+    rake_compiler_dock_setup
     unpackaged_gem = TMP_C_EXT_GEMS_DIR.join(gem_to_build)
-
-    # Allows us to customize what the docker-machine name is, incase someone has
-    # it running currently
-    docker = RakeCompilerDock::DockerCheck.new(*[$stderr, Dir.pwd, machine_name].compact)
-    docker.ok?
 
     rake_compiler_config_setup_rb_script = <<-RC_SETUP_RB.lines.map(&:strip).join(' ')
       require 'fileutils';
@@ -159,6 +151,20 @@ task :delete_docker_machine do
 end
 # Add the above task as a prerequisite for `rake clobber`
 Rake::Task[:clobber].enhance [:delete_docker_machine]
+
+# Configures the docker environment consistently prior to debugging or running
+# a build
+def rake_compiler_dock_setup
+  ENV["RAKE_COMPILER_DOCK_IMAGE"] ||= "manageiq/ruby"
+  machine_name                      = ENV["MACHINE_NAME"] || nil
+
+  require 'rake_compiler_dock'
+
+  # Allows us to customize what the docker-machine name is, incase someone has
+  # it running currently
+  docker = RakeCompilerDock::DockerCheck.new(*[$stderr, Dir.pwd, machine_name].compact)
+  docker.ok?
+end
 
 def ext_build_for gem
   gemspec      = GemBase64.find_gemspec_for gem
