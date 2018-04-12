@@ -154,6 +154,28 @@ task :unpack_gem, [:gem] do |t, args|
   Rake::Task[safe_gemspec_file].invoke
 end
 
+namespace :build_c_ext_gem do
+  desc "Debug a build by opening a interactive shell in the docker container"
+  task :debug, [:gem] => [:create_c_ext_rakefile] do |t, args|
+    rake_compiler_dock_setup
+
+    puts
+    puts "-------------------------------"
+    puts
+    puts "Starting debugging container..."
+    puts
+    puts "Since this is a new container, you will have to most likely run the"
+    puts "following before running and debugging `rake cross native gem`."
+    puts
+    puts "$ #{RAKE_COMPILER_DOCK_BASE_SETUP}"
+    puts "$ cd #{TMP_C_EXT_GEMS_DIR.join(args[:gem])}"
+    puts
+
+    # Pulled from the `bin/rake-compiler-dock` executable
+    RakeCompilerDock.exec 'bash', {:sigfw => false, :runas => false}
+  end
+end
+
 desc "Remove the docker-machine instance for rake-compiler-dock"
 task :delete_docker_machine do
   sh "docker-machine rm -y --force #{ENV["MACHINE_NAME"] || 'rake-compiler-dock'}"
