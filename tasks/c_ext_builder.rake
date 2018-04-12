@@ -10,8 +10,8 @@ task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
 
   build_file = ext_build_for gem_to_build
 
-  # Make all of the next section a internally created `file` rule so that we
-  # only generate this if it doesn't alraedy exist.
+  # Make all of the next section a internally created `file` rake rule so that
+  # we only generate this if it doesn't already exist.
   file build_file do
     ENV["RAKE_COMPILER_DOCK_IMAGE"] ||= "manageiq/ruby"
     machine_name                      = ENV["MACHINE_NAME"] || nil
@@ -62,11 +62,11 @@ end
 #
 # FIXME:  I think rubygems will put a gemspec in cache directory or something
 # that properly has the files from the .gem tarball without the `git ls-files`
-# non-sense, but will have to where this is located.  This functions for the
-# time being, but a bit of a hack... removing the gemspec cleaning stuff would
-# be much better.
+# non-sense, but I will have to determine where this is located.  This
+# functions for the time being, but a bit of a hack... removing the gemspec
+# cleaning stuff would be much better.
 #
-# Update: Found it... but it turns out that is only a half the solution
+# FIXME Update: Found it... but it turns out that is only a half the solution
 # wanted...  probably won't get much better then what is here...
 task :create_c_ext_rakefile, [:gem] => :unpack_gem do |t, args|
   gem_name = args[:gem]
