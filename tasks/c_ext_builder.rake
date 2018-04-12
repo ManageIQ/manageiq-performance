@@ -96,10 +96,17 @@ task :create_c_ext_rakefile, [:gem] => :unpack_gem do |t, args|
                          .reject {|f| File.directory?(f) }
       gemspec.files = gemspec.files | extra_files
 
+      # Make sure we have a extension lib properly configured.  Fallback to the
+      # original gemspec if the .safe version didn't include it right...
+      extension_dir   = (gemspec.extensions || []).empty? ? nil : gemspec.extensions
+      extension_dir ||= Dir["ext/**/extconf.rb"]
+      extension_dir   = File.dirname(extension_dir.first)
+
       require 'rake/extensiontask'
 
       Rake::ExtensionTask.new "#{gem_name}", gemspec do |ext|
-        ext.cross_compile = true
+        ext.ext_dir        = extension_dir
+        ext.cross_compile  = true
         ext.cross_platform = %w[x86_64-linux]
         #{ext_opts_string}
       end
