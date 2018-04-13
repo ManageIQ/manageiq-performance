@@ -115,6 +115,33 @@ task :extra_gem, [:gem] do |t, args|
 end
 
 
+desc <<-DESC
+Include a single, extra c-ext gem
+
+(use with generate_install_script task)
+
+Adds another gem to the installtion along side `manageiq-performance`, with a
+pre-compiled c-ext.
+
+Example:
+
+$ rake extra_c_gem[stackprof] generate_install_script
+$ rake extra_c_gem[path/to/my_gem/my_gem.gemspec] generate_install_script
+
+This can also be used along side the `:solo_gem`/`:solo_c_gem` task if you wish
+to install multiple gems without manageiq-performance:
+
+$ rake solo_gem[vcr] extra_c_gem[stackprof] generate_install_script
+
+DESC
+task :extra_c_gem, [:gem] do |t, args|
+  new_gem = args[:gem]
+  raise "You must include a gem to add..." unless new_gem
+
+  add_gem_entry new_gem, :c_ext => true
+end
+
+
 def add_gem_entry(new_gem, opts = {})
   Rake::Task[:build_c_ext_gem].invoke new_gem if opts[:c_ext]
 
