@@ -33,9 +33,9 @@ task :build_c_ext_gem, [:gem] => [:create_c_ext_rakefile] do |t, args|
       FileUtils.mkdir_p rake_compiler_config.dirname;
 
       rbs = {};
-      Dir['/opt/rubies/**/rbconfig.rb'].each { |rbcf|
-        v,p = rbcf.match(/.*-(\\d.\\d.\\d).*\\/([-\\w]+)\\/rbconfig/)[1,2];
-        rbs['rbconfig-%s-%s' % [p,v]] = rbcf;
+      Dir['/usr/local/lib/ruby/**/rbconfig.rb'].each { |rbcf|
+        p = rbcf.match(/\\d\\.\\d\\.\\d\\/([-\\w]+)\\/rbconfig/)[1];
+        rbs['rbconfig-%s-%s' % [p,RUBY_VERSION]] = rbcf;
       };
       File.write rake_compiler_config, rbs.to_yaml;
     RC_SETUP_RB
