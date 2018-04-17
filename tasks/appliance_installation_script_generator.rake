@@ -11,8 +11,12 @@ CLOBBER.include "tmp/*_script.rb"
 
 desc "Generate script for installing gem on an appliance"
 task :generate_install_script do
-  require File.expand_path "../support/template_helper", __FILE__
+  require File.expand_path "../../lib/manageiq_performance/utils/template_helper", __FILE__
   include TemplateHelper
+
+  def template_dir
+    @template_dir ||= File.expand_path "../support/templates", __FILE__
+  end
 
   template_dir       = File.expand_path "../support/templates", __FILE__
   template_filename  = "appliance_installation_script.rb.erb"

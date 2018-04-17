@@ -1,9 +1,14 @@
 require "tasks/support/gem_base64"
-require "tasks/support/template_helper"
+require "manageiq_performance/utils/template_helper"
 require "manageiq_performance/version"
 
 class FakeTemplate
   include TemplateHelper
+
+  def template_dir
+    gem64 = GemBase64.method(:miqperf_gemspec).source_location[0]
+    @template_dir ||= File.expand_path "../templates", gem64
+  end
 end
 
 describe "appliance script templates" do
