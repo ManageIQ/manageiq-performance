@@ -24,6 +24,9 @@ end
 
 desc "Add stackprof to install script (use with generate_install_script task)"
 task :include_stackprof do
+  @c_ext_gem_ext_opts            ||= {}
+  @c_ext_gem_ext_opts['stackprof'] = { :lib_dir => 'lib/stackprof' }
+
   # Build the gem for our target if it doesn't already exist
   Rake::Task[:build_c_ext_gem].invoke "stackprof"
 
