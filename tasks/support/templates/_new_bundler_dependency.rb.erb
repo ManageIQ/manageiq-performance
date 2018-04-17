@@ -1,0 +1,11 @@
+# Build sources, dependencies and spec for <%= name %>
+new_gem_version      = Gem::Version.new(<%= env_name %>_GEM_VERSION)
+new_gem_bundler_src  = Bundler::Source::Path.from_lock "remote" => <%= env_name %>_INSTALL_LOCATION
+new_gem_bundler_dep  = Bundler::Dependency.new <%= env_name %>_GEM_NAME, nil, "source" => new_gem_bundler_src
+new_gem_bundler_spec = Bundler::LazySpecification.new <%= env_name %>_GEM_NAME, new_gem_version, Gem::Platform::RUBY
+new_gem_bundler_spec.source = new_gem_bundler_src
+
+# Add source, spec, and dependency to existing definition
+definition.dependencies << new_gem_bundler_dep
+definition.send(:sources).send :add_path_source, new_gem_bundler_src.options
+definition.send(:resolve)[new_gem_bundler_spec.identifier] = new_gem_bundler_spec

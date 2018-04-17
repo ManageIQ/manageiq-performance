@@ -1,0 +1,7 @@
+##### Install <%= name %> #####
+puts "Installing <%= name %>.gem"
+
+gem_file = "/tmp/#{<%= env_name %>_FULL_GEM_NAME}.gem"
+File.write gem_file, Base64.decode64(<%= env_name %>_GEM_BUNDLE)
+
+Gem::Installer.new(gem_file, :install_dir => GEM_INSTALL_DIR).install
