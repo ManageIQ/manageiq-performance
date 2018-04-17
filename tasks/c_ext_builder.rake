@@ -72,6 +72,15 @@ task :create_c_ext_rakefile, [:gem] => :unpack_gem do |t, args|
   gem_name = args[:gem]
   raise "You must include a c ext gem to build..." unless gem_name
 
+  # additional options for the Rake::ExtensionTask.  Gem specific.
+  if @c_ext_gem_ext_opts and @c_ext_gem_ext_opts[gem_name]
+    justify = [14, @c_ext_gem_ext_opts[gem_name].keys.map(&:length).max].max
+    ext_opts_string = ""
+    @c_ext_gem_ext_opts[gem_name].each do |opt, value|
+      ext_opts_string << "ext.#{opt.to_s.ljust(justify)} = #{value.inspect}\n"
+    end
+  end
+
   gem_rakefile = TMP_C_EXT_GEMS_DIR.join(gem_name, "Rakefile")
 
   File.open gem_rakefile, "w" do |rakefile|
@@ -92,6 +101,7 @@ task :create_c_ext_rakefile, [:gem] => :unpack_gem do |t, args|
       Rake::ExtensionTask.new "#{gem_name}", gemspec do |ext|
         ext.cross_compile = true
         ext.cross_platform = %w[x86_64-linux]
+        #{ext_opts_string}
       end
     RAKEFILE
   end
