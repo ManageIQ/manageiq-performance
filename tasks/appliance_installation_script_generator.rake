@@ -89,6 +89,9 @@ task :solo_c_gem, [:gem] do |t, args|
   add_gem_entry new_gem, :c_ext => true
 end
 
+desc "Alias for :solo_c_gem"
+task :solo_c_ext_gem, [:gem] => :solo_c_gem
+
 
 desc <<-DESC
 Include a single, extra gem
@@ -142,6 +145,8 @@ task :extra_c_gem, [:gem] do |t, args|
   add_gem_entry new_gem, :c_ext => true
 end
 
+desc "Alias for :extra_c_gem"
+task :extra_c_ext_gem, [:gem] => :extra_c_gem
 
 def add_gem_entry(new_gem, opts = {})
   Rake::Task[:build_c_ext_gem].invoke new_gem if opts[:c_ext]
