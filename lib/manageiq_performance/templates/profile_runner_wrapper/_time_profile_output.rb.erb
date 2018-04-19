@@ -1,0 +1,16 @@
+<% if @opts[:time_profile] -%>
+real_seconds = measurements.real % 60
+user_seconds = measurements.utime % 60
+sys_seconds  = measurements.stime % 60
+cu_seconds   = measurements.cutime % 60
+cs_seconds   = measurements.cstime % 60
+
+puts ""
+puts "Timings"
+puts "-------"
+puts "real    %dm%.3fs" % [(measurements.real - real_seconds),  real_seconds]
+puts "user    %dm%.3fs" % [(measurements.utime - user_seconds), user_seconds]
+puts "sys     %dm%.3fs" % [(measurements.stime - sys_seconds),  sys_seconds]
+puts "cuser   %dm%.3fs" % [(measurements.cutime - cu_seconds),  cu_seconds]
+puts "csys    %dm%.3fs" % [(measurements.cstime - cs_seconds),  cs_seconds]
+<% end -%>

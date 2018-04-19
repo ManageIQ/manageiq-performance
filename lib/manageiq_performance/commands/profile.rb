@@ -1,6 +1,10 @@
+require 'manageiq_performance/utils/template_helper'
+
 module ManageIQPerformance
   module Commands
     class Profile
+      include TemplateHelper
+
       attr_reader :output
 
       DEFAULT_OPTS = {
@@ -256,6 +260,9 @@ module ManageIQPerformance
         Proc.new {|val| @opts[:time_profile] = val }
       end
 
+      def partial_folder
+        "profile_runner_wrapper"
+      end
     end
   end
 end

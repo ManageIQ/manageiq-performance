@@ -112,64 +112,12 @@ end # Benchmark.measure
 
 #################### PROFILING ENDS HERE ####################
 
+<%= render_partial "require_tree_output" -%>
 
+<%= render_partial "memory_output" -%>
 
-<% if (using_stackprof? || miqperf_profile?) && @stackprof_output -%>
-stackprof_data = <%= using_stackprof? ? "Marshal.dump(StackProf.results)" : "ManageIQPerformance.last_run[:stackprof]" %>
-File.write("<%= @stackprof_output.expand_path %>", stackprof_data, :mode => "wb")
-<% end -%>
+<%= render_partial "time_profile_output" -%>
 
-<% if @opts[:generate_require_tree] -%>
-TOP_REQUIRE.set_top_require_cost
-<% end -%>
+<%= render_partial "miqperf_profile_output" -%>
 
-<% if @opts[:generate_require_tree] && @opts[:full_require_tree] -%>
-puts ""
-TOP_REQUIRE.print_sorted_children
-<% end -%>
-
-<% if @opts[:generate_require_tree] && @opts[:require_tree_summary] -%>
-puts ""
-TOP_REQUIRE.print_summary
-<% end -%>
-
-<% if @opts[:print_memory] -%>
-puts ""
-puts "TOTAL_MEMORY_USED: #{ManageIQPerformance::Utils::ProcessMemory.get}MiB"
-<% end -%>
-
-<% if @opts[:time_profile] -%>
-real_seconds = measurements.real % 60
-user_seconds = measurements.utime % 60
-sys_seconds  = measurements.stime % 60
-cu_seconds   = measurements.cutime % 60
-cs_seconds   = measurements.cstime % 60
-
-puts ""
-puts "Timings"
-puts "-------"
-puts "real    %dm%.3fs" % [(measurements.real - real_seconds),  real_seconds]
-puts "user    %dm%.3fs" % [(measurements.utime - user_seconds), user_seconds]
-puts "sys     %dm%.3fs" % [(measurements.stime - sys_seconds),  sys_seconds]
-puts "cuser   %dm%.3fs" % [(measurements.cutime - cu_seconds),  cu_seconds]
-puts "csys    %dm%.3fs" % [(measurements.cstime - cs_seconds),  cs_seconds]
-<% end -%>
-
-<% if miqperf_profile? -%>
-puts ""
-puts "Total time in SQL: #{ManageIQPerformance.last_run[:queries][:queries].inject(0){ |s,r| s + r[:elapsed_time] }.round(2)} ms"
-puts "Total count queries #{ManageIQPerformance.last_run[:queries][:total_queries]}"
-slowest_query = ManageIQPerformance.last_run[:queries][:queries].max_by{ |x| x[:elapsed_time] }
-puts "Slowest SQL query took #{slowest_query[:elapsed_time]} ms: \n" + slowest_query[:sql]
-<% end -%>
-
-<% if (using_stackprof? or miqperf_profile?) and @stackprof_output.nil? -%>
-if defined?(StackProf)
-  puts ""
-  <% if using_stackprof? %>
-  StackProf::Report.new(StackProf.results).print_text(false, 20)
-  <% elsif miqperf_profile? %>
-  StackProf::Report.new(Marshal.load(ManageIQPerformance.last_run[:stackprof])).print_text(false, 20) if ManageIQPerformance.last_run[:stackprof]
-  <% end %>
-end
-<% end -%>
+<%= render_partial "stackprof_output" -%>

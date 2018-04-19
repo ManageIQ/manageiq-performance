@@ -1,0 +1,9 @@
+<% if miqperf_profile? -%>
+if ManageIQPerformance.last_run[:queries]
+  puts ""
+  puts "Total time in SQL: #{ManageIQPerformance.last_run[:queries][:queries].inject(0){ |s,r| s + r[:elapsed_time] }.round(2)} ms"
+  puts "Total count queries #{ManageIQPerformance.last_run[:queries][:total_queries]}"
+  slowest_query = ManageIQPerformance.last_run[:queries][:queries].max_by{ |x| x[:elapsed_time] }
+  puts "Slowest SQL query took #{slowest_query[:elapsed_time]} ms: \n" + slowest_query[:sql]
+end
+<% end -%>

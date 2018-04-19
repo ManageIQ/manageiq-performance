@@ -1,0 +1,15 @@
+<% if (using_stackprof? or miqperf_profile?) -%>
+if defined?(StackProf)
+<% if @stackprof_output.nil? -%>
+  puts ""
+<% if using_stackprof? -%>
+  StackProf::Report.new(StackProf.results).print_text(false, 20)
+<% elsif miqperf_profile? -%>
+  StackProf::Report.new(Marshal.load(ManageIQPerformance.last_run[:stackprof])).print_text(false, 20) if ManageIQPerformance.last_run[:stackprof]
+<% end # if using_stackprof? -%>
+<% else -%>
+  stackprof_data = <%= using_stackprof? ? "Marshal.dump(StackProf.results)" : "ManageIQPerformance.last_run[:stackprof]" %>
+  File.write("<%= @stackprof_output.expand_path %>", stackprof_data, :mode => "wb")
+<% end # if @stackprof_output.nil? -%>
+end
+<% end # if (using_stackprof? or miqperf_profile?)-%>

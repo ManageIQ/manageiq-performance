@@ -1,0 +1,13 @@
+<% if @opts[:generate_require_tree] -%>
+TOP_REQUIRE.set_top_require_cost
+<% end -%>
+
+<% if @opts[:generate_require_tree] && @opts[:full_require_tree] -%>
+puts ""
+TOP_REQUIRE.print_sorted_children
+<% end -%>
+
+<% if @opts[:generate_require_tree] && @opts[:require_tree_summary] -%>
+puts ""
+TOP_REQUIRE.print_summary
+<% end -%>
