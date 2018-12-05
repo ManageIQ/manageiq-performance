@@ -9,7 +9,7 @@ module ManageIQPerformance
 
       if ManageIQPerformance.config.browser_mode.enabled?
         require 'manageiq_performance/browser_mode_middleware'
-        app.middleware.insert_before "ManageIQPerformance::Middleware", "ManageIQPerformance::BrowserModeMiddleware"
+        app.middleware.insert_before ManageIQPerformance::Middleware, ManageIQPerformance::BrowserModeMiddleware
       end
     end
 
