@@ -49,7 +49,7 @@ module ManageIQPerformance
     def nethttp_request(method, path, options={})
       payload       = (options[:params] || '') if method == :post
       request_args  = Array(payload)
-      request_args << (options[:headers] || full_request_headers)
+      request_args << build_headers options[:headers]
 
       unless %w[/ /api/auth /dashboard/authenticate].include?(path) # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
@@ -114,6 +114,12 @@ module ManageIQPerformance
         token_hdr            => @session,
         'MIQ_PERF_TIMESTAMP' => timestamp
       })
+    end
+
+    def build_headers custom_headers = nil
+      (custom_headers || full_request_headers).tap do |headers|
+        headers.delete_if { |k,v| v.nil? }
+      end
     end
 
     def credentials
