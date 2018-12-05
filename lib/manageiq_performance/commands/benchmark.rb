@@ -26,7 +26,7 @@ module ManageIQPerformance
           requests = Reporting::RequestfileBuilder.load requestfile
         elsif @path
           request_opts = {}
-          [:data].each do |key|
+          [:data, :inspect_body].each do |key|
             request_opts[key] = @opts[key] if @opts.has_key?(key)
           end
 
@@ -78,6 +78,7 @@ module ManageIQPerformance
           opt.on("-HHOST", "--host=HOST",          "MIQ endpoint to target", define_host)
           opt.on("-mMETH", "--method=METHOD",      "HTTP method (def: GET)", http_method)
           opt.on(          "--data=DATA",          "Request data",           http_data)
+          opt.on(          "--inspect-body",       "Show last request body", inspect_body)
           opt.on("-d",     "--no-ssl",             "Disable SSL verify",     disable_ssl)
           opt.on("-r",     "--requestfile [FILE]", "Requestfile to use",     requestfile)
           opt.on("-cNUM",  "--count=NUM",          "Repeat request N times", set_count)
@@ -100,6 +101,10 @@ module ManageIQPerformance
 
       def http_data
         Proc.new {|data| @opts[:data] = data }
+      end
+
+      def inspect_body
+        Proc.new { @opts[:inspect_body] = true }
       end
 
       def disable_ssl
