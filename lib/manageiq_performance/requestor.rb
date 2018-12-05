@@ -63,6 +63,8 @@ module ManageIQPerformance
 
       unless login_route  # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
+        log "  ==> #{options.inspect}"
+        log "  ==> #{request_args.inspect}"
       end
 
       http.send(method, path, *request_args).tap do |response|
