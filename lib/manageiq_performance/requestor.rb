@@ -59,7 +59,9 @@ module ManageIQPerformance
       request_args  = Array(payload)
       request_args << build_headers options[:headers]
 
-      unless %w[/ /api/auth /dashboard/authenticate].include?(path) # logged already
+      login_route = %w[/ /api/auth /dashboard/authenticate].include?(path)
+
+      unless login_route  # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
       end
 
@@ -70,6 +72,8 @@ module ManageIQPerformance
           set_cookie_field = response.get_fields('set-cookie')
           @session         = set_cookie_field[0] if set_cookie_field
         end
+        log response.body.class if options[:inspect_body] && !login_route
+        log response.body       if options[:inspect_body] && !login_route
       end
     end
 
