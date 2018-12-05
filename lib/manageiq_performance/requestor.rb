@@ -141,7 +141,7 @@ module ManageIQPerformance
     end
 
     def ignore_ssl_cert?
-      using_ssl? && ignore_cert?
+      using_ssl? && @ignore_cert
     end
   end
 end
