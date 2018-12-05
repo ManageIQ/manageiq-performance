@@ -40,8 +40,16 @@ module ManageIQPerformance
       nethttp_request(:get, path, options)
     end
 
+    def patch(path, options={})
+      nethttp_request(:patch, path, options)
+    end
+
     def post(path, options={})
       nethttp_request(:post, path, options)
+    end
+
+    def put(path, options={})
+      nethttp_request(:put, path, options)
     end
 
     private
