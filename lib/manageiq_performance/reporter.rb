@@ -32,7 +32,7 @@ module ManageIQPerformance
     # Collection
 
     def collect_data
-      Dir["#{@run_dir}/*"].each do |request_dir|
+      Dir["#{@run_dir}/*"].sort.each do |request_dir|
         request_id = File.basename request_dir
         @report_data[request_id]         ||= {}
         @report_data[request_id]["avgs"] ||= {}
@@ -43,7 +43,7 @@ module ManageIQPerformance
     end
 
     def gather_request_times request_dir, request_id
-      Dir["#{request_dir}/*.info"].inject(@report_data[request_id]) do |data, info_file|
+      Dir["#{request_dir}/*.info"].sort.inject(@report_data[request_id]) do |data, info_file|
         info = YAML.load_file(info_file) || {}
 
         data["ms"]           ||= []
@@ -58,7 +58,7 @@ module ManageIQPerformance
     end
 
     def gather_db_info request_dir, request_id
-      Dir["#{request_dir}/*.queries"].inject(@report_data[request_id]) do |data, info_file|
+      Dir["#{request_dir}/*.queries"].sort.inject(@report_data[request_id]) do |data, info_file|
         queries = YAML.load_file(info_file)
 
         data["queries"]      ||= []
