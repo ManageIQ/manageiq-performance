@@ -25,7 +25,12 @@ module ManageIQPerformance
           requestfile = @opts.delete(:requestfile)
           requests = Reporting::RequestfileBuilder.load requestfile
         elsif @path
-          requests = [{:method => @opts[:method], :path => @path}]
+          request_opts = {}
+          [:data].each do |key|
+            request_opts[key] = @opts[key] if @opts.has_key?(key)
+          end
+
+          requests = [{:method => @opts[:method], :path => @path, :options => request_opts}]
         else # Invalid:  display help and exit
           puts option_parser.help
           exit
@@ -34,7 +39,8 @@ module ManageIQPerformance
         requestor = Requestor.new @opts
         requests.each do |request|
           @opts[:samples].to_i.times do
-            requestor.public_send request[:method].downcase, request[:path]
+            options = request[:options] || {}
+            requestor.public_send request[:method].downcase, request[:path], options
           end
         end
       end
@@ -71,6 +77,7 @@ module ManageIQPerformance
           opt.on("-a",     "--[no-]api",           "Toggle api requests",    set_api)
           opt.on("-HHOST", "--host=HOST",          "MIQ endpoint to target", define_host)
           opt.on("-mMETH", "--method=METHOD",      "HTTP method (def: GET)", http_method)
+          opt.on(          "--data=DATA",          "Request data",           http_data)
           opt.on("-d",     "--no-ssl",             "Disable SSL verify",     disable_ssl)
           opt.on("-r",     "--requestfile [FILE]", "Requestfile to use",     requestfile)
           opt.on("-cNUM",  "--count=NUM",          "Repeat request N times", set_count)
@@ -89,6 +96,10 @@ module ManageIQPerformance
 
       def http_method
         Proc.new {|meth| @opts[:method] = meth }
+      end
+
+      def http_data
+        Proc.new {|data| @opts[:data] = data }
       end
 
       def disable_ssl
