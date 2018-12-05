@@ -55,7 +55,7 @@ module ManageIQPerformance
     private
 
     def nethttp_request(method, path, options={})
-      payload       = (options[:params] || '') if method == :post
+      payload       = build_request_payload_for method, options
       request_args  = Array(payload)
       request_args << build_headers options[:headers]
 
@@ -90,6 +90,12 @@ module ManageIQPerformance
         nethttp_request :post, "/dashboard/authenticate",
                         :params  => credentials, :headers => hdrs
       end
+    end
+
+    def build_request_payload_for method, request_options
+      return request_options[:params] || '' if method == :post && !request_options[:data]
+      return request_options[:data]         if method != :get && request_options[:data]
+      nil
     end
 
     def csrf_token
