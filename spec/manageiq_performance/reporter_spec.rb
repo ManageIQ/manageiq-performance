@@ -8,7 +8,7 @@ describe ManageIQPerformance::Reporter do
   subject       { described_class.new run_dir }
 
   describe "#collect_data" do
-    let(:spec_dir) { File.expand_path "..", File.dirname(__FILE__) }
+    let(:spec_dir)              { File.expand_path "..", File.dirname(__FILE__) }
     let(:collect_data_base_dir) { "#{spec_dir}/support/spec_data/report_data" }
 
     context "with one request_id" do
