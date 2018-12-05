@@ -1,8 +1,10 @@
 #!/usr/bin/env ruby
 
-sub_cmd = ARGV.shift
-sub_cmd_lib = File.expand_path File.join('..', 'lib', 'manageiq_performance', 'commands'),
-                               File.dirname(__FILE__)
+gem_dir     = File.expand_path File.join('..', 'lib', ), __dir__
+sub_cmd     = ARGV.shift
+sub_cmd_lib = File.join gem_dir, 'manageiq_performance', 'commands'
+
+$LOAD_PATH << gem_dir unless $LOAD_PATH.include?(gem_dir)
 
 case sub_cmd
 when "analyze"
