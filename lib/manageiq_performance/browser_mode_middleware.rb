@@ -31,6 +31,15 @@ module ManageIQPerformance
     def set_performance_middleware_proc
       if ManageIQPerformance.config.browser_mode.always_on?
         @enable_performance_middleware = proc { |env| true }
+      elsif ManageIQPerformance.config.browser_mode.whitelist?
+        regexp_urls   = ManageIQPerformance.config.browser_mode.whitelist
+                                           .map { |v| Regexp.escape(v) }
+                                           .join('|')
+        @whitelist_rx = Regexp.new "(#{regexp_urls})"
+
+        @enable_performance_middleware = proc do |env|
+          !!(@whitelist_rx =~ env.fetch("REQUEST_PATH", ""))
+        end
       else
         @enable_performance_middleware = proc do |env|
           env.fetch("QUERY_STRING", "").include? "miq_performance_profile=true"

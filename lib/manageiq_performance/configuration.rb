@@ -10,7 +10,9 @@ module ManageIQPerformance
                                       :requestfile_dir
 
     BROWSER_MODE_CONFIG  = Struct.new :enabled?,
-                                      :always_on?
+                                      :always_on?,
+                                      :whitelist?,
+                                      :whitelist
 
     DEFAULTS = {
       "default_dir"          => "tmp/manageiq_performance",
@@ -140,7 +142,9 @@ module ManageIQPerformance
       defaults = DEFAULTS["browser_mode"]
       BROWSER_MODE_CONFIG.new(
         (opts["enabled"]   || defaults["enabled"]),
-        (opts["always_on"] || defaults["always_on"])
+        (opts["always_on"] || defaults["always_on"]),
+        !!opts["whitelist"],
+        opts["whitelist"]
       )
     end
   end

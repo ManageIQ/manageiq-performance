@@ -29,6 +29,7 @@ shared_examples "the default config" do |config_options={}|
     ["monitor_queue?"]               => false,
     ["browser_mode", "enabled?"]     => false,
     ["browser_mode", "always_on?"]   => false,
+    ["browser_mode", "whitelist"]    => nil,
   }
 
   # Convert a default value to what is expected from a hash config.  Basically
@@ -190,6 +191,10 @@ describe ManageIQPerformance::Configuration do
         browser_mode:
           enabled: true
           always_on: true
+          whitelist:
+            - /vm_infra/explorer
+            - /vm_infra/x_button
+            - /dashboard/show
       YAML
     }
     before(:each) do
@@ -286,6 +291,20 @@ describe ManageIQPerformance::Configuration do
     it "defines ManageIQPerformance.config.browser_mode.always_on?" do
       expect(ManageIQPerformance.config.browser_mode.always_on?).to eq true
       expect(ManageIQPerformance.config["browser_mode"]["always_on"]).to eq true
+    end
+
+    it "defines ManageIQPerformance.config.browser_mode.whitelist?" do
+      expect(ManageIQPerformance.config.browser_mode.whitelist?).to eq true
+    end
+
+    it "defines ManageIQPerformance.config.browser_mode.whitelist" do
+      expected = %w[
+        /vm_infra/explorer
+        /vm_infra/x_button
+        /dashboard/show
+      ]
+      expect(ManageIQPerformance.config.browser_mode.whitelist).to eq expected
+      expect(ManageIQPerformance.config["browser_mode"]["whitelist"]).to eq expected
     end
   end
 
