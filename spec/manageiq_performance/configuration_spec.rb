@@ -18,6 +18,7 @@ shared_examples "the default config" do |config_options={}|
     ["include_sql_queries?"]         => true,
     ["include_memsize?"]             => false,
     ["stacktrace_cleaner"]           => ManageIQPerformance::StacktraceCleaners::Simple,
+    ["custom_flamegraph_bin"]        => nil,
     ["requestor", "username"]        => "admin",
     ["requestor", "password"]        => "smartvm",
     ["requestor", "host"]            => "http://localhost:3000",
@@ -173,6 +174,7 @@ describe ManageIQPerformance::Configuration do
         include_sql_queries: false
         include_memsize: true
         stacktrace_cleaner: rails
+        custom_flamegraph_bin: /path/to/flamegraph/flamegraph.pl
         requestor:
           username: foobar
           password: p@ssw0rd
@@ -234,6 +236,11 @@ describe ManageIQPerformance::Configuration do
     it "defines ManageIQPerformance.config.stacktrace_cleaner" do
       expect(ManageIQPerformance.config.stacktrace_cleaner).to eq ManageIQPerformance::StacktraceCleaners::Rails
       expect(ManageIQPerformance.config["stacktrace_cleaner"]).to eq "rails"
+    end
+
+    it "defines ManageIQPerformance.config.custom_flamegraph_bin" do
+      expect(ManageIQPerformance.config.custom_flamegraph_bin).to eq "/path/to/flamegraph/flamegraph.pl"
+      expect(ManageIQPerformance.config["custom_flamegraph_bin"]).to eq "/path/to/flamegraph/flamegraph.pl"
     end
 
     it "defines ManageIQPerformance.config.requestor.username" do
