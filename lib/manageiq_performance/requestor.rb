@@ -1,4 +1,5 @@
 require 'net/http'
+require 'openssl'
 require 'logger'
 require 'uri'
 
@@ -48,7 +49,7 @@ module ManageIQPerformance
     def nethttp_request(method, path, options={})
       payload       = (options[:params] || '') if method == :post
       request_args  = Array(payload)
-      request_args << (options[:headers] || full_request_headers)
+      request_args << build_headers options[:headers]
 
       unless %w[/ /api/auth /dashboard/authenticate].include?(path) # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
@@ -115,6 +116,12 @@ module ManageIQPerformance
       })
     end
 
+    def build_headers custom_headers = nil
+      (custom_headers || full_request_headers).tap do |headers|
+        headers.delete_if { |k,v| v.nil? }
+      end
+    end
+
     def credentials
       URI.encode_www_form 'user_name'     => username,
                           'user_password' => password
@@ -141,7 +148,7 @@ module ManageIQPerformance
     end
 
     def ignore_ssl_cert?
-      using_ssl? && ignore_cert?
+      using_ssl? && @ignore_cert
     end
   end
 end

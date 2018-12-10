@@ -14,7 +14,7 @@ module ManageIQPerformance
       end
 
       def initialize(args)
-        @opts     = {:samples => 1, :api => false}
+        @opts     = {:samples => 1, :method => :get, :api => false}
         parse_env_variables
         option_parser.parse!(args)
         @path     = args.first
@@ -25,7 +25,7 @@ module ManageIQPerformance
           requestfile = @opts.delete(:requestfile)
           requests = Reporting::RequestfileBuilder.load requestfile
         elsif @path
-          requests = [{:method => :get, :path => @path}]
+          requests = [{:method => @opts[:method], :path => @path}]
         else # Invalid:  display help and exit
           puts option_parser.help
           exit
@@ -88,7 +88,7 @@ module ManageIQPerformance
       end
 
       def http_method
-        Proc.new { @opts[:ignore_ssl] = true }
+        Proc.new {|meth| @opts[:method] = meth }
       end
 
       def disable_ssl
