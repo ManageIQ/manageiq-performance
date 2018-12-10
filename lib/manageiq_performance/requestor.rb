@@ -40,18 +40,28 @@ module ManageIQPerformance
       nethttp_request(:get, path, options)
     end
 
+    def patch(path, options={})
+      nethttp_request(:patch, path, options)
+    end
+
     def post(path, options={})
       nethttp_request(:post, path, options)
+    end
+
+    def put(path, options={})
+      nethttp_request(:put, path, options)
     end
 
     private
 
     def nethttp_request(method, path, options={})
-      payload       = (options[:params] || '') if method == :post
+      payload       = build_request_payload_for method, options
       request_args  = Array(payload)
       request_args << build_headers options[:headers]
 
-      unless %w[/ /api/auth /dashboard/authenticate].include?(path) # logged already
+      login_route = %w[/ /api/auth /dashboard/authenticate].include?(path)
+
+      unless login_route  # logged already
         log "--> making #{method.to_s.upcase} request: #{path}"
       end
 
@@ -62,6 +72,8 @@ module ManageIQPerformance
           set_cookie_field = response.get_fields('set-cookie')
           @session         = set_cookie_field[0] if set_cookie_field
         end
+        log response.body.class if options[:inspect_body] && !login_route
+        log response.body       if options[:inspect_body] && !login_route
       end
     end
 
@@ -82,6 +94,12 @@ module ManageIQPerformance
         nethttp_request :post, "/dashboard/authenticate",
                         :params  => credentials, :headers => hdrs
       end
+    end
+
+    def build_request_payload_for method, request_options
+      return request_options[:params] || '' if method == :post && !request_options[:data]
+      return request_options[:data]         if method != :get && request_options[:data]
+      nil
     end
 
     def csrf_token
