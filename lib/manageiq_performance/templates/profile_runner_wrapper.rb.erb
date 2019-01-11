@@ -1,0 +1,123 @@
+<% if @opts[:include_bundler] || @opts[:target_type] == :rake -%>
+require "rubygems"
+<% end -%>
+<% if @opts[:include_bundler] -%>
+require "bundler/setup"
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+require "benchmark"
+<% end -%>
+
+<% if using_stackprof? or miqperf_profile? -%>
+<% $LOAD_PATH.grep(/stackprof/).each do |stackprof_path| -%>
+$LOAD_PATH << "<%= stackprof_path %>" unless $LOAD_PATH.include? "<%= stackprof_path %>"
+<% end -%>
+<% end -%>
+
+<% if using_stackprof? -%>
+require "stackprof"
+<% end -%>
+
+<% if @opts[:print_memory] -%>
+<% if use_sysproctable? -%>
+<% $LOAD_PATH.grep(/proctable/).each do |sysproctable_path| -%>
+$LOAD_PATH << "<%= sysproctable_path %>" unless $LOAD_PATH.include? "<%= sysproctable_path %>"
+<% end # $LOAD_PATH.grep(/proctable/).each -%>
+require "sys/proctable"
+<% end # if use_sysproctable -%>
+require "<%= @miqperf_root.join "manageiq_performance", "utils", "process_memory.rb" %>"
+<% end # if @opts[:print_memory] -%>
+
+
+
+#################### PROFILING STARTS HERE ####################
+
+
+
+<% if miqperf_profile? %>
+<% $LOAD_PATH.grep(/manageiq-performance/).each do |miqperf_path| -%>
+$LOAD_PATH << "<%= miqperf_path %>" unless $LOAD_PATH.include? "<%= miqperf_path %>"
+<% end # $LOAD_PATH.grep(/manageiq-performance/).each -%>
+require "manageiq_performance/middleware"
+
+profile_middleware = ManageIQPerformance.config.middleware
+<% end # if miqperf_profile? -%>
+
+<% if @opts[:preload_rails_app] -%>
+require "<%= @cmd_root.join "config", "application.rb" %>"
+Rails.application.class.initialize!
+<% end -%>
+
+<% if @opts[:generate_require_tree] -%>
+require "<%= @miqperf_root.join "manageiq_performance", "core_ext", "kernel_require.rb" %>"
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+measurements = Benchmark.measure do
+<% end -%>
+
+<% if using_stackprof? -%>
+StackProf.start(mode: :<%= @opts[:stackprof_mode] %>, interval: <%= @opts[:stackprof_interval].to_i %>)
+<% end -%>
+
+<% if @opts[:target_type] == :rake && @profile_target -%>
+require "rake"
+<% # If there are no @profile_target present, even though the default -%>
+<% # target is a "file" target, load rails to for a static analisis   -%>
+<% # of the app boot                                                  -%>
+<% elsif !@opts[:preload_rails_app] && (@opts[:target_type] == :rails or @profile_target.nil?) -%>
+require "<%= @cmd_root.join "config", "application.rb" %>"
+Rails.application.class.initialize!
+<% end -%>
+
+<% if miqperf_profile? %>
+<%= "profile_middleware -= ['stackprof']" if using_stackprof? %>
+profile_middleware -= ['active_support_timers'] unless defined? ActiveSupport::Notifications
+profile_middleware -= ['active_record_queries'] unless defined? ::Rails
+<%= "profile_middleware -= #{@opts[:disabled_middleware].inspect}" if @opts[:disabled_middleware] %>
+<%= "profile_middleware |= #{@opts[:enabled_middleware].inspect}" if @opts[:enabled_middleware] %>
+profile_opts = {
+  :in_memory => true,
+  :config_changes => {
+    'middleware' => profile_middleware,
+  }
+}
+ManageIQPerformance.profile('profile_runner', profile_opts) do
+<% end -%>
+
+# Command to run
+<% if @opts[:target_type] == :file && @profile_target -%>
+require "<%= @cmd_root.join @profile_target %>"
+<% elsif @opts[:target_type] == :rake && @profile_target -%>
+Rake.application.run
+<% elsif [:eval, :rails].include? @opts[:target_type] -%>
+<%= ARGV.join(" ") unless ARGV.empty? %>
+<% end -%>
+
+
+<% if miqperf_profile? %>
+end # ManageIQPerformance.profile
+<% end -%>
+
+<% if using_stackprof? -%>
+StackProf.stop
+<% end -%>
+
+<% if @opts[:time_profile] -%>
+end # Benchmark.measure
+<% end -%>
+
+
+
+#################### PROFILING ENDS HERE ####################
+
+<%= render_partial "require_tree_output" -%>
+
+<%= render_partial "memory_output" -%>
+
+<%= render_partial "time_profile_output" -%>
+
+<%= render_partial "miqperf_profile_output" -%>
+
+<%= render_partial "stackprof_output" -%>

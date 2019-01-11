@@ -1,0 +1,4 @@
+<% if @opts[:print_memory] -%>
+puts ""
+puts "TOTAL_MEMORY_USED: #{ManageIQPerformance::Utils::ProcessMemory.get}MiB"
+<% end -%>

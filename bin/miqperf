@@ -19,6 +19,10 @@ when "clean"
   require "#{sub_cmd_lib}/clean"
 
   ManageIQPerformance::Commands::Clean.run ARGV
+when "profile"
+  require "#{sub_cmd_lib}/profile"
+
+  ManageIQPerformance::Commands::Profile.run ARGV
 when "report"
   require "#{sub_cmd_lib}/report"
 
