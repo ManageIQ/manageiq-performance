@@ -8,10 +8,19 @@ class GemBase64
   end
 
   def self.gem_as_tar_io(gemspec = self.miqperf_gemspec)
-    io = StringIO.new
-    Gem::Package.new(io)
-                .tap { |p| p.spec = gemspec }
-                .build
+    Gem.load_yaml
+
+    io      = StringIO.new
+    gem_pkg = Gem::Package.new(io).tap { |p| p.spec = gemspec }
+
+    gem_pkg.setup_signer
+    gem_pkg.instance_variable_get(:@gem).with_write_io do |gem_io|
+      Gem::Package::TarWriter.new gem_io do |gem|
+        gem_pkg.add_metadata  gem
+        gem_pkg.add_contents  gem
+        gem_pkg.add_checksums gem
+      end
+    end
 
     io.tap { |i| i.rewind }
   end
