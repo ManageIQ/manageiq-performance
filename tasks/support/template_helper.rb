@@ -4,8 +4,7 @@ module TemplateHelper
     set_locals locals, partial_binding
 
     template = get_template_for partial
-
-    ERB.new(template, nil, "-").result(partial_binding)
+    process_erb(template, partial_binding)
   end
 
   def set_locals locals, local_binding
@@ -21,5 +20,15 @@ module TemplateHelper
 
   def template_dir
     @template_dir ||= File.expand_path "../templates", __FILE__
+  end
+
+  if RUBY_VERSION >= "2.6"
+    def process_erb template, erb_binding
+      ERB.new(template, trim_mode: "-").result(erb_binding)
+    end
+  else
+    def process_erb template, erb_binding
+      ERB.new(template, nil, "-").result(erb_binding)
+    end
   end
 end
