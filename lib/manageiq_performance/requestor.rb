@@ -57,7 +57,7 @@ module ManageIQPerformance
     def nethttp_request(method, path, options={})
       payload       = build_request_payload_for method, options
       request_args  = Array(payload)
-      request_args << build_headers options[:headers]
+      request_args << build_headers(options[:headers])
 
       login_route = %w[/ /api/auth /dashboard/authenticate].include?(path)
 
