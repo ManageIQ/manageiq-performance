@@ -10,9 +10,17 @@ def build_gem file
   FileUtils.touch file
   file_obj = File.new(file, "w+")
 
-  Gem::Package.new(file_obj)
-              .tap{ |p| p.spec = GemBase64.miqperf_gemspec }
-              .build
+  Gem.load_yaml
+
+  gem_pkg = Gem::Package.new(file_obj).tap { |p| p.spec = GemBase64.miqperf_gemspec }
+  gem_pkg.setup_signer
+  gem_pkg.instance_variable_get(:@gem).with_write_io do |gem_io|
+    Gem::Package::TarWriter.new gem_io do |gem|
+      gem_pkg.add_metadata  gem
+      gem_pkg.add_contents  gem
+      gem_pkg.add_checksums gem
+    end
+  end
 end
 
 def decode_and_untar gem_string, pattern="*"
