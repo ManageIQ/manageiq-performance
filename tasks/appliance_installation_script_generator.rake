@@ -23,7 +23,7 @@ task :generate_install_script do
   @output_filename   = SCRIPT_FILENAME
 
   b = binding
-  File.write @output_filename, ERB.new(@template, nil, "-").result(b)
+  File.write @output_filename, process_erb(@template, b)
   puts "Generated #{@output_filename}"
 end
 
