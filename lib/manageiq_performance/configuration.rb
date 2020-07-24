@@ -112,6 +112,10 @@ module ManageIQPerformance
         end
     end
 
+    def custom_flamegraph_bin
+      self["custom_flamegraph_bin"]
+    end
+
     private
 
     def self.load_config_file

@@ -26,11 +26,7 @@ begin
           puts set_route_dir
           report = build_unified_report
 
-          if @opts[:method]
-            report.__walk_method_stack(@opts[:method])
-          else
-            report.print_text(false, 30)
-          end
+          stackprof_report
         end
 
         private
@@ -46,10 +42,15 @@ begin
             opt.separator ""
             opt.separator "Options"
 
-            opt.on("-f",     "--first",       "Analyze first suite",   first_dir)
-            opt.on("-l",     "--last",        "Analyze on last suite", last_dir)
-            opt.on("-mNAME", "--method=NAME", "Method to analyze",     walk_method)
-            opt.on("-h",     "--help",        "Show this message") { puts opt; exit }
+            opt.on("-f",     "--first",           "Analyze first suite",   first_dir)
+            opt.on("-l",     "--last",            "Analyze on last suite", last_dir)
+            opt.on("-mNAME", "--method=NAME",     "Method to analyze",     walk_method)
+            opt.on(          "--[no-]flamegraph", "Generate flamegraph",   flamegraph)
+            opt.on("-o",     "--open",            "Open generated graph ", open_flamegraph)
+
+            opt.separator ""
+
+            opt.on("-h",     "--help",            "Show this message") { puts opt; exit }
           end
         end
 
@@ -67,6 +68,81 @@ begin
 
         def walk_method
           Proc.new {|name| @opts[:method] = name }
+        end
+
+        def flamegraph
+          Proc.new {|val| @opts[:flamegraph] = val }
+        end
+
+        def open_flamegraph
+          Proc.new {|val| @opts[:open_flamegraph] = val }
+        end
+
+        def stackprof_report
+          if @opts[:flamegraph]
+            flamegraph_for @report_dir
+          elsif report = build_unified_report
+            if @opts[:method]
+              report.__walk_method_stack(@opts[:method])
+            else
+              report.print_text(false, 30)
+            end
+          end
+        end
+
+        def flamegraph_for report
+          require 'tempfile'
+          puts
+
+          stackcollapse_file = Tempfile.new('stackcollapse')
+
+          begin
+            old_stdout, $stdout = $stdout, stackcollapse_file
+            build_unified_report do |report|
+              report.print_stackcollapse
+            end
+          ensure
+            $stdout = old_stdout
+          end
+
+          stackcollapse_file.close
+
+          cmd  = flamegraph_pl
+          cmd += %Q' --title="#{flamegraph_title}"'
+          cmd +=   " #{stackcollapse_file.path}"
+          cmd +=   " > #{flamegraph_svg}"
+          system cmd
+        rescue => e
+          puts "Error Generating Flamegraph!  #{e.message}"
+        ensure
+          stackcollapse_file.unlink
+          if File.exist? flamegraph_svg
+            if @opts[:open_flamegraph]
+              exec "open #{flamegraph_svg}"
+            else
+              puts "Flamegraph generated:  #{flamegraph_svg}"
+            end
+          end
+        end
+
+        def flamegraph_pl
+          ManageIQPerformance.config.custom_flamegraph_bin || begin
+            stackprof_root = StackProf::Report.new({})
+                                              .method(:print_text)
+                                              .source_location
+                                              .first
+            fg_path = File.join(*%w[.. .. .. vendor FlameGraph flamegraph.pl])
+
+            File.expand_path fg_path, stackprof_root
+          end
+        end
+
+        def flamegraph_title
+          "/#{File.basename(@route_dir).tr("%", "/")}"
+        end
+
+        def flamegraph_svg
+          File.join @route_dir, "combined_flamegraph.svg"
         end
 
         def set_route_dir
@@ -103,7 +179,7 @@ begin
               STDERR.puts "** error parsing #{file}: #{e.inspect}"
             end
           end
-          reports.inject(:+)
+          block_given? ? reports.each { |r| yield r } : reports.inject(:+)
         end
       end
     end
