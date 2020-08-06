@@ -35,8 +35,10 @@ module ManageIQPerformance
           opt.separator ""
           opt.separator "Options"
 
-          opt.on("-f", "--first", "Report on first suite", first_dir)
-          opt.on("-l", "--last",  "Report on last suite",  last_dir)
+          opt.on("-f", "--first",   "Report on first suite",          first_dir)
+          opt.on("-l", "--last",    "Report on last suite",           last_dir)
+          opt.on("-n", "--num=NUM", "Report on N suite",     Integer, n_dir)
+
           opt.on("-h", "--help",  "Show this message") { puts opt; exit }
         end
       end
@@ -47,6 +49,17 @@ module ManageIQPerformance
 
       def first_dir
         Proc.new { @opts[:run_dir] = sorted_dirs.first }
+      end
+
+      def n_dir
+        Proc.new do |n|
+          # For the user, don't have this 0 indexed
+          raise "Err: 0 is invalid! -n/--num is 1 indexed." if n == 0
+
+          n = n - 1 if n > 0
+
+          @opts[:run_dir] = sorted_dirs[n.to_i]
+        end
       end
 
       def last_dir
