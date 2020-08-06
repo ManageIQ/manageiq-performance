@@ -13,13 +13,20 @@ module ManageIQPerformance
       end
 
       def initialize(args)
-        @opts = {}
+        @opts = {:action => :report}
         option_parser.parse!(args)
         @opts[:run_dir] ||= args.first
       end
 
       def run
-        ManageIQPerformance::Reporter.build @opts[:run_dir]
+        case @opts[:action]
+        when :info, :memory, :queries
+          open_in_editor @opts[:action]
+        when :report
+          ManageIQPerformance::Reporter.build @opts[:run_dir]
+        else
+          @optparse.help
+        end
       end
 
       private
@@ -39,8 +46,15 @@ module ManageIQPerformance
           opt.on("-l", "--last",    "Report on last suite",           last_dir)
           opt.on("-n", "--num=NUM", "Report on N suite",     Integer, n_dir)
 
-          opt.on("-h", "--help",  "Show this message") { puts opt; exit }
+          opt.on("-i", "--info",    "Open *.info in editor")    { @opts[:action] = :info }
+          opt.on("-m", "--memory",  "Open *.memory in editor")  { @opts[:action] = :memory }
+          opt.on("-q", "--queries", "Open *.queries in editor") { @opts[:action] = :queries }
+          opt.on("-h", "--help",    "Show this message")        { puts opt; exit }
         end
+      end
+
+      def editor
+        ENV["EDITOR"] || "vi"
       end
 
       def sorted_dirs
@@ -64,6 +78,15 @@ module ManageIQPerformance
 
       def last_dir
         Proc.new { @opts[:run_dir] = sorted_dirs.last }
+      end
+
+      def open_in_editor type = :info
+        exec "#{editor} #{dir_files type}"
+      end
+
+      def dir_files type = :info
+        glob_pattern = File.join @opts[:run_dir], "**", "*.#{type}"
+        Dir[glob_pattern].sort.join(" ")
       end
     end
   end
