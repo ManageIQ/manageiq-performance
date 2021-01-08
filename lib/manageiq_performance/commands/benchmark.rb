@@ -100,7 +100,10 @@ module ManageIQPerformance
       end
 
       def http_data
-        Proc.new {|data| @opts[:data] = data }
+        Proc.new do |data|
+          @opts[:data] = data
+          @opts[:data] = File.read(data) if File.exist?(data)
+        end
       end
 
       def inspect_body
