@@ -9,7 +9,7 @@ module ManageIQPerformance
     CSRF_TOKEN_REGEX = /content="([^"]*)".*/
 
     HTML_HEADERS     = {'Accept' => 'text/html'}
-    JSON_HEADERS     = {'Accept' => 'application/json'}
+    JSON_HEADERS     = {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
     PERF_HEADERS     = {
                          'WITH_PERFORMANCE_MONITORING' => 'true',
                          'MIQ_PERF_STACKPROF_RAW'      => 'true'
