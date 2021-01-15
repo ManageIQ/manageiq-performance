@@ -15,6 +15,7 @@ shared_examples "the default config" do |config_options={}|
     ["log_dir"]                      => "log",
     ["skip_schema_queries?"]         => true,
     ["include_stack_traces?"]        => false,
+    ["format_yaml_stack_traces?"]         => false,
     ["include_sql_queries?"]         => true,
     ["include_memsize?"]             => false,
     ["stacktrace_cleaner"]           => ManageIQPerformance::StacktraceCleaners::Simple,
@@ -170,6 +171,7 @@ describe ManageIQPerformance::Configuration do
         log_dir: tmp/my_log_dir
         skip_schema_queries: false
         include_stack_traces: true
+        format_yaml_stack_traces: true
         include_sql_queries: false
         include_memsize: true
         stacktrace_cleaner: rails
@@ -219,6 +221,11 @@ describe ManageIQPerformance::Configuration do
     it "defines ManageIQPerformance.config.include_stack_traces?" do
       expect(ManageIQPerformance.config.include_stack_traces?).to eq true
       expect(ManageIQPerformance.config["include_stack_traces"]).to eq true
+    end
+
+    it "defines ManageIQPerformance.config.format_yaml_stack_traces?" do
+      expect(ManageIQPerformance.config.format_yaml_stack_traces?).to eq true
+      expect(ManageIQPerformance.config["format_yaml_stack_traces"]).to eq true
     end
 
     it "defines ManageIQPerformance.config.include_sql_queries?" do

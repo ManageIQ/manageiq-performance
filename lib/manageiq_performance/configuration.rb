@@ -15,29 +15,30 @@ module ManageIQPerformance
                                       :whitelist
 
     DEFAULTS = {
-      "default_dir"          => "tmp/manageiq_performance",
-      "log_dir"              => "log",
-      "skip_schema_queries"  => true,
-      "include_stack_traces" => false,
-      "include_sql_queries"  => true,
-      "include_memsize"      => false,
-      "stacktrace_cleaner"   => "simple",
-      "requestor"            => {
+      "default_dir"              => "tmp/manageiq_performance",
+      "log_dir"                  => "log",
+      "skip_schema_queries"      => true,
+      "include_stack_traces"     => false,
+      "format_yaml_stack_traces" => false,
+      "include_sql_queries"      => true,
+      "include_memsize"          => false,
+      "stacktrace_cleaner"       => "simple",
+      "requestor"                => {
         "username"     => "admin",
         "password"     => "smartvm",
         "host"         => "http://localhost:3000",
         "read_timeout" => 300,
         "ignore_ssl"   => false
       },
-      "middleware"           => %w[
+      "middleware"               => %w[
         stackprof
         active_support_timers
         active_record_queries
         memory
       ],
-      "middleware_storage"   => %w[file],
-      "monitor_queue"        => false,
-      "browser_mode"         => {
+      "middleware_storage"       => %w[file],
+      "monitor_queue"            => false,
+      "browser_mode"             => {
         "enabled"   => false,
         "always_on" => false
       }
@@ -93,6 +94,10 @@ module ManageIQPerformance
 
     def include_memsize?
       self["include_memsize"]
+    end
+
+    def format_yaml_stack_traces?
+      self["format_yaml_stack_traces"]
     end
 
     def monitor_queue?
