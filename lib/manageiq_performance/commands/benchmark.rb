@@ -48,9 +48,9 @@ module ManageIQPerformance
       private
 
       def parse_env_variables
-        @opts[:host]        = ENV["MIQ_HOST"] || ENV["CFME_HOST"]
-        @opts[:ignore_ssl]  = !!ENV["DISABLE_SSL_VERIFY"] || nil
-        @opts[:requestfile] = ENV["REQUESTFILE"] || ENV["REQUEST_FILE"]
+        @opts[:host]          = ENV["MIQ_HOST"] || ENV["CFME_HOST"]
+        @opts[:ignore_ssl]    = !!ENV["DISABLE_SSL_VERIFY"] || nil
+        @opts[:requestfile]   = ENV["REQUESTFILE"] || ENV["REQUEST_FILE"]
         @opts[:samples]     ||= ENV["COUNT"] || ENV["SAMPLES"]
         @opts.delete_if {|_,val| val.nil? }
       end
@@ -80,6 +80,7 @@ module ManageIQPerformance
           opt.on(          "--data=DATA",          "Request data",           http_data)
           opt.on(          "--inspect-body",       "Show last request body", inspect_body)
           opt.on("-d",     "--no-ssl",             "Disable SSL verify",     disable_ssl)
+          opt.on("-l",     "--[no-]record-login",  "Record login requests",  record_login)
           opt.on("-r",     "--requestfile [FILE]", "Requestfile to use",     requestfile)
           opt.on("-cNUM",  "--count=NUM",          "Repeat request N times", set_count)
           opt.on("-sNUM",  "--samples=NUM",        "Alias for --count",      set_count)
@@ -112,6 +113,10 @@ module ManageIQPerformance
 
       def disable_ssl
         Proc.new { @opts[:ignore_ssl] = true }
+      end
+
+      def record_login
+        Proc.new {|record_login| @opts[:record_login] = record_login }
       end
 
       def set_count
