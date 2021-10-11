@@ -77,7 +77,7 @@ describe GemBase64 do
   end
 
   describe "::gem_as_base64_string" do
-    it "returns a base65 string version of the .gem that recompiles back correctly" do
+    it "returns a base64 string version of the .gem that recompiles back correctly" do
       bin_file         = File.expand_path("../../../../bin/miqperf", __FILE__)
       expected_content = File.read bin_file
       base64_content   = Timecop.freeze(time_lock) { GemBase64.gem_as_base64_string }
