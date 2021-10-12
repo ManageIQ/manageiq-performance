@@ -80,7 +80,13 @@ describe GemBase64 do
 
   describe "::gem_as_tar_io" do
     it "returns an io object of the .gem (tar) contents" do
-      result = Timecop.freeze(time_lock) { GemBase64.gem_as_tar_io }
+      result   = Timecop.freeze(time_lock) { GemBase64.gem_as_tar_io }
+      actual   = untar result
+      expected = untar File.open(gem_file)
+
+      result.rewind
+
+      expect(actual).to eq expected
       expect(result.read).to eq File.read(gem_file)
     end
   end
