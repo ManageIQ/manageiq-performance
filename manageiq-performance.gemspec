@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
     in the field.
   DESC
 
-  spec.files         = Dir["lib/**/*", "bin/*"]
+  spec.files         = Dir["lib/**/*", "bin/*"].sort
   spec.bindir        = "bin"
-  spec.executables   = Dir["bin/*"].map { |f| File.basename(f) }
+  spec.executables   = Dir["bin/*"].sort.map { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", ">= 1.3.0", "< 3.0"
