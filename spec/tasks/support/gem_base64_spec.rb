@@ -23,12 +23,15 @@ def build_gem file
   end
 end
 
-def decode_and_untar gem_string, pattern="*"
+def decode64 string
   # Convert from a base64 string to a tar ball file contents
-  gem_io = StringIO.new Base64.decode64(gem_string)
+  StringIO.new Base64.decode64(string)
+end
+
+def untar io, pattern="*"
   # Un tar the specific file for comparison
   extracted_contents = ""
-  gem_tar = Gem::Package::TarReader.new(gem_io)
+  gem_tar = Gem::Package::TarReader.new(io)
   gem_tar.each do |entry|
     next unless entry.full_name == 'data.tar.gz'
 
@@ -44,6 +47,10 @@ def decode_and_untar gem_string, pattern="*"
   end
 
   extracted_contents
+end
+
+def decode_and_untar gem_string, pattern="*"
+  untar decode64(gem_string), pattern
 end
 
 describe GemBase64 do
