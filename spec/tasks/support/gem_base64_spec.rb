@@ -28,29 +28,31 @@ def decode64 string
   StringIO.new Base64.decode64(string)
 end
 
-def untar io, pattern="*"
+def untar io
   # Un tar the specific file for comparison
-  extracted_contents = ""
+  extracted_contents = {}
   gem_tar = Gem::Package::TarReader.new(io)
   gem_tar.each do |entry|
-    next unless entry.full_name == 'data.tar.gz'
-
-    Zlib::GzipReader.wrap entry do |gzio|
-      Gem::Package::TarReader.new(gzio).each do |dot_gem_file|
-        next unless File.fnmatch pattern, dot_gem_file.full_name, File::FNM_DOTMATCH
-        extracted_contents = dot_gem_file.read
-        # don't break here to avoid zlib warning
+    case entry.full_name
+    when "metadata.gz", "checksums.yml.gz"
+      Zlib::GzipReader.wrap entry do |gzio|
+        extracted_contents[entry.full_name] = gzio.read
+      end
+    when "data.tar.gz"
+      data_contents = extracted_contents["data.tar.gz"] = {}
+      Zlib::GzipReader.wrap entry do |gzio|
+        Gem::Package::TarReader.new(gzio).each do |dot_gem_file|
+          data_contents[dot_gem_file.full_name] = dot_gem_file.read
+        end
       end
     end
-
-    break # ignore further entries (optimization)
   end
 
   extracted_contents
 end
 
-def decode_and_untar gem_string, pattern="*"
-  untar decode64(gem_string), pattern
+def decode_and_untar gem_string
+  untar decode64(gem_string)
 end
 
 describe GemBase64 do
@@ -88,9 +90,9 @@ describe GemBase64 do
       bin_file         = File.expand_path("../../../../bin/miqperf", __FILE__)
       expected_content = File.read bin_file
       base64_content   = Timecop.freeze(time_lock) { GemBase64.gem_as_base64_string }
-      actual_content   = decode_and_untar base64_content, "bin/miqperf"
+      actual_content   = decode_and_untar base64_content
 
-      expect(actual_content).to eq expected_content
+      expect(actual_content["data.tar.gz"]["bin/miqperf"]).to eq expected_content
     end
   end
 
