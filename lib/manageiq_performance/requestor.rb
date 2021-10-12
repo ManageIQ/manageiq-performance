@@ -25,11 +25,12 @@ module ManageIQPerformance
     attr_accessor :uri, :api, :session, :headers
 
     def initialize(options={})
-      @uri         = URI.parse(options[:host] || "http://localhost:3000")
-      @api         = options[:api] || false
-      @headers     = (api ? API_HEADERS : UI_HEADERS).merge(options[:headers] || {})
-      @logger      = options[:logger] || Logger.new(STDOUT)
-      @ignore_cert = options[:ignore_ssl] || false
+      @uri          = URI.parse(options[:host] || "http://localhost:3000")
+      @api          = options[:api] || false
+      @headers      = (api ? API_HEADERS : UI_HEADERS).merge(options[:headers] || {})
+      @logger       = options[:logger] || Logger.new(STDOUT)
+      @record_login = options[:record_login] || false
+      @ignore_cert  = options[:ignore_ssl] || false
 
       require 'json' if api
 
@@ -111,14 +112,14 @@ module ManageIQPerformance
 
     def login_headers
       if api
-        JSON_HEADERS.merge({
+        (@record_login ? API_HEADERS : JSON_HEADERS).merge({
           # Value calculated from the same method found in
           # Net::HTTPHeader#basic_encode, which is what is used in the
           # `#basic_auth` method.
           'authorization' => 'Basic ' + ["#{username}:#{password}"].pack('m0')
         })
       else
-        HTML_HEADERS.merge({
+        (@record_login ? UI_HEADERS : HTML_HEADERS).merge({
           'X-CSRF-Token' => csrf_token.to_s, # first so session is set correctly
           'Cookie'       => @session,
         })
