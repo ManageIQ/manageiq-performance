@@ -33,7 +33,7 @@ module ManageIQPerformance
         FileUtils.mkdir_p(::File.dirname filepath)
         ::File.open(filepath, 'wb') do |file_io|
           data = yield
-          file_io.write data.is_a?(Hash) ? data.to_yaml : data
+          file_io.write(format_data data)
         end
         report_filename
       end
@@ -53,6 +53,34 @@ module ManageIQPerformance
 
       def request_timestamp env
         env['HTTP_MIQ_PERF_TIMESTAMP'] || (Time.now.to_f * 1000000).to_i
+      end
+
+      private
+
+      def format_data data
+        case data
+        when Hash
+          if ManageIQPerformance.config.format_yaml_stack_traces? && data[:queries]
+            ast = Psych::Visitors::YAMLTree.create
+            ast << data
+            ast.tree.grep(Psych::Nodes::Mapping).each do |mapping|
+              mapping.children.each_slice(2).each do |k, seq|
+                if k.value == ":stacktrace"
+                  seq.children.grep(Psych::Nodes::Scalar) do |node|
+                    node.plain  = true
+                    node.quoted = false
+                    node.style  = Psych::Nodes::Scalar::ANY
+                  end
+                end
+              end
+            end
+            ast.tree.yaml(nil, :line_width => -1) # -1 == unlimited
+          else
+            data.to_yaml
+          end
+        else
+          data
+        end
       end
     end
   end

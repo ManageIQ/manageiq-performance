@@ -29,29 +29,84 @@ describe ManageIQPerformance::MiddlewareStorage::File do
   end
 
   describe "#record" do
-    let(:filestore) { described_class.new }
-    let(:env)       { {"REQUEST_PATH" => "/foo/bar"} }
+    let(:filestore)         { described_class.new }
+    let(:env)               { {"REQUEST_PATH" => "/foo/bar"} }
+    let(:data_writer)       { Proc.new { data } }
+    let(:suite_dir)         { "#{proj_dir}/tmp/manageiq_performance/run_1234567" }
+    let(:expected_filename) { "foo%bar/request_1234567000000.info" }
 
     after(:each)    { FileUtils.rm_rf "#{proj_dir}/tmp/manageiq_performance" }
 
-    it "writes a report to the given filename" do
-      data = "my middleware dataz"
-      data_writer = Proc.new { data }
-      suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      expected_filename = "foo%bar/request_1234567000000.info"
+    context "for string data" do
+      let(:data) { "my middleware dataz" }
 
-      filestore.record env, :info, nil, data_writer
-      expect(File.read "#{suite_dir}/#{expected_filename}").to eq data
+      it "writes a basic report to the given filename" do
+        filestore.record env, :info, nil, data_writer
+        expect(File.read "#{suite_dir}/#{expected_filename}").to eq data
+      end
     end
 
-    it "writes a report as yml if given a hash" do
-      data = {"foo" => "my middleware dataz"}
-      data_writer = Proc.new { data }
-      suite_dir = "#{proj_dir}/tmp/manageiq_performance/run_1234567"
-      expected_filename = "foo%bar/request_1234567000000.info"
+    context "for hash data" do
+      let(:data) { {"foo" => "my middleware dataz"} }
 
-      filestore.record env, :info, nil, data_writer
-      expect(File.read "#{suite_dir}/#{expected_filename}").to eq data.to_yaml
+      it "writes a report as yml if given a hash" do
+        filestore.record env, :info, nil, data_writer
+        expect(File.read "#{suite_dir}/#{expected_filename}").to eq data.to_yaml
+      end
+
+      context "with for queries" do
+        let(:expected_filename) { "foo%bar/request_1234567000000.queries" }
+
+        let(:data) do
+          {
+            :queries => [
+              {
+                :sql        => "SELECT * FROM some_really_long_sql_table WHERE line_length_is_vastely_greater_than_the_default_for_yaml_line_length = true",
+                :stacktrace => [
+                  "/foo/bar/baz.rb:5:in `baz'",
+                  "/foo/bar/baz.rb:3:in `bar'",
+                  "/foo/bar/baz.rb:2:in `foo'",
+                  "/foo/bar/baz.rb:1:in `main'"
+                ]
+              }
+            ]
+          }
+        end
+
+        it "doesn't format query data if format_yaml_stack_traces is not set" do
+          expected_to_yaml  = <<-DATA_TO_YAML.gsub(/^ {12}/, '')
+            ---
+            :queries:
+            - :sql: SELECT * FROM some_really_long_sql_table WHERE line_length_is_vastely_greater_than_the_default_for_yaml_line_length
+                = true
+              :stacktrace:
+              - "/foo/bar/baz.rb:5:in `baz'"
+              - "/foo/bar/baz.rb:3:in `bar'"
+              - "/foo/bar/baz.rb:2:in `foo'"
+              - "/foo/bar/baz.rb:1:in `main'"
+          DATA_TO_YAML
+
+          filestore.record env, :queries, nil, data_writer
+          expect(File.read "#{suite_dir}/#{expected_filename}").to eq expected_to_yaml
+        end
+
+        it "formats query data if format_yaml_stack_traces is set" do
+          ManageIQPerformance.config.config_hash["format_yaml_stack_traces"] = true
+          expected_to_yaml  = <<-DATA_TO_YAML.gsub(/^ {12}/, '')
+            ---
+            :queries:
+            - :sql: SELECT * FROM some_really_long_sql_table WHERE line_length_is_vastely_greater_than_the_default_for_yaml_line_length = true
+              :stacktrace:
+              - /foo/bar/baz.rb:5:in `baz'
+              - /foo/bar/baz.rb:3:in `bar'
+              - /foo/bar/baz.rb:2:in `foo'
+              - /foo/bar/baz.rb:1:in `main'
+          DATA_TO_YAML
+
+          filestore.record env, :queries, nil, data_writer
+          expect(File.read "#{suite_dir}/#{expected_filename}").to eq expected_to_yaml
+        end
+      end
     end
   end
 
