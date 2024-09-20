@@ -14,7 +14,7 @@ module ManageIQPerformance
 
       def self.load requestfile_path=nil
         path = requestfile_path || File.join(filepath, filename)
-        new unless File.exists? path
+        new unless File.exist? path
 
         File.readlines(path)
             .reject { |line| line.strip == "" }
