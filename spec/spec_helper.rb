@@ -45,13 +45,15 @@ RSpec.configure do |config|
   end
 end
 
+require "pathname"
+
 # Stub Rails
 module Rails
   Application = Struct.new :config
   Config      = Struct.new :filter_parameters
 
   def self.root
-    File.expand_path File.join(".."), File.dirname(__FILE__)
+    Pathname.new(File.expand_path File.join(".."), File.dirname(__FILE__))
   end
 
   def self.application
