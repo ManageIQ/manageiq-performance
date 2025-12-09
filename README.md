@@ -4,7 +4,6 @@ ManageIQ Performance
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/manageiq/performance?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/ManageIQ/manageiq-performance.svg)](https://travis-ci.org/ManageIQ/manageiq-performance)
-[![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-performance/badges/gpa.svg)](https://codeclimate.com/github/ManageIQ/manageiq-performance)
 [![Codacy](https://api.codacy.com/project/badge/grade/9ffce48ccb924020ae8f9e698048e9a4)](https://www.codacy.com/app/ManageIQ/manageiq-performance)
 
 Libraries and utilities for testing, profiling, benchmarking, and debugging
